@@ -16,8 +16,6 @@
 
 void initMotors();
 void setMotors(int left, int right);
-int getLeftMotor();
-int getRightMotor();
 
 void initCommunication();
 
@@ -38,35 +36,28 @@ int main(void)
 /* initialize the motors pwm system                                     */
 /************************************************************************/
 void initMotors(){
-	TCCR1B = 1 << WGM13 | (1 << WGM12);		// fast pwm w/ OCR1x
-	TCCR1A = 1 << WGM11 | (1 << WGM10);
+	TCCR1A = 1 << WGM11 | (1 << WGM10);		// fast pwm w/ OCR1x
+	TCCR1B = 1 << WGM13 | (1 << WGM12);
 
 	TCCR1A |= 1 << COM1A1 | (1 << COM1B1);	// non inverted mode on both motors
 
 	TCCR1B |= 1 << CS10;					// no prescaler
 
-	DDRD = MOTOR_R | MOTOR_L;				// MOTOR_R & MOTOR_L as output
+	DDRC |= DIR_R | DIR_L;					// set direction pins as output
+	DDRD |= MOTOR_R | MOTOR_L;				// MOTOR_R & MOTOR_L as output
 
-	OCR1A = 0;								// initialize motors with no speed
-	OCR1B = 0;
+	PORTC |= DIR_R | DIR_L;					// set motor direction to ???
+	OCR1A = OCR1B = 0;						// initialize motors with no speed
 }
 
 /************************************************************************/
-/* set the motors, if null as input motor won't be changed              */
+/* set the motors, if -1 as input motor won't be changed              */
 /************************************************************************/
 void setMotors(int left, int right){
-	MOTORSPEED_R = 0xff & right;
-	MOTORSPEED_L = 0xff & left;
-}
-
-/************************************************************************/
-/* returns current speed of the motor                                   */
-/************************************************************************/
-int getLeftMotor(){
-	// TODO
-}
-int getRightMotor(){
-	// TODO
+	if(right >= 0)
+		MOTORSPEED_R = 0xff & right;
+	if(left >= 0)
+		MOTORSPEED_L = 0xff & left;
 }
 
 /************************************************************************/
