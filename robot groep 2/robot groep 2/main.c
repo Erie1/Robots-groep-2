@@ -5,19 +5,26 @@
  * Author : Erik
  */ 
 
-#include <avr/io.h>
+ 
 #include "rp6aansluitingen.h"
+#include <avr/io.h>
+#include <stdint.h>
+#include <util/delay.h>
 
-#define F_CPU			8000000
 
 #define MAXSPEED		0xffff
 #define MOTORSPEED_R	OCR1A
 #define MOTORSPEED_L	OCR1B
 
+
+// movement functions
 void initMotors();
 void setMotors(int left, int right);
+void emergencyBrake();
 
+// communication functions
 void initCommunication();
+
 
 int main(void)
 {
@@ -26,11 +33,16 @@ int main(void)
 	
 	// TEST
 	setMotors(MAXSPEED, MAXSPEED);
-	
+	for(int i = 0; i < 40; i++){
+		_delay_ms(250);
+	}
+	emergencyBrake();
+
     while (1) 
     {
     }
 }
+
 
 /************************************************************************/
 /* initialize the motors pwm system                                     */
@@ -51,17 +63,33 @@ void initMotors(){
 }
 
 /************************************************************************/
-/* set the motors, if -1 as input motor won't be changed              */
+/* set the motors                                                       */
 /************************************************************************/
 void setMotors(int left, int right){
-	if(right >= 0)
-		MOTORSPEED_R = 0xff & right;
-	if(left >= 0)
-		MOTORSPEED_L = 0xff & left;
+	if(right > MAXSPEED) right = MAXSPEED;
+	else if(right < -MAXSPEED) right = -MAXSPEED;
+	MOTORSPEED_R = 0xff & right;
+	if(left > MAXSPEED) right = MAXSPEED;
+	else if(left < -MAXSPEED) right = -MAXSPEED;
+	MOTORSPEED_L = 0xff & left;
+
+	// set direction so ports can be adjusted as necessary
+	int direction = 0;
+	if(right > 0) direction |= DIR_R;
+	if(left > 0) direction |= DIR_L;
+	PORTC = (PORTC & ~(1 << DIR_R | ( 1 << DIR_L))) | direction;
 }
 
 /************************************************************************/
-/* initialises i2c communication with Arduino                           */
+/* lets the robot make an emergency brakeand resets all movement        */
+/************************************************************************/
+void emergencyBrake(){
+	setMotors(0, 0);
+	// TODO reset all tasks
+}
+
+/************************************************************************/
+/* initialises i2c communication to Arduino                             */
 /************************************************************************/
 void initCommunication(){
 	// TODO
