@@ -10,6 +10,8 @@
 
 void initMotors();
 void setMotors(int left, int right);
+void accelerate(int desired);
+void turn(int turnspeed);
 int getLeftMotor();
 int getRightMotor();
 
@@ -18,7 +20,7 @@ void initCommunication();
 int main(void)
 {
 	initMotors();
-	initUsart();
+	initCommunication();
 	
 	
     while (1) 
@@ -41,12 +43,27 @@ void setMotors(int left, int right){
 }
 
 /************************************************************************/
+/* accelarate (or deccelerate) to desired speed                         */
+/************************************************************************/
+void accelerate(int desired){
+	// TODO
+}
+
+/************************************************************************/
+/* lets the robot turn, turnspeed sets turnspeed,                       */
+/* positive means right turn, negative means left                       */
+/************************************************************************/
+void turn(int turnspeed){
+	// TODO
+}
+
+/************************************************************************/
 /* returns current speed of the motor                                   */
 /************************************************************************/
 int getLeftMotor(){
 	// TODO
 }
-int getLeftMotor(){
+int getRightMotor(){
 	// TODO
 }
 
