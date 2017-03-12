@@ -6,16 +6,19 @@
  */ 
  
  #include "rp6aansluitingen.h"
- #include <avr/io.h>
  #include <stdint.h>
  #include <util/delay.h>
+ #include <avr/io.h>
+ #include <avr/interrupt.h>
 
 
  #define MAXSPEED		0xff
  #define MOTORSPEED_R	OCR1A
  #define MOTORSPEED_L	OCR1B
- #define ACCELERATION   10
-
+ 
+ #define ACCELERATION   100
+ #define ACCELTIMER		78
+ 
  // movement functions
  void initMotors();
  void setMotors(int left, int right);
@@ -43,25 +46,17 @@
 	 emergencyBrake();
 
 	 while (1)
-	 {
-			 while(MOTORSPEED_R != rightDSpeed){
-				 rightMotor();
-			 }
-			 
-			 while (MOTORSPEED_L != leftDSpeed){
-				 leftMotor();
-			 }
-		 
+	 {		 
 	 }
  }
 
 
  /************************************************************************/
- /* initialize the motors pwm system                                     */
+ /* initialize the motors                                                */
  /************************************************************************/
  void initMotors(){
-	 // set the timer registers
-	 TCCR1A = 1 << WGM10;					// phase corrected pwm 8 bit w/ OCR1x
+	 // set the PWM timer registers
+	 TCCR1A = 1 << WGM10;					// phase corrected PWM 8 bit w/ OCR1x
 
 	 TCCR1A |= 1 << COM1A1 | (1 << COM1B1);	// non inverted mode on both motors
 
@@ -69,12 +64,23 @@
 
 	 TIMSK = 1 << OCIE1A | (1 << OCIE1B);	// enable the timer interrupt mask bits
 
+
+	 // sets timer0 for acceleration and deceleration
+	 TCCR0 = WGM01;							// CTC mode
+
+	 TCCR0 |= 1 << CS00 | (1 << CS02);		// 1024 prescaler
+
+	 TIMSK |= 1 << OCIE0;					// enable the timers interupt mask bit
+
+	 OCR0 = ACCELTIMER;						// set the compare register for timer0
+
+	 
 	 // set the motor registers
 	 DDRC |= DIR_R | DIR_L;					// set direction pins as output
 	 DDRD |= MOTOR_R | MOTOR_L;				// MOTOR_R & MOTOR_L as output
 
 	 PORTC |= DIR_R | DIR_L;					// set motor direction to ???
-	 OCR1A = OCR1B = 0;						// initialize motor pwm timers with no speed
+	 OCR1A = OCR1B = 0;						// initialize motor PWM timers with no speed
  }
 
  /************************************************************************/
@@ -108,21 +114,14 @@
  }
 
  /************************************************************************/
- /* chances the speed of the right motor                                 */
+ /* chances the speed of the right motor on timer0 COMPA interupt        */
  /************************************************************************/
- void rightMotor(){
-		  int rightAcceleration = (MOTORSPEED_R - rightDSpeed) / ACCELERATION;
-		  rightDSpeed += rightAcceleration;
-		  setMotors(leftDSpeed, rightDSpeed);
-		  _delay_ms(1000/ACCELERATION);
- }
-
- /************************************************************************/
- /* chances the speed of the left motor                                  */
- /************************************************************************/
- void leftMotor()){
-		  int leftAcceleration = (MOTORSPEED_L - leftDSpeed) / ACCELERATION;
-		  rightDSpeed += leftAcceleration;
-		  setMotors(leftDSpeed, rightDSpeed);
-		  _delay_ms(1000/ACCELERATION);
+ ISR(TIMER0_COMP_vect){
+	int rightAcceleration = (MOTORSPEED_R - rightDSpeed) / ACCELERATION;
+	int leftAcceleration = (MOTORSPEED_L - leftDSpeed) / ACCELERATION;
+	
+	rightDSpeed += rightAcceleration;
+	rightDSpeed += leftAcceleration;
+	
+	setMotors(leftDSpeed, rightDSpeed);
  }
