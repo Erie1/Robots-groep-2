@@ -70,6 +70,7 @@ void initMotors(){
 /* set the motors                                                       */
 /************************************************************************/
 void setMotors(int left, int right){
+	// TODO streamline function
 	if(right > MAXSPEED) right = MAXSPEED;
 	else if(right < -MAXSPEED) right = -MAXSPEED;
 	MOTORSPEED_R = 0xff & right;
