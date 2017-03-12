@@ -12,7 +12,7 @@
 #include <util/delay.h>
 
 
-#define MAXSPEED		0xffff
+#define MAXSPEED		0xff
 #define MOTORSPEED_R	OCR1A
 #define MOTORSPEED_L	OCR1B
 
@@ -24,6 +24,9 @@ void emergencyBrake();
 
 // communication functions
 void initCommunication();
+
+int rightDSpeed;		// these variables are used to store the desired speed between -maxspeed and +maxspeed
+int leftDSpeed;			// they are used to adjust motor speed accordingly in the main while loop
 
 
 int main(void)
@@ -48,6 +51,7 @@ int main(void)
 /* initialize the motors pwm system                                     */
 /************************************************************************/
 void initMotors(){
+	// TODO set to 8 bit mode, phase corrected
 	TCCR1A = 1 << WGM11 | (1 << WGM10);		// fast pwm w/ OCR1x
 	TCCR1B = 1 << WGM13 | (1 << WGM12);
 
