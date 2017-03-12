@@ -25,8 +25,11 @@ void emergencyBrake();
 // communication functions
 void initCommunication();
 
-int rightDSpeed;		// these variables are used to store the desired speed between -maxspeed(-255) and +maxspeed(255)
-int leftDSpeed;			// they are used to adjust motor speed accordingly in the main while loop
+
+// these variables are used to store the desired speed between -maxspeed(-255) and +maxspeed(255)
+// they are used to adjust motor speed accordingly in the main while loop
+int rightDSpeed;
+int leftDSpeed;
 
 
 int main(void)
