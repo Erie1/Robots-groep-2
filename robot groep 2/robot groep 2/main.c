@@ -4,99 +4,125 @@
  * Created: 9-3-2017 20:00:45
  * Author : Erik
  */ 
-
  
-#include "rp6aansluitingen.h"
-#include <avr/io.h>
-#include <stdint.h>
-#include <util/delay.h>
+ #include "rp6aansluitingen.h"
+ #include <avr/io.h>
+ #include <stdint.h>
+ #include <util/delay.h>
 
 
-#define MAXSPEED		0xff
-#define MOTORSPEED_R	OCR1A
-#define MOTORSPEED_L	OCR1B
+ #define MAXSPEED		0xff
+ #define MOTORSPEED_R	OCR1A
+ #define MOTORSPEED_L	OCR1B
+ #define ACCELERATION   10
+
+ // movement functions
+ void initMotors();
+ void setMotors(int left, int right);
+ void emergencyBrake();
+ void rightMotor();
+ void leftMotor();
+
+ // communication functions
+ void initCommunication();
+
+ int rightDSpeed;		// these variables are used to store the desired speed between -maxspeed(-255) and +maxspeed(255)
+ int leftDSpeed;			// they are used to adjust motor speed accordingly in the main while loop
 
 
-// movement functions
-void initMotors();
-void setMotors(int left, int right);
-void emergencyBrake();
+ int main(void)
+ {
+	 initMotors();
+	 initCommunication();
+	 
+	 // TEST
+	 setMotors(MAXSPEED, MAXSPEED);
+	 for(int i = 0; i < 40; i++){
+		 _delay_ms(250);
+	 }
+	 emergencyBrake();
 
-// communication functions
-void initCommunication();
-
-
-// these variables are used to store the desired speed between -maxspeed(-255) and +maxspeed(255)
-// they are used to adjust motor speed accordingly in the main while loop
-int rightDSpeed;
-int leftDSpeed;
-
-
-int main(void)
-{
-	initMotors();
-	initCommunication();
-	
-	// TEST
-	setMotors(MAXSPEED, MAXSPEED);
-	for(int i = 0; i < 40; i++){
-		_delay_ms(250);
-	}
-	emergencyBrake();
-
-    while (1) 
-    {
-    }
-}
+	 while (1)
+	 {
+			 while(MOTORSPEED_R != rightDSpeed){
+				 rightMotor();
+			 }
+			 
+			 while (MOTORSPEED_L != leftDSpeed){
+				 leftMotor();
+			 }
+		 
+	 }
+ }
 
 
-/************************************************************************/
-/* initialize the motors pwm system                                     */
-/************************************************************************/
-void initMotors(){
-	// set the timer registers
-	TCCR1A = 1 << WGM10;					// phase corrected pwm 8 bit w/ OCR1x
+ /************************************************************************/
+ /* initialize the motors pwm system                                     */
+ /************************************************************************/
+ void initMotors(){
+	 // set the timer registers
+	 TCCR1A = 1 << WGM10;					// phase corrected pwm 8 bit w/ OCR1x
 
-	TCCR1A |= 1 << COM1A1 | (1 << COM1B1);	// non inverted mode on both motors
+	 TCCR1A |= 1 << COM1A1 | (1 << COM1B1);	// non inverted mode on both motors
 
-	TCCR1B |= 1 << CS10;					// no prescaler
+	 TCCR1B |= 1 << CS10;					// no prescaler
 
-	TIMSK = 1 << OCIE1A | (1 << OCIE1B);	// enable the timer interrupt mask bits
+	 TIMSK = 1 << OCIE1A | (1 << OCIE1B);	// enable the timer interrupt mask bits
 
-	// set the motor registers 
-	DDRC |= DIR_R | DIR_L;					// set direction pins as output
-	DDRD |= MOTOR_R | MOTOR_L;				// MOTOR_R & MOTOR_L as output
+	 // set the motor registers
+	 DDRC |= DIR_R | DIR_L;					// set direction pins as output
+	 DDRD |= MOTOR_R | MOTOR_L;				// MOTOR_R & MOTOR_L as output
 
-	PORTC |= DIR_R | DIR_L;					// set motor direction to ???
-	OCR1A = OCR1B = 0;						// initialize motor pwm timers with no speed
-}
+	 PORTC |= DIR_R | DIR_L;					// set motor direction to ???
+	 OCR1A = OCR1B = 0;						// initialize motor pwm timers with no speed
+ }
 
-/************************************************************************/
-/* set the motors                                                       */
-/************************************************************************/
-void setMotors(int left, int right){
-	// TODO streamline code
-	MOTORSPEED_R = right;
-	MOTORSPEED_L = left;
+ /************************************************************************/
+ /* set the motors                                                       */
+ /************************************************************************/
+ void setMotors(int left, int right){
+	 // TODO streamline code
+	 MOTORSPEED_R = right;
+	 MOTORSPEED_L = left;
 
-	// set direction so ports can be adjusted as necessary
-	int direction = 0;
-	if(right > 0) direction |= DIR_R;
-	if(left > 0) direction |= DIR_L;
-	PORTC = (PORTC & ~(1 << DIR_R | ( 1 << DIR_L))) | direction;
-}
+	 // set direction so ports can be adjusted as necessary
+	 int direction = 0;
+	 if(right > 0) direction |= DIR_R;
+	 if(left > 0) direction |= DIR_L;
+	 PORTC = (PORTC & ~(1 << DIR_R | ( 1 << DIR_L))) | direction;
+ }
 
-/************************************************************************/
-/* lets the robot make an emergency brakeand resets all movement        */
-/************************************************************************/
-void emergencyBrake(){
-	setMotors(0, 0);
-	// TODO reset all tasks
-}
+ /************************************************************************/
+ /* lets the robot make an emergency brakeand resets all movement        */
+ /************************************************************************/
+ void emergencyBrake(){
+	 setMotors(0, 0);
+	 // TODO reset all tasks
+ }
 
-/************************************************************************/
-/* initialises i2c communication to Arduino                             */
-/************************************************************************/
-void initCommunication(){
-	// TODO
-}
+ /************************************************************************/
+ /* initialises i2c communication to Arduino                             */
+ /************************************************************************/
+ void initCommunication(){
+	 // TODO
+ }
+
+ /************************************************************************/
+ /* chances the speed of the right motor                                 */
+ /************************************************************************/
+ void rightMotor(){
+		  int rightAcceleration = (MOTORSPEED_R - rightDSpeed) / ACCELERATION;
+		  rightDSpeed += rightAcceleration;
+		  setMotors(leftDSpeed, rightDSpeed);
+		  _delay_ms(1000/ACCELERATION);
+ }
+
+ /************************************************************************/
+ /* chances the speed of the left motor                                  */
+ /************************************************************************/
+ void leftMotor()){
+		  int leftAcceleration = (MOTORSPEED_L - leftDSpeed) / ACCELERATION;
+		  rightDSpeed += leftAcceleration;
+		  setMotors(leftDSpeed, rightDSpeed);
+		  _delay_ms(1000/ACCELERATION);
+ }
