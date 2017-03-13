@@ -111,7 +111,70 @@
  /************************************************************************/
  void initCommunication(){
 	 // TODO
+	 
+	
+	 
+	 void ontvangData(uint8_t [],uint8_t);
+	 uint8_t verzendByte();
+	 
+	 init_i2c_slave(8);
+	 
+	 /*ontvangData is de functie die uitgevoerd wordt 
+	 wanneer een byte via de i2c bus ontvangen wordt
+	 */
+	 init_i2c_ontvang(ontvangData); 
+	
+	 /*verzendByte is de functie die aangeroepen wordt
+	 wanneer de slave een byte naar de master verzend*/
+	 init_i2c_verzend(verzendByte);
+	
+	 //sei(); //De slave van i2c werkt met interrupt
  }
+ 
+ 
+ 
+ void ontvangData(uint8_t data[], uint8_t tel){
+	 int leftOver;
+	 int wPressed = 0;
+	 int aPressed = 0;
+	 int sPressed = 0;
+	 int dPressed = 0;
+	 
+	 leftOver -= 128;
+	
+	 if(leftOver >= 8){
+		wPressed = 1;
+		leftOver -= 8;
+	 }
+	 if(leftOver >= 4){
+		 aPressed = 1;
+		 leftOver -= 4;
+	 }
+	 if(leftOver >= 2){
+		 sPressed =  1;
+		 leftOver -= 2;
+	 }
+	 if(leftOver >= 1){
+		 dPressed = 1;
+		 
+	 }
+	 
+	 
+	 if(wPressed){
+		 leftDesiredSpeed(255);
+		 rightDesiredSpeed(255);
+	 }else if(sPressed){
+		 leftDesiredSpeed(-255);
+		 rightDesiredSpeed(-255);
+	 }else{
+		 leftDesiredSpeed(0);
+		 rightDesiredSpeed(0);
+	 }
+	 
+	 
+ }
+ 
+ 
 
  /************************************************************************/
  /* chances the speed of the right motor on timer0 COMPA interupt        */
@@ -124,4 +187,8 @@
 	rightDSpeed += leftAcceleration;
 	
 	setMotors(leftDSpeed, rightDSpeed);
+ }
+ 
+ ISR(TWI_vect) {
+	 slaaftwi();
  }
