@@ -28,10 +28,8 @@
  void initCommunication();
   
   // global variables
- static  int rightDesiredSpeed;		// these variables are used to store the desired speed between -maxspeed(-255) and +maxspeed(255)
- static  int leftDesiredSpeed;		// they are used to adjust motor speed accordingly in the main while loop
- static  int rightCurrentSpeed;
- static  int leftCurrentSpeed;
+ int rightDesiredSpeed;		// these variables are used to store the desired speed between -maxspeed(-255) and +maxspeed(255)
+ int leftDesiredSpeed;		// they are used to adjust motor speed accordingly in the main while loop
 
  int main(void)
  {
@@ -84,15 +82,14 @@
 	 DDRD |= MOTOR_R | MOTOR_L;				// MOTOR_R & MOTOR_L as output
 
 	 OCR1A = OCR1B = 0;						// initialize motor PWM timers with no speed
-	 rightCurrentSpeed = leftCurrentSpeed = 0;
  }
 
  /************************************************************************/
  /* set the motors                                                       */
  /************************************************************************/
  void setMotors(int left, int right){
-	 MOTORSPEED_R = rightCurrentSpeed = right;
-	 MOTORSPEED_L = leftCurrentSpeed = left;
+	 if(MOTORSPEED_R != right) MOTORSPEED_R = right;
+	 if(MOTORSPEED_L != left)MOTORSPEED_L = left;
 
 	 // set direction so ports can be adjusted as necessary
 	 int direction = 0;
@@ -120,13 +117,13 @@
  /* chances the speed of the right motor on timer0 COMPA interupt        */
  /************************************************************************/
  ISR(TIMER0_COMP_vect){
-	int rightAcceleration = 0;
-	int leftAcceleration = 0;
+	int rightTarget = MOTORSPEED_R;
+	int leftTarget = MOTORSPEED_L;
 
-	if(rightDesiredSpeed != rightCurrentSpeed)
-		rightAcceleration = (rightDesiredSpeed - rightCurrentSpeed) / MOTOR_ADJUST_FREQUENTIE + rightCurrentSpeed;
-	if(leftDesiredSpeed != leftCurrentSpeed)
-		leftAcceleration = (leftDesiredSpeed - leftCurrentSpeed) / MOTOR_ADJUST_FREQUENTIE + leftCurrentSpeed;
+	if(rightDesiredSpeed != rightTarget)
+		rightTarget += (rightDesiredSpeed - rightTarget) / MOTOR_ADJUST_FREQUENTIE + 1;
+	if(leftDesiredSpeed != leftTarget)
+		leftTarget += (leftDesiredSpeed - leftTarget) / MOTOR_ADJUST_FREQUENTIE + 1;
  
-	 setMotors(rightAcceleration, leftAcceleration);
+	 setMotors(leftTarget, rightTarget);
  }
