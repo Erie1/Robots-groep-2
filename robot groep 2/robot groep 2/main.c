@@ -6,6 +6,7 @@
  */ 
  
  #include "rp6aansluitingen.h"
+ #include "i2c.h"
  #include <stdint.h>
  #include <util/delay.h>
  #include <avr/io.h>
@@ -162,14 +163,14 @@
 	 
 	 
 	 if(wPressed){
-		 leftDesiredSpeed(255);
-		 rightDesiredSpeed(255);
+		 leftDesiredSpeed = 255;
+		 rightDesiredSpeed = 255;
 	 }else if(sPressed){
-		 leftDesiredSpeed(-255);
-		 rightDesiredSpeed(-255);
+		 leftDesiredSpeed = -255;
+		 rightDesiredSpeed = -255;
 	 }else{
-		 leftDesiredSpeed(0);
-		 rightDesiredSpeed(0);
+		 leftDesiredSpeed = 0;
+		 rightDesiredSpeed = 0;
 	 }
 	 
 	 
