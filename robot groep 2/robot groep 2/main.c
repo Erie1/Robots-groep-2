@@ -16,8 +16,8 @@
  #define MOTORSPEED_R	OCR1A
  #define MOTORSPEED_L	OCR1B
  
- #define ACCELERATION   100
- #define ACCELTIMER		78
+ #define MOTOR_ADJUST_FREQUENTIE   100
+ #define MOTOR_ADJUST_DELAY		F_CPU / MOTOR_ADJUST_FREQUENTIE / 1024
  
  // movement functions
  void initMotors();
@@ -72,7 +72,7 @@
 
 	 TIMSK |= 1 << OCIE0;					// enable the timers interupt mask bit
 
-	 OCR0 = ACCELTIMER;						// set the compare register for timer0
+	 OCR0 = MOTOR_ADJUST_DELAY;						// set the compare register for timer0
 
 	 
 	 // set the motor registers
@@ -117,8 +117,8 @@
  /* chances the speed of the right motor on timer0 COMPA interupt        */
  /************************************************************************/
  ISR(TIMER0_COMP_vect){
-	int rightAcceleration = (MOTORSPEED_R - rightDSpeed) / ACCELERATION;
-	int leftAcceleration = (MOTORSPEED_L - leftDSpeed) / ACCELERATION;
+	int rightAcceleration = (MOTORSPEED_R - rightDSpeed) / MOTOR_ADJUST_FREQUENTIE;
+	int leftAcceleration = (MOTORSPEED_L - leftDSpeed) / MOTOR_ADJUST_FREQUENTIE;
 	
 	rightDSpeed += rightAcceleration;
 	rightDSpeed += leftAcceleration;
