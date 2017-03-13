@@ -17,20 +17,21 @@
  #define MOTORSPEED_L	OCR1B
  
  #define MOTOR_ADJUST_FREQUENTIE   100
- #define MOTOR_ADJUST_DELAY		F_CPU / MOTOR_ADJUST_FREQUENTIE / 1024
- 
+ #define MOTOR_ADJUST_DELAY		78//F_CPU / MOTOR_ADJUST_FREQUENTIE / 1024
+
  // movement functions
  void initMotors();
  void setMotors(int left, int right);
  void emergencyBrake();
- void adjustmotors();
 
  // communication functions
  void initCommunication();
-
- int rightDSpeed;		// these variables are used to store the desired speed between -maxspeed(-255) and +maxspeed(255)
- int leftDSpeed;		// they are used to adjust motor speed accordingly in the main while loop
-
+  
+  // global variables
+ static  int rightDesiredSpeed;		// these variables are used to store the desired speed between -maxspeed(-255) and +maxspeed(255)
+ static  int leftDesiredSpeed;		// they are used to adjust motor speed accordingly in the main while loop
+ static  int rightCurrentSpeed;
+ static  int leftCurrentSpeed;
 
  int main(void)
  {
@@ -40,9 +41,9 @@
 	 sei();
 
 	 // TEST
-	 rightDSpeed = 255;
-	 leftDSpeed = 255;
-	 /*for(int i = 0; i < 40; i++){
+	 rightDesiredSpeed = 255;
+	 leftDesiredSpeed = 255;
+	 /*for(int i = 0; i < 10; i++){
 		 _delay_ms(250);
 	 }
 	 emergencyBrake();*/
@@ -83,14 +84,15 @@
 	 DDRD |= MOTOR_R | MOTOR_L;				// MOTOR_R & MOTOR_L as output
 
 	 OCR1A = OCR1B = 0;						// initialize motor PWM timers with no speed
+	 rightCurrentSpeed = leftCurrentSpeed = 0;
  }
 
  /************************************************************************/
  /* set the motors                                                       */
  /************************************************************************/
  void setMotors(int left, int right){
-	 MOTORSPEED_R = right;
-	 MOTORSPEED_L = left;
+	 MOTORSPEED_R = rightCurrentSpeed = right;
+	 MOTORSPEED_L = leftCurrentSpeed = left;
 
 	 // set direction so ports can be adjusted as necessary
 	 int direction = 0;
@@ -104,7 +106,7 @@
  /************************************************************************/
  void emergencyBrake(){
 	 setMotors(0, 0);
-	 rightDSpeed = leftDSpeed = 0;
+	 rightDesiredSpeed = leftDesiredSpeed = 0;
  }
 
  /************************************************************************/
@@ -118,14 +120,13 @@
  /* chances the speed of the right motor on timer0 COMPA interupt        */
  /************************************************************************/
  ISR(TIMER0_COMP_vect){
-	int rightAcceleration = 255;
-	 int leftAcceleration = 255;
-	 
-	/*if(rightDSpeed != MOTORSPEED_R)
-		rightAcceleration = (rightDSpeed - MOTORSPEED_R) / MOTOR_ADJUST_FREQUENTIE + MOTORSPEED_R;
-	if(leftDSpeed != MOTORSPEED_L)
-		leftAcceleration = (leftDSpeed - MOTORSPEED_L) / MOTOR_ADJUST_FREQUENTIE + MOTORSPEED_L;*/
+	int rightAcceleration = 0;
+	int leftAcceleration = 0;
+
+	if(rightDesiredSpeed != rightCurrentSpeed)
+		rightAcceleration = (rightDesiredSpeed - rightCurrentSpeed) / MOTOR_ADJUST_FREQUENTIE + rightCurrentSpeed;
+	if(leftDesiredSpeed != leftCurrentSpeed)
+		leftAcceleration = (leftDesiredSpeed - leftCurrentSpeed) / MOTOR_ADJUST_FREQUENTIE + leftCurrentSpeed;
  
 	 setMotors(rightAcceleration, leftAcceleration);
-	 _delay_ms(MOTOR_ADJUST_DELAY);
  }
