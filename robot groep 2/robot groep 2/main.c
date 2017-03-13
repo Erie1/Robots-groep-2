@@ -12,7 +12,7 @@
  #include <avr/interrupt.h>
 
 
- #define MAXSPEED		0xff
+ #define MAXSPEED		255
  #define MOTORSPEED_R	OCR1A
  #define MOTORSPEED_L	OCR1B
  
@@ -23,14 +23,13 @@
  void initMotors();
  void setMotors(int left, int right);
  void emergencyBrake();
- void rightMotor();
- void leftMotor();
+ void adjustmotors();
 
  // communication functions
  void initCommunication();
 
  int rightDSpeed;		// these variables are used to store the desired speed between -maxspeed(-255) and +maxspeed(255)
- int leftDSpeed;			// they are used to adjust motor speed accordingly in the main while loop
+ int leftDSpeed;		// they are used to adjust motor speed accordingly in the main while loop
 
 
  int main(void)
@@ -38,15 +37,19 @@
 	 initMotors();
 	 initCommunication();
 	 
+	 sei();
+
 	 // TEST
-	 setMotors(MAXSPEED, MAXSPEED);
-	 for(int i = 0; i < 40; i++){
+	 rightDSpeed = 255;
+	 leftDSpeed = 255;
+	 /*for(int i = 0; i < 40; i++){
 		 _delay_ms(250);
 	 }
-	 emergencyBrake();
+	 emergencyBrake();*/
 
 	 while (1)
-	 {		 
+	 {
+
 	 }
  }
 
@@ -70,16 +73,15 @@
 
 	 TCCR0 |= 1 << CS00 | (1 << CS02);		// 1024 prescaler
 
-	 TIMSK |= 1 << OCIE0;					// enable the timers interupt mask bit
+	 TIMSK |= 1 << OCIE0;					// enable the timers interrupt mask bit
 
-	 OCR0 = MOTOR_ADJUST_DELAY;						// set the compare register for timer0
+	 OCR0 = MOTOR_ADJUST_DELAY;				// set the compare register for timer0
 
 	 
 	 // set the motor registers
 	 DDRC |= DIR_R | DIR_L;					// set direction pins as output
 	 DDRD |= MOTOR_R | MOTOR_L;				// MOTOR_R & MOTOR_L as output
 
-	 PORTC |= DIR_R | DIR_L;					// set motor direction to ???
 	 OCR1A = OCR1B = 0;						// initialize motor PWM timers with no speed
  }
 
@@ -87,27 +89,26 @@
  /* set the motors                                                       */
  /************************************************************************/
  void setMotors(int left, int right){
-	 // TODO streamline code
 	 MOTORSPEED_R = right;
 	 MOTORSPEED_L = left;
 
 	 // set direction so ports can be adjusted as necessary
 	 int direction = 0;
-	 if(right > 0) direction |= DIR_R;
-	 if(left > 0) direction |= DIR_L;
+	 if(right < 0) direction |= DIR_R;
+	 if(left < 0) direction |= DIR_L;
 	 PORTC = (PORTC & ~(1 << DIR_R | ( 1 << DIR_L))) | direction;
  }
 
  /************************************************************************/
- /* lets the robot make an emergency brakeand resets all movement        */
+ /* lets the robot make an emergency brake and resets all movement        */
  /************************************************************************/
  void emergencyBrake(){
 	 setMotors(0, 0);
-	 // TODO reset all tasks
+	 rightDSpeed = leftDSpeed = 0;
  }
 
  /************************************************************************/
- /* initialises i2c communication to Arduino                             */
+ /* initializes i2c communication to Arduino                             */
  /************************************************************************/
  void initCommunication(){
 	 // TODO
