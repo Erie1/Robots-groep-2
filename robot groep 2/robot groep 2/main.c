@@ -28,8 +28,8 @@
  void initCommunication();
   
   // global variables
- int rightDesiredSpeed;		// these variables are used to store the desired speed between -maxspeed(-255) and +maxspeed(255)
- int leftDesiredSpeed;		// they are used to adjust motor speed accordingly in the main while loop
+ int rightDesiredSpeed = 0;		// these variables are used to store the desired speed between -maxspeed(-255) and +maxspeed(255)
+ int leftDesiredSpeed = 0;		// they are used to adjust motor speed accordingly in the main while loop
 
  int main(void)
  {
@@ -88,8 +88,9 @@
  /* set the motors                                                       */
  /************************************************************************/
  void setMotors(int left, int right){
+	// adjusts the motors PWM OCR's if necessary
 	 if(MOTORSPEED_R != right) MOTORSPEED_R = right;
-	 if(MOTORSPEED_L != left)MOTORSPEED_L = left;
+	 if(MOTORSPEED_L != left) MOTORSPEED_L = left;
 
 	 // set direction so ports can be adjusted as necessary
 	 int direction = 0;
@@ -114,7 +115,7 @@
  }
 
  /************************************************************************/
- /* chances the speed of the right motor on timer0 COMPA interupt        */
+ /* chances the speed of the motors on timer0 COMP interrupt        */
  /************************************************************************/
  ISR(TIMER0_COMP_vect){
 	int rightTarget = MOTORSPEED_R;
