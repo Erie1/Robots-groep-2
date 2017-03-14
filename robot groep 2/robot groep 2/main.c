@@ -6,19 +6,24 @@
  */ 
  
  #include "rp6aansluitingen.h"
- #include "i2c.h"
+// #include "i2c.h"
  #include <stdint.h>
+ #include <stdlib.h>
  #include <util/delay.h>
  #include <avr/io.h>
  #include <avr/interrupt.h>
 
+ #define F_CPU						8000000
 
- #define MAXSPEED		255
- #define MOTORSPEED_R	OCR1A
- #define MOTORSPEED_L	OCR1B
+ #define USART_BAUDRATE				9600
+ #define BAUD_PRESCALE				(((F_CPU / (USART_BAUDRATE * 16UL))) - 1)
+
+ #define MAXSPEED					255
+ #define MOTORSPEED_R				OCR1A
+ #define MOTORSPEED_L				OCR1B
  
  #define MOTOR_ADJUST_FREQUENTIE   100
- #define MOTOR_ADJUST_DELAY		F_CPU / MOTOR_ADJUST_FREQUENTIE / 1024
+ #define MOTOR_ADJUST_DELAY			F_CPU / MOTOR_ADJUST_FREQUENTIE / 1024
  
  // movement functions
  void initMotors();
@@ -27,7 +32,9 @@
  void adjustmotors();
 
  // communication functions
+ void initUsartPC();
  void initCommunication();
+  void usartToMotors(uint8_t leftOver);
 
  int rightDSpeed;		// these variables are used to store the desired speed between -maxspeed(-255) and +maxspeed(255)
  int leftDSpeed;		// they are used to adjust motor speed accordingly in the main while loop
@@ -97,8 +104,8 @@
  /* set the motors                                                       */
  /************************************************************************/
  void setMotors(int left, int right){
-	 MOTORSPEED_R = right;
-	 MOTORSPEED_L = left;
+	 MOTORSPEED_R = abs(right);
+	 MOTORSPEED_L = abs(left);
 
 	 // set direction so ports can be adjusted as necessary
 	 int direction = 0;
@@ -147,13 +154,11 @@
  //Initialiseren van usart verbinding met pc voor directe besturing
  void initUsartPC(){
 	
-	/* Set baud rate */
-	UBRRH = (unsigned char)(9600>>8);
-	UBRRL = (unsigned char)9600;
-	/* Enable receiver and transmitter */
-	UCSRB = (1<<RXEN)|(1<<TXEN);
-	/* Set frame format: 8data, 2stop bit */
-	UCSRC = (1<<URSEL)|(3<<UCSZ0);
+	UCSRB = 1 << RXEN | (1 << TXEN);
+	UCSRC = (1 << UCSZ0) | (1 << UCSZ1);
+	UBRRH = (BAUD_PRESCALE >> 8);
+	UBRRL = BAUD_PRESCALE;
+	
  }
  
  
@@ -187,17 +192,12 @@
 	 
 	 
 	 if(wPressed){
-		 leftDSpeed = 255;
-		 rightDSpeed = 255;
+		setMotors(255, 255);
 	 }else if(sPressed){
-		 leftDSpeed = -255;
-		 rightDSpeed = -255;
+		setMotors(-255, -255);
 	 }else{
-		 leftDSpeed = 0;
-		 rightDSpeed = 0;
-	 }
-	 
-	 setMotors(leftDSpeed, rightDSpeed);
+		setMotors(0, 0);
+	}
  }
  
  
