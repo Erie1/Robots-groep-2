@@ -36,7 +36,10 @@
  int main(void)
  {
 	 initMotors();
-	 initCommunication();
+	 //initCommunication();
+	 initUsartPC();
+	 
+	 uint8_t  recievedData;
 	 
 	 sei();
 
@@ -50,7 +53,11 @@
 
 	 while (1)
 	 {
-
+		while ( !(UCSRA & (1<<RXC)) )
+		recievedData = UDR;
+		
+		usartToMotors(recievedData);
+		
 	 }
  }
 
@@ -111,6 +118,8 @@
  /************************************************************************/
  /* initializes i2c communication to Arduino                             */
  /************************************************************************/
+ 
+ /*
  void initCommunication(){
 	 // TODO
 	 
@@ -124,19 +133,34 @@
 	 /*ontvangData is de functie die uitgevoerd wordt 
 	 wanneer een byte via de i2c bus ontvangen wordt
 	 */
-	 init_i2c_ontvang(ontvangData); 
+	 //init_i2c_ontvang(ontvangData); 
 	
 	 /*verzendByte is de functie die aangeroepen wordt
 	 wanneer de slave een byte naar de master verzend*/
-	 init_i2c_verzend(verzendByte);
+	 //init_i2c_verzend(verzendByte);
 	
 	 //sei(); //De slave van i2c werkt met interrupt
+ //}
+ 
+ 
+ 
+ //Initialiseren van usart verbinding met pc voor directe besturing
+ void initUsartPC(){
+	
+	/* Set baud rate */
+	UBRRH = (unsigned char)(9600>>8);
+	UBRRL = (unsigned char)9600;
+	/* Enable receiver and transmitter */
+	UCSRB = (1<<RXEN)|(1<<TXEN);
+	/* Set frame format: 8data, 2stop bit */
+	UCSRC = (1<<URSEL)|(3<<UCSZ0);
  }
  
  
  
- void ontvangData(uint8_t data[], uint8_t tel){
-	 int leftOver;
+ 
+ void usartToMotors(uint8_t leftOver){
+	 //int leftOver;
 	 int wPressed = 0;
 	 int aPressed = 0;
 	 int sPressed = 0;
@@ -163,18 +187,19 @@
 	 
 	 
 	 if(wPressed){
-		 leftDesiredSpeed = 255;
-		 rightDesiredSpeed = 255;
+		 leftDSpeed = 255;
+		 rightDSpeed = 255;
 	 }else if(sPressed){
-		 leftDesiredSpeed = -255;
-		 rightDesiredSpeed = -255;
+		 leftDSpeed = -255;
+		 rightDSpeed = -255;
 	 }else{
-		 leftDesiredSpeed = 0;
-		 rightDesiredSpeed = 0;
+		 leftDSpeed = 0;
+		 rightDSpeed = 0;
 	 }
 	 
-	 
+	 setMotors(leftDSpeed, rightDSpeed);
  }
+ 
  
  
 
@@ -191,6 +216,10 @@
 	setMotors(leftDSpeed, rightDSpeed);
  }
  
- ISR(TWI_vect) {
-	 slaaftwi();
- }
+ //ISR(TWI_vect) {
+//	 slaaftwi();
+// }
+ 
+ //ISR(USART_RXC_vect){
+//	  
+//}
