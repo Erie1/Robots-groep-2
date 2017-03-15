@@ -12,13 +12,12 @@
  #include <avr/io.h>
  #include <avr/interrupt.h>
 
-
  #define MAXSPEED					255
  #define MOTORSPEED_R				OCR1A
  #define MOTORSPEED_L				OCR1B
  
  #define MOTOR_ADJUST_FREQUENTIE	100
- #define MOTOR_ADJUST_DELAY			78//F_CPU / MOTOR_ADJUST_FREQUENTIE / 1024
+ #define MOTOR_ADJUST_DELAY			F_CPU / MOTOR_ADJUST_FREQUENTIE / 1024
 
  // movement functions
  void initMotors();
@@ -38,18 +37,13 @@
 	 initCommunication();
 	 
 	 sei();
+	 
+	 setMotors(255, -255);
 
-	 // TEST
-	 /*rightDesiredSpeed = 255;
-	 leftDesiredSpeed = 255;
-	 for(int i = 0; i < 10; i++){
-		 _delay_ms(250);
-	 }
-	 emergencyBrake();*/
+	 emergencyBrake();
 
 	 while (1)
 	 {
-		nop;
 	 }
  }
 
@@ -90,8 +84,8 @@
  /************************************************************************/
  void setMotors(int left, int right){
 	// adjusts the motors PWM OCR's if necessary
-	 if(MOTORSPEED_R != right) OCR1A = abs(right);
-	 if(MOTORSPEED_L != left) OCR1B = abs(left);
+	 if(MOTORSPEED_R != right) MOTORSPEED_R = abs(right);
+	 if(MOTORSPEED_L != left) MOTORSPEED_L = abs(left);
 
 	 // set direction so ports can be adjusted as necessary
 	 int direction = 0;
@@ -101,7 +95,7 @@
  }
 
  /************************************************************************/
- /* lets the robot make an emergency brake and resets all movement        */
+ /* lets the robot make an emergency brake and resets all movement       */
  /************************************************************************/
  void emergencyBrake(){
 	 setMotors(0, 0);
@@ -116,9 +110,10 @@
  }
 
  /************************************************************************/
- /* chances the speed of the motors on timer0 COMP interrupt        */
+ /* chances the speed of the motors on timer0 COMP interrupt             */
  /************************************************************************/
- /*ISR(TIMER0_COMP_vect){
+ ISR(TIMER0_COMP_vect){
+ /*
 	int rightTarget = MOTORSPEED_R;
 	int leftTarget = MOTORSPEED_L;
 
@@ -127,5 +122,5 @@
 	if(leftDesiredSpeed != leftTarget)
 		leftTarget += (leftDesiredSpeed - leftTarget) / MOTOR_ADJUST_FREQUENTIE + 1;
  
-	 setMotors(leftTarget, rightTarget);
- }*/
+	 setMotors(leftTarget, rightTarget);*/
+ }
