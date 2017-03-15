@@ -13,7 +13,7 @@
  #include <avr/interrupt.h>
 
 
- #define MAXSPEED		255
+ #defiAne MAXSPEED		255
  #define MOTORSPEED_R	OCR1A
  #define MOTORSPEED_L	OCR1B
  
@@ -28,6 +28,8 @@
 
  // communication functions
  void initCommunication();
+ void initUsartPC();
+ void usartToMotors();
 
  int rightDSpeed;		// these variables are used to store the desired speed between -maxspeed(-255) and +maxspeed(255)
  int leftDSpeed;		// they are used to adjust motor speed accordingly in the main while loop
@@ -53,7 +55,7 @@
 
 	 while (1)
 	 {
-		while ( !(UCSRA & (1<<RXC)) )
+		while ( !(UCSRA & (1<<RXC)) );
 		recievedData = UDR;
 		
 		usartToMotors(recievedData);
@@ -148,12 +150,14 @@
  void initUsartPC(){
 	
 	/* Set baud rate */
-	UBRRH = (unsigned char)(9600>>8);
-	UBRRL = (unsigned char)9600;
+	UCSRC = 0;
+	UBRRH = 0;
+	UBRRL = 103;
 	/* Enable receiver and transmitter */
 	UCSRB = (1<<RXEN)|(1<<TXEN);
 	/* Set frame format: 8data, 2stop bit */
-	UCSRC = (1<<URSEL)|(3<<UCSZ0);
+	UCSRC =
+	 (0<<URSEL)|(3<<UCSZ0);
  }
  
  
