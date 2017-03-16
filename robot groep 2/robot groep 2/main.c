@@ -50,7 +50,7 @@
 
  int main(void)
  {
-	 //initCommunication();
+	 initCommunication();
 	 initMotors();
 
 	 sei();
@@ -70,7 +70,6 @@
 	 ICR1 = 210;							// max safe power
 	 TCCR1A |= 1 << COM1A1 | (1 << COM1B1);	// non inverted mode on both motors
 	 TCCR1B |= 1 << CS10;					// no prescaler
-	 TIMSK = 1 << OCIE1A | (1 << OCIE1B);	// enable the timer interrupt mask bits
 
 
 	 // sets timer0 for acceleration and deceleration
