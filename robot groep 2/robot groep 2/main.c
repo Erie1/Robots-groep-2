@@ -6,7 +6,8 @@
  */ 
  
  #include "rp6aansluitingen.h"
- #include "i2c.h"
+// #include "i2c.h"
+
  #include <stdint.h>
  #include <util/delay.h>
  #include <avr/io.h>
@@ -19,6 +20,28 @@
  
  #define MOTOR_ADJUST_FREQUENTIE   100
  #define MOTOR_ADJUST_DELAY		F_CPU / MOTOR_ADJUST_FREQUENTIE / 1024
+ 
+ #define SCL_frequentie 100000
+
+ #define BAUDRATE		38400
+ #define UBRR_BAUD	(((long)F_CPU/((long)16 * BAUDRATE))-1)
+ #define resetData()  for(uint8_t i=0;i<20;++i) data[i]=0
+ 
+ void (*ontfunc) (uint8_t[],uint8_t);
+ uint8_t (*verfunc) ();
+ //i2c prototypes
+ 
+ void init_i2c_slave(uint8_t ad);
+ void init_i2c_ontvang( void (*ontvanger) (uint8_t [],uint8_t));
+ void init_i2c_verzend( uint8_t (*verzender) ());
+ void slaaftwi();
+
+void ontvangData(uint8_t data[],uint8_t tel);
+uint8_t verzendByte();
+
+ void initUSART();
+ void writeInteger(int16_t number, uint8_t base);
+ void writeString(char *string);
  
  // movement functions
  void initMotors();
@@ -34,6 +57,8 @@
  int rightDSpeed;		// these variables are used to store the desired speed between -maxspeed(-255) and +maxspeed(255)
  int leftDSpeed;		// they are used to adjust motor speed accordingly in the main while loop
 
+uint8_t data_ont[20]; //max 20
+
 
  int main(void)
  {
@@ -41,9 +66,19 @@
 	 //initCommunication();
 	 initUsartPC();
 	 
-	 uint8_t  recievedData;
-	 
-	 sei();
+	init_i2c_slave(8);
+	
+	/*ontvangData is de functie die uitgevoerd wordt 
+	wanneer een byte via de i2c bus ontvangen wordt
+	*/
+	init_i2c_ontvang(ontvangData); 
+	
+	/*verzendByte is de functie die aangeroepen wordt
+	wanneer de slave een byte naar de master verzend*/
+	init_i2c_verzend(verzendByte);
+	
+	sei(); //De slave van i2c werkt met interrupt
+	
 
 	 // TEST
 	 rightDSpeed = 255;
@@ -52,17 +87,15 @@
 		 _delay_ms(250);
 	 }
 	 emergencyBrake();*/
-
+	 int i = 0;
 	 while (1)
 	 {
-		while ( !(UCSRA & (1<<RXC)) );
-		recievedData = UDR;
 		
-		usartToMotors(recievedData);
 		
+		writeInteger(i, 10);
+		i++;
 	 }
  }
-
 
  /************************************************************************/
  /* initialize the motors                                                */
@@ -262,3 +295,109 @@
  //ISR(USART_RXC_vect){
 //	  
 //}
+
+
+
+void init_i2c_slave(uint8_t ad) {
+	
+	TWSR = 0;
+	TWBR = ((F_CPU / SCL_frequentie) - 16) / 2;
+	TWCR = (1 << TWIE) | (1 << TWEN) | (1 << TWEA);
+	TWAR = ad<<1;
+}
+
+void slaaftwi() {
+	static uint8_t data[40];
+	static uint8_t teller=0;
+	switch(TWSR) {
+		case 0x10:
+		case 0x08:
+		break;
+		
+		case 0x60:
+
+		teller=0;
+
+		break;
+		case 0x68:
+
+		break;
+		case 0x80:
+		data[teller++] = TWDR;
+
+		break;
+		case 0xA0:
+		ontfunc(data,teller);
+		resetData();
+		break;
+		case 0xA8:
+		teller=0;
+		TWDR=verfunc();
+		break;
+		case 0xB8:
+		TWDR=verfunc();
+		break;
+		case 0xC0:   //NACK
+		break;
+		case 0xC8:
+		break;
+	}
+	TWCR |= (1<<TWINT);    // Clear TWINT Flag
+}
+
+void initUSART() {
+
+	UBRRH = UBRR_BAUD >> 8;
+	UBRRL = (uint8_t) UBRR_BAUD;
+	UCSRA = 0x00;
+	UCSRC = (1<<URSEL)|(1<<UCSZ1)|(1<<UCSZ0);
+	UCSRB = (1 << TXEN) | (1 << RXEN);
+	writeString("usart werkt nog\n\r");
+}
+
+
+void init_i2c_ontvang( void (*ontvanger) (uint8_t [],uint8_t)) {
+	ontfunc=ontvanger;
+}
+
+void init_i2c_verzend( uint8_t (*verzender) ()) {
+	verfunc=verzender;
+}
+
+void writeChar(char ch)
+{
+	while (!(UCSRA & (1<<UDRE)));
+	UDR = (uint8_t)ch;
+}
+
+void writeString(char *string)
+{
+	while(*string)
+	writeChar(*string++);
+}
+
+void writeInteger(int16_t number, uint8_t base)
+{
+	char buffer[17];
+	itoa(number, &buffer[0], base);
+	writeString(&buffer[0]);
+}
+
+ 
+ void ontvangData(uint8_t data[],uint8_t tel){
+	
+ }
+
+ /* het byte dat de slave verzend naar de master
+ in dit voorbeeld een eenvoudige teller
+ */
+
+
+ uint8_t verzendByte() {
+	 return 0;
+ }
+ 
+
+
+
+
