@@ -13,7 +13,7 @@
  #include <avr/interrupt.h>
 
 
- #defiAne MAXSPEED		255
+ #define MAXSPEED		255
  #define MOTORSPEED_R	OCR1A
  #define MOTORSPEED_L	OCR1B
  
@@ -29,7 +29,7 @@
  // communication functions
  void initCommunication();
  void initUsartPC();
- void usartToMotors();
+ void usartToMotors(uint8_t leftOver);
 
  int rightDSpeed;		// these variables are used to store the desired speed between -maxspeed(-255) and +maxspeed(255)
  int leftDSpeed;		// they are used to adjust motor speed accordingly in the main while loop
@@ -169,6 +169,8 @@
 	 int aPressed = 0;
 	 int sPressed = 0;
 	 int dPressed = 0;
+	 int voorAchterRichting;
+	 int stuurRichting;
 	 
 	 leftOver -= 128;
 	
@@ -188,18 +190,51 @@
 		 dPressed = 1;
 		 
 	 }
+	if(wPressed & sPressed){
+		voorAchterRichting = 0;
+	}else if(wPressed){
+		voorAchterRichting = 1;
+	}else if(sPressed){
+		voorAchterRichting = -1;
+	}else{
+		voorAchterRichting = 0;
+	}
+
+	if(aPressed & dPressed){
+		stuurRichting = 0;
+	}else if(aPressed){
+		stuurRichting = -1;
+	}else if(dPressed){
+		stuurRichting = 1;
+	}else{
+		stuurRichting = 0;
+	}
+	
+	
+	if((voorAchterRichting == 1) & (stuurRichting == 0)) {
+		setMotors(200, 200);
+	}else if((voorAchterRichting == 0) & (stuurRichting == 1)){
+		setMotors(200, -200);
+	}else if((voorAchterRichting == 0) & (stuurRichting == -1)){
+		setMotors(-200, 200);
+	}else if((voorAchterRichting == -1) & (stuurRichting == 0)){
+		setMotors(-200, -200);
+	}else if((voorAchterRichting == 1) & (stuurRichting == 1)){
+		setMotors(200, 100);
+	}else if((voorAchterRichting == 1) & (stuurRichting == -1)){
+		setMotors(100, 200);
+	}else if((voorAchterRichting == -1) & (stuurRichting == 1)){
+		setMotors(-200, -100);
+	}else if((voorAchterRichting == -1) & (stuurRichting == -1)){
+		setMotors(-100, 200);
+	}else{
+		setMotors(0,0);
+	}
+	
+		
+	
 	 
-	 
-	 if(wPressed){
-		 leftDSpeed = 255;
-		 rightDSpeed = 255;
-	 }else if(sPressed){
-		 leftDSpeed = -255;
-		 rightDSpeed = -255;
-	 }else{
-		 leftDSpeed = 0;
-		 rightDSpeed = 0;
-	 }
+	
 	 
 	 setMotors(leftDSpeed, rightDSpeed);
  }
