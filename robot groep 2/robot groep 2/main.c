@@ -82,7 +82,7 @@ volatile uint8_t databyte=0x33;
 		
 		if(data_flag){
 			//writeInteger(data_ont[0], 10);
-			writeString("\n\r");
+			usartToMotors([0]);
 			
 			
 			data_flag = FALSE;
@@ -302,7 +302,7 @@ void ontvangData(uint8_t data[],uint8_t tel){
 	for(int i=0;i<tel;++i)
 	    data_ont[i]=data[i];
 	data_flag = TRUE;
-	usartToMotors(data[0]);
+	//usartToMotors(data[0]);
 	//writeInteger(10, 10);
 }
 
