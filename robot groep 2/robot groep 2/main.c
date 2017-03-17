@@ -17,6 +17,11 @@
  #define TRUE 0xFF;
  #define FALSE 0;
 
+ #define D_KEY				1
+ #define S_KEY				2
+ #define A_KEY				4
+ #define W_KEY				8
+
  void usartToMotors(uint8_t leftOver);
  
  // communication functions
@@ -100,81 +105,13 @@
  
  void usartToMotors(uint8_t leftOver){
 	int leftTarget = 0, rightTarget = 0;
-	int speed = 100;
-	if(leftOver & 1) { leftTarget += speed; rightTarget -= speed; }
-	if(leftOver & 2) { leftTarget -= speed; rightTarget -= speed;}
-	if(leftOver & 4) { leftTarget -= speed; rightTarget += speed; }
-	if(leftOver & 8) { leftTarget += speed; rightTarget += speed; }
+	int speed = 75;
+	if(leftOver & W_KEY) { leftTarget += 2 * speed; rightTarget += 2 * speed; }
+	if(leftOver & S_KEY) { leftTarget -= 2 * speed; rightTarget -= 2 * speed;}
+	if(leftOver & A_KEY) { leftTarget -= speed; rightTarget += speed; }
+	if(leftOver & D_KEY) { leftTarget += speed; rightTarget -= speed; }
 	leftDesiredSpeed = leftTarget;
 	rightDesiredSpeed = rightTarget;
-
-	/*
-	//int leftOver;
-	 int wPressed = 0;
-	 int aPressed = 0;
-	 int sPressed = 0;
-	 int dPressed = 0;
-	 int voorAchterRichting;
-	 int stuurRichting;
-	 
-	 leftOver -= 128;
-	
-	 if(leftOver >= 8){
-		wPressed = 1;
-		leftOver -= 8;
-	 }
-	 if(leftOver >= 4){
-		 aPressed = 1;
-		 leftOver -= 4;
-	 }
-	 if(leftOver >= 2){
-		 sPressed =  1;
-		 leftOver -= 2;
-	 }
-	 if(leftOver >= 1){
-		 dPressed = 1;
-		 
-	 }
-	if(wPressed & sPressed){
-		voorAchterRichting = 0;
-	}else if(wPressed){
-		voorAchterRichting = 1;
-	}else if(sPressed){
-		voorAchterRichting = -1;
-	}else{
-		voorAchterRichting = 0;
-	}
-
-	if(aPressed & dPressed){
-		stuurRichting = 0;
-	}else if(aPressed){
-		stuurRichting = -1;
-	}else if(dPressed){
-		stuurRichting = 1;
-	}else{
-		stuurRichting = 0;
-	}
-	
-	
-	if((voorAchterRichting == 1) & (stuurRichting == 0)) {
-		setMotors(200, 200);
-	}else if((voorAchterRichting == 0) & (stuurRichting == 1)){
-		setMotors(200, -200);
-	}else if((voorAchterRichting == 0) & (stuurRichting == -1)){
-		setMotors(-200, 200);
-	}else if((voorAchterRichting == -1) & (stuurRichting == 0)){
-		setMotors(-200, -200);
-	}else if((voorAchterRichting == 1) & (stuurRichting == 1)){
-		setMotors(200, 100);
-	}else if((voorAchterRichting == 1) & (stuurRichting == -1)){
-		setMotors(100, 200);
-	}else if((voorAchterRichting == -1) & (stuurRichting == 1)){
-		setMotors(-200, -100);
-	}else if((voorAchterRichting == -1) & (stuurRichting == -1)){
-		setMotors(-100, 200);
-	}else{
-		setMotors(0,0);
-	}*/
  }
  
  
@@ -196,7 +133,6 @@ void ontvangData(uint8_t data[],uint8_t tel){
 	    data_ont[i]=data[i];
 	data_flag = TRUE;
 	usartToMotors(data[0]);
-	//writeInteger(10, 10);
 }
 
 /* het byte dat de slave verzend naar de master
