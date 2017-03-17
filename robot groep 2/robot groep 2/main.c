@@ -16,6 +16,8 @@
 
  #define TRUE 0xFF;
  #define FALSE 0;
+
+ void usartToMotors(uint8_t leftOver);
  
  // communication functions
  void initCommunication();
@@ -56,7 +58,7 @@
 	
 	 while(1){
 		
-		
+		usartToMotors(1);
 		if(data_flag){
 			//writeInteger(data_ont[0], 10);
 			writeString("\n\r");
@@ -97,7 +99,17 @@
  
  
  void usartToMotors(uint8_t leftOver){
-	 //int leftOver;
+	int leftTarget = 0, rightTarget = 0;
+	int speed = 100;
+	if(leftOver & 1) { leftTarget += speed; rightTarget -= speed; }
+	if(leftOver & 2) { leftTarget -= speed; rightTarget -= speed;}
+	if(leftOver & 4) { leftTarget -= speed; rightTarget += speed; }
+	if(leftOver & 8) { leftTarget += speed; rightTarget += speed; }
+	leftDesiredSpeed = leftTarget;
+	rightDesiredSpeed = rightTarget;
+
+	/*
+	//int leftOver;
 	 int wPressed = 0;
 	 int aPressed = 0;
 	 int sPressed = 0;
@@ -162,7 +174,7 @@
 		setMotors(-100, 200);
 	}else{
 		setMotors(0,0);
-	}
+	}*/
  }
  
  
