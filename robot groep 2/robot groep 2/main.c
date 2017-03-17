@@ -31,7 +31,6 @@
  int main(void)
  {
 	 initMotors();
-	 setMotors(-100, 100);
 	 //initCommunication();
 	 initUSART();
 	 writeString("Passed usart \n\r");
@@ -56,13 +55,16 @@
 	
 	
 	 while(1){
-		writeString("Attempting to!!!!!!");
-		verzendByte();
 		
-		for(int i=0; i<10; i++){
-			//_delay_ms(250);
+		
+		if(data_flag){
+			//writeInteger(data_ont[0], 10);
+			writeString("\n\r");
+			
+			
+			data_flag = FALSE;
 		}
-		writeString("Something is happening\r\n");
+		
 	 }
  
  }
@@ -161,22 +163,16 @@
 	}else{
 		setMotors(0,0);
 	}
-	
-		
-	
-	 
-	
-	 
-	 setMotors(leftDesiredSpeed, rightDesiredSpeed);
  }
  
- //ISR(TWI_vect) {
-//	 slaaftwi();
-// }
  
- //ISR(USART_RXC_vect){
-//	  
-//}
+ ISR(TWI_vect) {
+	 slaaftwi();
+ }
+ 
+ ISR(USART_RXC_vect){
+	  
+}
 
 
 /*slave heeft data ontvangen van de master
@@ -187,7 +183,8 @@ void ontvangData(uint8_t data[],uint8_t tel){
 	for(int i=0;i<tel;++i)
 	    data_ont[i]=data[i];
 	data_flag = TRUE;
-	writeString("o\n\r");
+	usartToMotors(data[0]);
+	//writeInteger(10, 10);
 }
 
 /* het byte dat de slave verzend naar de master
@@ -195,5 +192,5 @@ in dit voorbeeld een eenvoudige teller
 */
 
 uint8_t verzendByte() {
-		return 1;
+		return 0x22;
 }
