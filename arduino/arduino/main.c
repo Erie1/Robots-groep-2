@@ -14,16 +14,18 @@
 #include <avr/interrupt.h>
 #include <stdint.h>
 
+// functions
+void (*mode) (uint8_t);
+void setMode(uint8_t set);
 
 int main(void)
 {
-	uint8_t data[10];
-	uint8_t teller=1;
+	mode = setMode;
 
 	PORTD = 0x03; //pullup SDA en SCL
 	initUSART();
     init_master();
-	sei;
+	sei();
 
 	while (1)
 	{
@@ -53,7 +55,22 @@ void verzenden_array(uint8_t address, uint8_t b[], uint8_t tel) {
 	TWCR=(1<<TWINT)|(1<<TWSTO)|(1<<TWEN);
 }
 
+void sendControl(uint8_t key){
+	uint8_t data[] = { CONTROL, key };
+	verzenden_array(DEVICE_ADRES, data, 2);
+}
+
+void setMode(uint8_t set){
+	switch (set){
+		case CONTROL:
+			mode = sendControl;
+			break;
+		default:
+			mode = setMode;
+	}
+}
+
 ISR(USART0_RX_vect){
-	uint8_t toSend[] = { CONTROL, UDR0 };
-	verzenden_array(address, toSend, 2);
+	uint8_t data = UDR0;
+	mode(data);
 }
