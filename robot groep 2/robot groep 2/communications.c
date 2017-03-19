@@ -78,13 +78,8 @@ void ontvangData(uint8_t data[],uint8_t tel){
 /* sets the sonar	                                                    */
 /************************************************************************/
 void sonar(uint8_t data[], uint8_t tel){
-	int sonar_time = data[tel];
-	for(tel -= 1; tel >= 0; tel--){
-		sonar_time <<= 8;
-		sonar_time |= data[tel];
-	}
-	// TODO calculate distance from sonar time
-	// if(sonar_dis < 10) emergencyBrake();
+	sonar_dis = atof((char*)&data);
+	if(sonar_dis <= 8) emergencyBrake();
 }
 
 /************************************************************************/
