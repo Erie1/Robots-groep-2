@@ -15,21 +15,13 @@
  
  int main(void)
  {
-	 initMotors();
-	 initCommunication();
+	initMotors();
+	initCommunication();
 	
 	sei(); //De slave van i2c werkt met interrupt
 	
 	
-	 while(1){
-		usartToMotors(1);
-		if(data_flag){
-			//writeInteger(data_ont[0], 10);
-			usartToMotors(data_ont[0]);
-			
-			
-			data_flag = FALSE;
-		}
+	while(1){
 		
 	 }
  

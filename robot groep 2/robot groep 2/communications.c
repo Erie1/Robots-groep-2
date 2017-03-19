@@ -13,6 +13,11 @@
 #include <util/twi.h>
 #include <avr/interrupt.h>
 
+void usartToMotors(uint8_t leftOver);
+
+// function pointer
+void (*receive) (uint8_t);
+
 void initCommunication(){
 	data_flag = FALSE;
 	databyte = 0x00;
@@ -48,6 +53,23 @@ void initUsartPC(){
 }
 
 /************************************************************************/
+/* functie die wordt aangeroepen als er data is ontvangen van de master */
+/************************************************************************/ 
+void ontvangData(uint8_t data[],uint8_t tel){
+	for(int i = 0; i < tel; ++i)
+	    data_ont[i] = data[i];
+	data_flag = TRUE;
+	receive(data[0]);
+}
+
+/************************************************************************/
+/* de functie om byte mee te verzenden                                  */
+/************************************************************************/
+uint8_t verzendByte() {
+		return 0x22;
+}
+
+/************************************************************************/
 /* changes desired motorspeeds according to input                       */
 /************************************************************************/
 void usartToMotors(uint8_t leftOver){
@@ -60,24 +82,6 @@ void usartToMotors(uint8_t leftOver){
 	leftDesiredSpeed = leftTarget;
 	rightDesiredSpeed = rightTarget;
 }
-
-/************************************************************************/
-/* functie die wordt aangeroepen als er data is ontvangen van de master */
-/************************************************************************/ 
-void ontvangData(uint8_t data[],uint8_t tel){
-	for(int i = 0; i < tel; ++i)
-	    data_ont[i] = data[i];
-	data_flag = TRUE;
-	usartToMotors(data[0]);
-}
-
-/************************************************************************/
-/* de functie om byte mee te verzenden                                  */
-/************************************************************************/
-uint8_t verzendByte() {
-		return 0x22;
-}
-
 
 ISR(TWI_vect) {
 	slaaftwi();

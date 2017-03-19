@@ -23,8 +23,6 @@ void initCommunication();
 void ontvangData(uint8_t data[],uint8_t tel);
 uint8_t verzendByte();
 
-void usartToMotors(uint8_t leftOver);
-
 // global variables
 uint8_t data_ont[20]; //max 20
 volatile uint8_t data_flag;
