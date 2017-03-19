@@ -5,7 +5,7 @@
  *  Author: Erik
  */ 
 
- #include <stdint.h>
+#include <stdint.h>
 
 #ifndef COMMUNICATIONS_H_
 #define COMMUNICATIONS_H_
@@ -23,10 +23,7 @@ void initCommunication();
 void ontvangData(uint8_t data[],uint8_t tel);
 uint8_t verzendByte();
 
-// global variables
-uint8_t data_ont[20]; //max 20
-volatile uint8_t data_flag;
-volatile uint8_t databyte;
-
+// variables
+double sonar_dis;
 
 #endif /* COMMUNICATIONS_H_ */

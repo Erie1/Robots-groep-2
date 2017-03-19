@@ -8,15 +8,18 @@
 #include "rp6aansluitingen.h"
 #include "communications.h"
 #include "MotorControl.h"
+#include "../../shared/twi_codes.h"
 #include "i2c.h"
 #include <stdint.h>
 #include <util/twi.h>
 #include <avr/interrupt.h>
 
-void usartToMotors(uint8_t leftOver);
+uint8_t data_ont[20]; //max 20
+volatile uint8_t data_flag;
+volatile uint8_t databyte;
 
-// function pointer
-void (*receive) (uint8_t);
+void usartToMotors(uint8_t leftOver);
+void sonar(uint8_t data[], uint8_t tel);
 
 void initCommunication(){
 	data_flag = FALSE;
@@ -56,10 +59,32 @@ void initUsartPC(){
 /* functie die wordt aangeroepen als er data is ontvangen van de master */
 /************************************************************************/ 
 void ontvangData(uint8_t data[],uint8_t tel){
-	for(int i = 0; i < tel; ++i)
-	    data_ont[i] = data[i];
+	uint8_t description = data[0];
+	for(int i = 1; i < tel; ++i)
+	    data_ont[i - 1] = data[i];
 	data_flag = TRUE;
-	receive(data[0]);
+
+	switch (description) {
+		case CONTROL:
+			usartToMotors(data[0]);
+			break;
+		case SONAR_DIS:
+			sonar(data_ont, tel - 1);
+			break;
+	}
+}
+
+/************************************************************************/
+/* sets the sonar	                                                    */
+/************************************************************************/
+void sonar(uint8_t data[], uint8_t tel){
+	int sonar_time = data[tel];
+	for(tel -= 1; tel >= 0; tel--){
+		sonar_time <<= 8;
+		sonar_time |= data[tel];
+	}
+	// TODO calculate distance from sonar time
+	// if(sonar_dis < 10) emergencyBrake();
 }
 
 /************************************************************************/
