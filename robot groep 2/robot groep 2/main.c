@@ -63,10 +63,10 @@
 	
 	 while(1){
 		
-		usartToMotors(1);
+		//usartToMotors(1);
 		if(data_flag){
-			//writeInteger(data_ont[0], 10);
-			usartToMotors([0]);
+			writeInteger(data_ont[0], 10);
+			usartToMotors(data_ont[0]);
 			
 			
 			data_flag = FALSE;
@@ -132,12 +132,12 @@ void ontvangData(uint8_t data[],uint8_t tel){
 	for(int i=0;i<tel;++i)
 	    data_ont[i]=data[i];
 	data_flag = TRUE;
-<<<<<<< HEAD
+
 	//usartToMotors(data[0]);
 	//writeInteger(10, 10);
-=======
-	usartToMotors(data[0]);
->>>>>>> dc670f7ce7672bdb9ed9a9cd2809937509d6c4be
+
+	//usartToMotors(data[0]);
+ //>>>>>>> dc670f7ce7672bdb9ed9a9cd2809937509d6c4be
 }
 
 /* het byte dat de slave verzend naar de master
