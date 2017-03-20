@@ -42,17 +42,11 @@ void initCommunication(){
 	writeString("Passed verzendByte \n\r");
 }
 
-//Initialiseren van usart verbinding met pc voor directe besturing
-void initUsartPC(){
-	/* Set baud rate */
-	UCSRC = 0;
-	UBRRH = 0;
-	UBRRL = 103;
-	/* Enable receiver and transmitter */
-	UCSRB = (1<<RXEN)|(1<<TXEN);
-	/* Set frame format: 8data, 2stop bit */
-	UCSRC =
-	(0<<URSEL)|(3<<UCSZ0);
+/************************************************************************/
+/* de functie om byte mee te verzenden                                  */
+/************************************************************************/
+uint8_t verzendByte() {
+	return 0x22;
 }
 
 /************************************************************************/
@@ -63,6 +57,8 @@ void ontvangData(uint8_t data[],uint8_t tel){
 	for(int i = 1; i < tel; ++i)
 	    data_ont[i - 1] = data[i];
 	data_flag = TRUE;
+
+	writeString("going to decide");
 
 	switch (description) {
 		case CONTROL:
@@ -83,13 +79,6 @@ void sonar(uint8_t data[], uint8_t tel){
 }
 
 /************************************************************************/
-/* de functie om byte mee te verzenden                                  */
-/************************************************************************/
-uint8_t verzendByte() {
-		return 0x22;
-}
-
-/************************************************************************/
 /* changes desired motorspeeds according to input                       */
 /************************************************************************/
 void usartToMotors(uint8_t leftOver){
@@ -104,5 +93,6 @@ void usartToMotors(uint8_t leftOver){
 }
 
 ISR(TWI_vect) {
+	writeString("interupt");
 	slaaftwi();
 }
