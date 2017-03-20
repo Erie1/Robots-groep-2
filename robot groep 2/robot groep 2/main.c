@@ -6,61 +6,21 @@
  */ 
  
  #include "rp6aansluitingen.h"
- #include "i2c.h"
  #include "MotorControl.h"
+ #include "communications.h"
  #include <stdint.h>
  #include <stdlib.h>
  #include <avr/io.h>
- #include <util/twi.h>
  #include <avr/interrupt.h>
-
- #define TRUE 0xFF;
- #define FALSE 0;
-
- #define D_KEY				1
- #define S_KEY				2
- #define A_KEY				4
- #define W_KEY				8
-
- void usartToMotors(uint8_t leftOver);
  
- // communication functions
- void initCommunication();
- void ontvangData(uint8_t data[],uint8_t tel);
- uint8_t verzendByte();
- 
- // global variables
- uint8_t data_ont[20]; //max 20
- volatile uint8_t data_flag = FALSE;
- volatile uint8_t databyte=0x33;
-
-
  int main(void)
  {
-	 initMotors();
-	 //initCommunication();
-	 initUSART();
-	 writeString("Passed usart \n\r");
-	
-	init_i2c_slave(8);
-	writeString("Passed slave init \n\r");
-	
-	/*ontvangData is de functie die uitgevoerd wordt 
-	wanneer een byte via de i2c bus ontvangen wordt
-	*/
-	init_i2c_ontvang(ontvangData); 
-	writeString("Passed ontvangData init \n\r");
-	
-	/*verzendByte is de functie die aangeroepen wordt
-	wanneer de slave een byte naar de master verzend*/
-	init_i2c_verzend(verzendByte);
-	writeString("Passed verzendByte \n\r");
+	initMotors();
+	initCommunication();
 	
 	sei(); //De slave van i2c werkt met interrupt
-	writeString("TESTESTESTET");
-	//usartToMotors(0x84);
 	
-	
+
 	 while(1){
 		
 		//usartToMotors(1);
@@ -141,3 +101,4 @@ in dit voorbeeld een eenvoudige teller
 uint8_t verzendByte() {
 		return 0x22;
 }
+

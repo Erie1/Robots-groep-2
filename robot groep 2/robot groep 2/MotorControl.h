@@ -27,7 +27,7 @@ void setLeftMotor(int speed);
 void setRightMotor(int speed);
 void emergencyBrake();
 
-// variables
+// external variables
 int rightDesiredSpeed;
 int leftDesiredSpeed;
 
