@@ -60,17 +60,7 @@
  }
  
  
- void usartToMotors(uint8_t leftOver){
-	if(leftOver == 'w') {leftTarget += 2 * speed; rightTarget += 2 * speed; }
-	if(leftOver == 's') {leftTarget -= 2 * speed; rightTarget -= 2 * speed;}
-	if(leftOver == 'a') { leftTarget -= speed; rightTarget += speed; }
-	if(leftOver == 'd') { leftTarget += speed; rightTarget -= speed; }
-	if(leftOver == 'e') {leftTarget = 0; rightTarget = 0;}
-	rightDesiredSpeed = rightTarget;
-	leftDesiredSpeed = leftTarget;
-}
  
- /*
  void usartToMotors(uint8_t leftOver){
 	if(leftOver == 'w') {leftTarget += 2 * speed; rightTarget += 2 * speed; }
 	if(leftOver == 's') {leftTarget -= 2 * speed; rightTarget -= 2 * speed;}
