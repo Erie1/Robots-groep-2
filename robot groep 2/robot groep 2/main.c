@@ -13,6 +13,8 @@
  #include <avr/io.h>
  #include <avr/interrupt.h>
  
+ 
+ 
  int main(void)
  {
 	initMotors();
@@ -24,13 +26,13 @@
 	 while(1){
 		
 		//usartToMotors(1);
-		if(data_flag){
+		//if(data_flag){
 			//writeInteger(data_ont[0], 10);
 			//usartToMotors([0]);
 			
-			usartToMotors(data_ont[0]);
-			data_flag = FALSE;
-		}
+			//usartToMotors(data_ont[0]);
+			//data_flag = FALSE;
+		//}
 		
 	 }
  
@@ -62,6 +64,9 @@
  
  
  void usartToMotors(uint8_t leftOver){
+	int leftTarget = 0, rightTarget = 0;
+	int speed = 75;
+	
 	if(leftOver == 'w') {leftTarget += 2 * speed; rightTarget += 2 * speed; }
 	if(leftOver == 's') {leftTarget -= 2 * speed; rightTarget -= 2 * speed;}
 	if(leftOver == 'a') { leftTarget -= speed; rightTarget += speed; }
@@ -98,18 +103,4 @@
  data[] een array waarin de ontvangen data staat
  tel het aantal bytes dat ontvangen is*/
  
-void ontvangData(uint8_t data[],uint8_t tel){
-	for(int i=0;i<tel;++i)
-	    data_ont[i]=data[i];
-	data_flag = TRUE;
-	
-}
-
-/* het byte dat de slave verzend naar de master
-in dit voorbeeld een eenvoudige teller
-*/
-
-uint8_t verzendByte() {
-		return 0x22;
-}
 
