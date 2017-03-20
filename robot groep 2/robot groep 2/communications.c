@@ -58,11 +58,10 @@ void ontvangData(uint8_t data[],uint8_t tel){
 	    data_ont[i - 1] = data[i];
 	data_flag = TRUE;
 
-	writeString("going to decide");
 
 	switch (description) {
 		case CONTROL:
-			usartToMotors(data[0]);
+			usartToMotors(data_ont[0]);
 			break;
 		case SONAR_DIS:
 			sonar(data_ont, tel - 1);
@@ -75,7 +74,7 @@ void ontvangData(uint8_t data[],uint8_t tel){
 /************************************************************************/
 void sonar(uint8_t data[], uint8_t tel){
 	sonar_dis = atof((char*)&data);
-	if(sonar_dis <= 8) emergencyBrake();
+	if(sonar_dis <= 8.0) emergencyBrake();
 }
 
 /************************************************************************/

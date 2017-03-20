@@ -24,12 +24,12 @@ int main(void)
 
 	PORTD = 0x03; //pullup SDA en SCL
 	initUSART();
+	UCSR0B |= 1 << RXCIE0;
     init_master();
 	sei();
 
 	while (1)
 	{
-		
 	}
 
 }
@@ -72,5 +72,5 @@ void setMode(uint8_t set){
 
 ISR(USART0_RX_vect){
 	uint8_t data = UDR0;
-	mode(data);
+	sendControl(data);
 }
