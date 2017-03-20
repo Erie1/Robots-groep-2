@@ -59,7 +59,7 @@ void ontvangData(uint8_t data[],uint8_t tel){
 	for(int i = 0; i < tel; ++i)
 	    data_ont[i] = data[i];
 	data_flag = TRUE;
-	receive(data[0]);
+	usartToMotors(data[0]);
 }
 
 /************************************************************************/
