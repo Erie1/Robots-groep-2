@@ -20,9 +20,6 @@
 	
 	sei(); //De slave van i2c werkt met interrupt
 	
-	
 	while(1){
-		
-	 }
- 
+	}
  }
