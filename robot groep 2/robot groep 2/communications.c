@@ -74,7 +74,7 @@ void ontvangData(uint8_t data[],uint8_t tel){
 /************************************************************************/
 void sonar(uint8_t data[], uint8_t tel){
 	sonar_dis = atoi((char*)&data);
-	if(sonar_dis <= 8.0) emergencyBrake();
+	if(sonar_dis <= 8) emergencyBrake();
 }
 
 /************************************************************************/
