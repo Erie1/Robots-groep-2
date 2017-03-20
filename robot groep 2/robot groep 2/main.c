@@ -42,39 +42,16 @@
  /* initializes i2c communication to Arduino                             */
  /************************************************************************/
  
- void initCommunication(){
-	// TODO
- }
+ 
  
  
  
  //Initialiseren van usart verbinding met pc voor directe besturing
- void initUsartPC(){
-	
-	/* Set baud rate */
-	UCSRC = 0;
-	UBRRH = 0;
-	UBRRL = 103;
-	/* Enable receiver and transmitter */
-	UCSRB = (1<<RXEN)|(1<<TXEN);
-	/* Set frame format: 8data, 2stop bit */
-	UCSRC =(0<<URSEL)|(3<<UCSZ0);
- }
+
  
  
  
- void usartToMotors(uint8_t leftOver){
-	int leftTarget = 0, rightTarget = 0;
-	int speed = 75;
-	
-	if(leftOver == 'w') {leftTarget += 2 * speed; rightTarget += 2 * speed; }
-	if(leftOver == 's') {leftTarget -= 2 * speed; rightTarget -= 2 * speed;}
-	if(leftOver == 'a') { leftTarget -= speed; rightTarget += speed; }
-	if(leftOver == 'd') { leftTarget += speed; rightTarget -= speed; }
-	if(leftOver == 'e') {leftTarget = 0; rightTarget = 0;}
-	rightDesiredSpeed = rightTarget;
-	leftDesiredSpeed = leftTarget;
-}
+ 
  
  /*
  void usartToMotors(uint8_t leftOver){
@@ -90,17 +67,4 @@
  */
  
  
- ISR(TWI_vect) {
-	 slaaftwi();
- }
  
- ISR(USART_RXC_vect){
-	  
-}
-
-
-/*slave heeft data ontvangen van de master
- data[] een array waarin de ontvangen data staat
- tel het aantal bytes dat ontvangen is*/
- 
-

@@ -80,6 +80,7 @@ void sonar(uint8_t data[], uint8_t tel){
 /************************************************************************/
 /* changes desired motorspeeds according to input                       */
 /************************************************************************/
+/*
 void usartToMotors(uint8_t leftOver){
 	int leftTarget = 0, rightTarget = 0;
 	int speed = 75;
@@ -89,6 +90,19 @@ void usartToMotors(uint8_t leftOver){
 	if(leftOver & D_KEY) { leftTarget += speed; rightTarget -= speed; }
 	leftDesiredSpeed = leftTarget;
 	rightDesiredSpeed = rightTarget;
+}
+*/
+void usartToMotors(uint8_t leftOver){
+	int leftTarget = 0, rightTarget = 0;
+	int speed = 75;
+	
+	if(leftOver == 'w') {leftTarget += 2 * speed; rightTarget += 2 * speed; }
+	if(leftOver == 's') {leftTarget -= 2 * speed; rightTarget -= 2 * speed;}
+	if(leftOver == 'a') { leftTarget -= speed; rightTarget += speed; }
+	if(leftOver == 'd') { leftTarget += speed; rightTarget -= speed; }
+	if(leftOver == 'e') {leftTarget = 0; rightTarget = 0;}
+	rightDesiredSpeed = rightTarget;
+	leftDesiredSpeed = leftTarget;
 }
 
 ISR(TWI_vect) {
