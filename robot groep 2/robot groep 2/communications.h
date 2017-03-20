@@ -24,6 +24,6 @@ void ontvangData(uint8_t data[],uint8_t tel);
 uint8_t verzendByte();
 
 // variables
-double sonar_dis;
+int sonar_dis;
 
 #endif /* COMMUNICATIONS_H_ */
