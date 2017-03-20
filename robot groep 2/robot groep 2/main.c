@@ -6,122 +6,99 @@
  */ 
  
  #include "rp6aansluitingen.h"
+ #include "MotorControl.h"
+ #include "communications.h"
  #include <stdint.h>
- #include <util/delay.h>
+ #include <stdlib.h>
  #include <avr/io.h>
  #include <avr/interrupt.h>
-
-
- #define MAXSPEED		0xff
- #define MOTORSPEED_R	OCR1A
- #define MOTORSPEED_L	OCR1B
  
- #define MOTOR_ADJUST_FREQUENTIE   100
- #define MOTOR_ADJUST_DELAY		F_CPU / MOTOR_ADJUST_FREQUENTIE / 1024
- 
- // movement functions
- void initMotors();
- void setMotors(int left, int right);
- void emergencyBrake();
- void rightMotor();
- void leftMotor();
-
- // communication functions
- void initCommunication();
-
- int rightDSpeed;		// these variables are used to store the desired speed between -maxspeed(-255) and +maxspeed(255)
- int leftDSpeed;			// they are used to adjust motor speed accordingly in the main while loop
-
-
  int main(void)
  {
-	 initMotors();
-	 initCommunication();
-	 
-	 // TEST
-	 setMotors(MAXSPEED, MAXSPEED);
-	 for(int i = 0; i < 40; i++){
-		 _delay_ms(250);
+	initMotors();
+	initCommunication();
+	
+	sei(); //De slave van i2c werkt met interrupt
+	
+
+	 while(1){
+		
+		//usartToMotors(1);
+		if(data_flag){
+			//writeInteger(data_ont[0], 10);
+			//usartToMotors([0]);
+			
+			usartToMotors(data_ont[0]);
+			data_flag = FALSE;
+		}
+		
 	 }
-	 emergencyBrake();
-
-	 while (1)
-	 {		 
-	 }
- }
-
-
- /************************************************************************/
- /* initialize the motors                                                */
- /************************************************************************/
- void initMotors(){
-	 // set the PWM timer registers
-	 TCCR1A = 1 << WGM10;					// phase corrected PWM 8 bit w/ OCR1x
-
-	 TCCR1A |= 1 << COM1A1 | (1 << COM1B1);	// non inverted mode on both motors
-
-	 TCCR1B |= 1 << CS10;					// no prescaler
-
-	 TIMSK = 1 << OCIE1A | (1 << OCIE1B);	// enable the timer interrupt mask bits
-
-
-	 // sets timer0 for acceleration and deceleration
-	 TCCR0 = WGM01;							// CTC mode
-
-	 TCCR0 |= 1 << CS00 | (1 << CS02);		// 1024 prescaler
-
-	 TIMSK |= 1 << OCIE0;					// enable the timers interupt mask bit
-
-	 OCR0 = MOTOR_ADJUST_DELAY;						// set the compare register for timer0
-
-	 
-	 // set the motor registers
-	 DDRC |= DIR_R | DIR_L;					// set direction pins as output
-	 DDRD |= MOTOR_R | MOTOR_L;				// MOTOR_R & MOTOR_L as output
-
-	 PORTC |= DIR_R | DIR_L;					// set motor direction to ???
-	 OCR1A = OCR1B = 0;						// initialize motor PWM timers with no speed
+ 
  }
 
  /************************************************************************/
- /* set the motors                                                       */
+ /* initializes i2c communication to Arduino                             */
  /************************************************************************/
- void setMotors(int left, int right){
-	 // TODO streamline code
-	 MOTORSPEED_R = right;
-	 MOTORSPEED_L = left;
-
-	 // set direction so ports can be adjusted as necessary
-	 int direction = 0;
-	 if(right > 0) direction |= DIR_R;
-	 if(left > 0) direction |= DIR_L;
-	 PORTC = (PORTC & ~(1 << DIR_R | ( 1 << DIR_L))) | direction;
- }
-
- /************************************************************************/
- /* lets the robot make an emergency brakeand resets all movement        */
- /************************************************************************/
- void emergencyBrake(){
-	 setMotors(0, 0);
-	 // TODO reset all tasks
- }
-
- /************************************************************************/
- /* initialises i2c communication to Arduino                             */
- /************************************************************************/
+ 
  void initCommunication(){
-	 // TODO
+	// TODO
  }
+ 
+ 
+ 
+ //Initialiseren van usart verbinding met pc voor directe besturing
+ void initUsartPC(){
+	
+	/* Set baud rate */
+	UCSRC = 0;
+	UBRRH = 0;
+	UBRRL = 103;
+	/* Enable receiver and transmitter */
+	UCSRB = (1<<RXEN)|(1<<TXEN);
+	/* Set frame format: 8data, 2stop bit */
+	UCSRC =(0<<URSEL)|(3<<UCSZ0);
+ }
+ 
+ 
+ 
+ 
+ void usartToMotors(uint8_t leftOver){
+	int leftTarget = 0, rightTarget = 0;
+	int speed = 75;
+	if(leftOver & W_KEY) { leftTarget += 2 * speed; rightTarget += 2 * speed; }
+	if(leftOver & S_KEY) { leftTarget -= 2 * speed; rightTarget -= 2 * speed;}
+	if(leftOver & A_KEY) { leftTarget -= speed; rightTarget += speed; }
+	if(leftOver & D_KEY) { leftTarget += speed; rightTarget -= speed; }
+	leftDesiredSpeed = leftTarget;
+	rightDesiredSpeed = rightTarget;
+ }
+ 
+ 
+ ISR(TWI_vect) {
+	 slaaftwi();
+ }
+ 
+ ISR(USART_RXC_vect){
+	  
+}
 
- /************************************************************************/
- /* chances the speed of the right motor on timer0 COMPA interupt        */
- /************************************************************************/
- ISR(TIMER0_COMP_vect){
-	int rightAcceleration = (MOTORSPEED_R - rightDSpeed) / MOTOR_ADJUST_FREQUENTIE;
-	int leftAcceleration = (MOTORSPEED_L - leftDSpeed) / MOTOR_ADJUST_FREQUENTIE;
+
+/*slave heeft data ontvangen van de master
+ data[] een array waarin de ontvangen data staat
+ tel het aantal bytes dat ontvangen is*/
+ 
+void ontvangData(uint8_t data[],uint8_t tel){
+	for(int i=0;i<tel;++i)
+	    data_ont[i]=data[i];
+	data_flag = TRUE;
 	
-	rightDSpeed += rightAcceleration;
-	rightDSpeed += leftAcceleration;
-	
-	setMotors(leftDSpeed, rightDSpeed);
- }
+}
+
+/* het byte dat de slave verzend naar de master
+in dit voorbeeld een eenvoudige teller
+*/
+
+uint8_t verzendByte() {
+		return 0x22;
+}
+

@@ -3,3 +3,13 @@ robot groep 2/robot groep 2/Debug/
 *.atsln
 *.xml
 *.cproj
+robot groep 2/robot groep 2/i2c.h
+robot groep 2/robot groep 2/i2c.c
+robot groep 2/robot groep 2/libslavewire.a
+robot groep 2/sl_vb/
+arduino/ms_vb/
+robot groep 2/robot groep 2/Makefile
+robot groep 2/robot groep 2/main.o
+robot groep 2/robot groep 2/rp6sl123.elf
+robot groep 2/robot groep 2/rp6sl123.hex
+arduino/arduino/Debug/
