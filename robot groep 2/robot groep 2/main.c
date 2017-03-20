@@ -66,7 +66,7 @@
 		usartToMotors(1);
 		if(data_flag){
 			//writeInteger(data_ont[0], 10);
-			usartToMotors([0]);
+			//usartToMotors([0]);
 			
 			
 			data_flag = FALSE;
@@ -96,8 +96,7 @@
 	/* Enable receiver and transmitter */
 	UCSRB = (1<<RXEN)|(1<<TXEN);
 	/* Set frame format: 8data, 2stop bit */
-	UCSRC =
-	 (0<<URSEL)|(3<<UCSZ0);
+	UCSRC =(0<<URSEL)|(3<<UCSZ0);
  }
  
  
