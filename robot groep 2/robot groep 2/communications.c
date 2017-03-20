@@ -8,15 +8,18 @@
 #include "rp6aansluitingen.h"
 #include "communications.h"
 #include "MotorControl.h"
+#include "../../shared/twi_codes.h"
 #include "i2c.h"
 #include <stdint.h>
 #include <util/twi.h>
 #include <avr/interrupt.h>
 
-void usartToMotors(uint8_t leftOver);
+uint8_t data_ont[20]; //max 20
+volatile uint8_t data_flag;
+volatile uint8_t databyte;
 
-// function pointer
-void (*receive) (uint8_t);
+void usartToMotors(uint8_t leftOver);
+void sonar(uint8_t data[], uint8_t tel);
 
 void initCommunication(){
 	data_flag = FALSE;
@@ -39,34 +42,39 @@ void initCommunication(){
 	writeString("Passed verzendByte \n\r");
 }
 
-//Initialiseren van usart verbinding met pc voor directe besturing
-void initUsartPC(){
-	/* Set baud rate */
-	UCSRC = 0;
-	UBRRH = 0;
-	UBRRL = 103;
-	/* Enable receiver and transmitter */
-	UCSRB = (1<<RXEN)|(1<<TXEN);
-	/* Set frame format: 8data, 2stop bit */
-	UCSRC =
-	(0<<URSEL)|(3<<UCSZ0);
+/************************************************************************/
+/* de functie om byte mee te verzenden                                  */
+/************************************************************************/
+uint8_t verzendByte() {
+	return 0x22;
 }
 
 /************************************************************************/
 /* functie die wordt aangeroepen als er data is ontvangen van de master */
 /************************************************************************/ 
 void ontvangData(uint8_t data[],uint8_t tel){
-	for(int i = 0; i < tel; ++i)
-	    data_ont[i] = data[i];
+	uint8_t description = data[0];
+	for(int i = 1; i < tel; ++i)
+	    data_ont[i - 1] = data[i];
 	data_flag = TRUE;
-	usartToMotors(data[0]);
+
+
+	switch (description) {
+		case CONTROL:
+			usartToMotors(data_ont[0]);
+			break;
+		case SONAR_DIS:
+			sonar(data_ont, tel - 1);
+			break;
+	}
 }
 
 /************************************************************************/
-/* de functie om byte mee te verzenden                                  */
+/* sets the sonar	                                                    */
 /************************************************************************/
-uint8_t verzendByte() {
-		return 0x22;
+void sonar(uint8_t data[], uint8_t tel){
+	sonar_dis = atof((char*)&data);
+	if(sonar_dis <= 8.0) emergencyBrake();
 }
 
 /************************************************************************/
@@ -84,5 +92,6 @@ void usartToMotors(uint8_t leftOver){
 }
 
 ISR(TWI_vect) {
+	writeString("interupt");
 	slaaftwi();
 }
