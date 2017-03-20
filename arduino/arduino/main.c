@@ -5,7 +5,6 @@
  * Author : Erik
  */ 
 #define F_CPU 16000000
-#define DEVICE_ADRES   8
 
 #define US_PORT			PORTD //the port of the sensor
 #define US_PIN			PIND //the pin of the sensor
@@ -14,29 +13,22 @@
 #define US_ERROR		0xffff //time-out system
 #define US_NO_OBSTACLE	0xfffe // no obstacle in range
 
-#include "../../shared/twi_codes.h"
-#include "i2c_mst.h"
 #include <avr/io.h>
 #include <stdlib.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <stdint.h>
 
-// functions
-void (*mode) (uint8_t);
-void setMode(uint8_t set);
-void verzenden_array(uint8_t address, uint8_t b[], uint8_t tel);
+#include "communications.h"
+#include "sensors.h"
 
-uint16_t getPulseWidth();
+#include "../../shared/twi_codes.h"
+#include "i2c_mst.h"
+
 
 int main(void)
 {
-	mode = setMode;
-
-	PORTD = 0x03; //pullup SDA en SCL
-	initUSART();
-	UCSR0B |= 1 << RXCIE0;
-    init_master();
+	void initCommunication();
 	sei();
 	uint16_t PW; //Pulse width for US
 	writeString("Ultra Sonic Active"); //debug message
@@ -68,8 +60,9 @@ int main(void)
 		{
 			uint32_t distance;
 			distance = (PW/58); //convert to cm
-			uint8_t dist[4];
-			for( int i  = 0; i < 4; i++){
+			uint8_t dist[5];
+			dist[0] = SONAR_DIS;
+			for( int i  = 1; i < 5; i++){
 				dist[i] = distance;
 				distance <<= 8;
 			}
@@ -78,61 +71,22 @@ int main(void)
 	}
 }
 
-void verzenden_array(uint8_t address, uint8_t b[], uint8_t tel) {
-	// send start bit, wait for ack
-	TWCR |= (1<<TWSTA);
-	while(!(TWCR & (1<<TWINT)));
 
-	// write addres to i2c to initialize communications and wait for ack
-	TWDR=(address << 1);
-	TWCR=(1 << TWINT) | (1 << TWEN);
-	while(!(TWCR & (1 << TWINT)));
-
-	// write data to bus, wait for ack after each write
-	for (int i = 0; i < tel; i++) {
-		TWDR = b[i];
-		TWCR = (1 << TWINT)|(1 << TWEN);
-		while(!(TWCR & (1 << TWINT)));
-	}
-
-	// stop data
-	TWCR=(1<<TWINT)|(1<<TWSTO)|(1<<TWEN);
-}
-
-void sendControl(uint8_t key){
-	uint8_t data[] = { CONTROL, key };
-	verzenden_array(DEVICE_ADRES, data, 2);
-}
-
-void setMode(uint8_t set){
-	switch (set){
-		case CONTROL:
-			mode = sendControl;
-			break;
-		default:
-			mode = setMode;
-	}
-}
-
-ISR(USART0_RX_vect){
-	uint8_t data = UDR0;
-	sendControl(data);
-}
 
 uint16_t getPulseWidth()
 {
 	uint32_t i, result;
 	
 	//wait for the rising edge
-	for(i=0;i<600000;i++)
+	/*for(i=0;i<600000;i++)
 	{
-		if(!(US_PIN & (1<<US_POS)))
+		if(!(US_PIN & (1<<US_POS)))ea
 			continue;
 		else
 			break;
 	}
 	if(i == 600000)
-		return 0xffff; //indicates time out
+		return 0xffff; //indicates time out*/
 	
 	//High edge found
 	//Setup Timer1

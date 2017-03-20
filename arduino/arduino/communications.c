@@ -1,0 +1,78 @@
+/*
+ * communications.c
+ *
+ * Created: 20-3-2017 15:16:29
+ *  Author: Erik
+ */
+ #include "../../shared/twi_codes.h"
+ #include "communications.h"
+ #include "sensors.h"
+ #include "i2c_mst.h"
+ #include <stdint.h>
+ #include <avr/io.h>
+ 
+
+/************************************************************************/
+/* initializes all communications                                       */
+/************************************************************************/
+ void initCommunication(){
+	 mode = setMode;
+
+	 PORTD = 0x03; //pullup SDA en SCL
+	 initUSART();
+	 UCSR0B |= 1 << RXCIE0;
+	 init_master();
+ }
+
+ /************************************************************************/
+ /* met deze functie kan een array van bytes worden verzonden            */
+ /************************************************************************/
+  void verzenden_array(uint8_t address, uint8_t b[], uint8_t tel) {
+	 // send start bit, wait for ack
+	 TWCR |= (1<<TWSTA);
+	 while(!(TWCR & (1<<TWINT)));
+
+	 // write addres to i2c to initialize communications and wait for ack
+	 TWDR=(address << 1);
+	 TWCR=(1 << TWINT) | (1 << TWEN);
+	 while(!(TWCR & (1 << TWINT)));
+
+	 // write data to bus, wait for ack after each write
+	 for (int i = 0; i < tel; i++) {
+		 TWDR = b[i];
+		 TWCR = (1 << TWINT)|(1 << TWEN);
+		 while(!(TWCR & (1 << TWINT)));
+	 }
+
+	 // stop data
+	 TWCR=(1<<TWINT)|(1<<TWSTO)|(1<<TWEN);
+ }
+
+ /************************************************************************/
+ /* sends a series of bytes regarding key presses                        */
+ /************************************************************************/
+ void sendControl(uint8_t key){
+	 uint8_t data[] = { CONTROL, key };
+	 verzenden_array(DEVICE_ADRES, data, 2);
+ }
+
+ /************************************************************************/
+ /* sets the function to be executed on the next bytes sent by the pc    */
+ /************************************************************************/ 
+ void setMode(uint8_t set){
+	 switch (set){
+		 case CONTROL:
+		 mode = sendControl;
+		 break;
+		 default:
+		 mode = setMode;
+	 }
+ }
+
+ /************************************************************************/
+ /* interupt service routine for input from the pc                       */
+ /************************************************************************/
+ ISR(USART0_RX_vect){
+	 uint8_t data = UDR0;
+	 sendControl(data);
+ }

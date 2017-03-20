@@ -74,24 +74,13 @@ void ontvangData(uint8_t data[],uint8_t tel){
 /************************************************************************/
 void sonar(uint8_t data[], uint8_t tel){
 	sonar_dis = atoi((char*)&data);
+	writeInteger(sonar_dis, 10);
 	if(sonar_dis <= 8) emergencyBrake();
 }
 
 /************************************************************************/
 /* changes desired motorspeeds according to input                       */
 /************************************************************************/
-/*
-void usartToMotors(uint8_t leftOver){
-	int leftTarget = 0, rightTarget = 0;
-	int speed = 75;
-	if(leftOver & W_KEY) { leftTarget += 2 * speed; rightTarget += 2 * speed; }
-	if(leftOver & S_KEY) { leftTarget -= 2 * speed; rightTarget -= 2 * speed;}
-	if(leftOver & A_KEY) { leftTarget -= speed; rightTarget += speed; }
-	if(leftOver & D_KEY) { leftTarget += speed; rightTarget -= speed; }
-	leftDesiredSpeed = leftTarget;
-	rightDesiredSpeed = rightTarget;
-}
-*/
 void usartToMotors(uint8_t leftOver){
 	int leftTarget = 0, rightTarget = 0;
 	int speed = 75;
