@@ -13,6 +13,15 @@ int speedOffsetY = 0;
 int directionOffsetX = 0;
 int directionOffsetY = 0;
 
+int endArrowX = 200+directionOffsetX;
+int endArrowY = 200+directionOffsetY;
+
+int staticArrowX = 200+directionOffsetX;
+int staticArrowY = 200+directionOffsetY;
+
+boolean clickedOnDirection = false;
+boolean movedInsideDirection = false;
+
 
 void setup(){
   //Setup the canvas
@@ -23,6 +32,8 @@ void setup(){
   drawEmptyKeys();
   //drawSpeedMeter(6);
   drawDirectionBox();
+  
+  textSize(20);
   
   //Open serial communcation on first open port
   String portName = Serial.list()[0]; 
@@ -44,27 +55,29 @@ void draw(){
   drawBackground();
   drawKeys();
   drawSpeedMeter(343);
-  drawArrow(400,400, mouseX, mouseY, 0,0,0);
+  if(clickedOnDirection){
+    drawArrow(directionOffsetX+200, directionOffsetY + 200, staticArrowX, staticArrowY, 255,0,0);
+  }
+  if(movedInsideDirection){
+    drawArrow(directionOffsetX+200, directionOffsetY + 200, endArrowX, endArrowY, 0,0,0);
+  }
+  
+  text("Direction: "+directionToDegrees(staticArrowX, staticArrowY)+" degrees("+directionToDegrees(endArrowX, endArrowY)+")", directionOffsetX + 50, directionOffsetY + 35);
+  
+  
   
   
 }
 
 void drawDirectionBox(){
+  strokeWeight(0);
   translate(directionOffsetX, directionOffsetY);
   
-  fill(255);
+  fill(255,255,255);
+  
   ellipse(200, 200, 300, 300);
-  
-  fill(0);
-  
-  
-  noFill();
   arc(200,200,300, 300, 0, TWO_PI,CHORD);
-  
-  
-  
-  
-  
+
   translate(-directionOffsetX, -directionOffsetY);
 }
 
@@ -74,7 +87,8 @@ void serialEvent(Serial test){
 
 
 void drawSpeedMeter(int speed){
-  fill(0,0,255);
+  strokeWeight(0);
+  fill(255,255,255);
   ellipse(speedOffsetX+200, speedOffsetY+200, 300,300);
   
 }
@@ -88,6 +102,7 @@ void drawBackground(){
 }
 
 void drawEmptyKeys(){
+  strokeWeight(0);
   fill(100,100,100);
   rect(inpOffsetX+150, inpOffsetY+25, 100, 100);
   rect(inpOffsetX+25, inpOffsetY+150, 100, 100);
@@ -131,29 +146,41 @@ int distance(int x,int y){
   return (int)sqrt((x*x)+(y*y));
 }
 
+void mouseClicked(){
+  //Check if mouse has been moved in direction options
+  if(distance(directionOffsetX+200-mouseX, directionOffsetY+200-mouseY ) < 150){
+     staticArrowX= endArrowX;
+     staticArrowY = endArrowY;
+     clickedOnDirection = true;
+  }
+}
+
 void mouseMoved(){
   //Check if mouse has been moved in direction options
   if(distance(directionOffsetX+200-mouseX, directionOffsetY+200-mouseY ) < 150){
-    fill(255);
-    rect(0,0,20,20);
+    endArrowX = mouseX;
+    endArrowY = mouseY;
+    movedInsideDirection = true;
+    //rect(0,0,20,20);
   }else{
-    fill(255,0,0);
-    rect(0,0,20,20);
+   
   }
   //println(distance(directionOffsetX+200-mouseX, directionOffsetY+200-mouseY ));
 }
 
 void drawArrow(int xStart, int yStart,int xEnd,int yEnd,int R,int G,int B){
-  fill(R, G, B);
+  strokeWeight(3);
+  
+  stroke(R, G, B);
   line(xStart, yStart, xEnd, yEnd);
   float rotationVec = atan2((float)(xStart - xEnd), (float)(yStart- yEnd));
-  float leftRotationVec = rotationVec - (0.75*PI);
-  float rightRotationVec = rotationVec + (-0.25*PI);
+  float leftRotationVec = rotationVec - (0.65*PI);
+  float rightRotationVec = rotationVec + (-0.35*PI);
   
-  line(xEnd, yEnd, xEnd + cos(-leftRotationVec)*50, yEnd + sin(-leftRotationVec)*50);
-  line(xEnd, yEnd, xEnd + cos(-rightRotationVec)*50, yEnd + sin(-rightRotationVec)*50);
+  line(xEnd, yEnd, xEnd + cos(-leftRotationVec)*25, yEnd + sin(-leftRotationVec)*25);
+  line(xEnd, yEnd, xEnd + cos(-rightRotationVec)*25, yEnd + sin(-rightRotationVec)*25);
   
-  println(rotationVec);
+  //println(rotationVec);
   
   
   
@@ -161,7 +188,18 @@ void drawArrow(int xStart, int yStart,int xEnd,int yEnd,int R,int G,int B){
   
 }
 
+int directionToDegrees(int xCoord,int yCoord){
+  int degrees = 0;
+  
+  float rotationVec = atan2((float)((directionOffsetX + 200)-(xCoord)), (float)((directionOffsetY + 200)-(yCoord)));
+  rotationVec = (-rotationVec);
+  //println(rotationVec);
+  degrees = (int)ceil(rotationVec * 57.295795); 
+  return degrees;
+}
+
 void drawKeys(){
+  strokeWeight(0);
   if(keyList[0]){
     fill(0,255,0);
     
