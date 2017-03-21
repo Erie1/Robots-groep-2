@@ -5,7 +5,6 @@
  *  Author: Erik
  */ 
 
-#include "rp6aansluitingen.h"
 #include "communications.h"
 #include "MotorControl.h"
 #include "../../shared/twi_codes.h"
@@ -18,7 +17,12 @@ uint8_t data_ont[20]; //max 20
 volatile uint8_t data_flag;
 volatile uint8_t databyte;
 
-void usartToMotors(uint8_t leftOver);
+void ontvangData(uint8_t data[],uint8_t tel);
+uint8_t verzendByte();
+
+void quickAdjust(uint8_t data);
+
+void motorControl();
 void sonar(uint8_t data[], uint8_t tel);
 
 void initCommunication(){
@@ -43,10 +47,10 @@ void initCommunication(){
 }
 
 /************************************************************************/
-/* de functie om byte mee te verzenden                                  */
+/* vertelt de arduino of er een noodstop is geweest                     */
 /************************************************************************/
 uint8_t verzendByte() {
-	return 0x22;
+	return blocked;
 }
 
 /************************************************************************/
@@ -60,41 +64,22 @@ void ontvangData(uint8_t data[],uint8_t tel){
 
 
 	switch (description) {
-		case CONTROL:
-			usartToMotors(data_ont[0]);
+		case EMERGENCY_BRAKE:
+			emergencyBrake();
 			break;
-		case SONAR_DIS:
-			sonar(data_ont, tel - 1);
+		case SET_DISTANCE:
+			driveDistance(data[0]);
+			break;
+		case CONTROL:
+			rightDesiredSpeed = data[0];
+			leftDesiredSpeed = data[1];
+			break;
+		case UNBLOCK :
+			blocked = 0x00;
 			break;
 	}
 }
 
-/************************************************************************/
-/* sets the sonar	                                                    */
-/************************************************************************/
-void sonar(uint8_t data[], uint8_t tel){
-	sonar_dis = atoi((char*)&data);
-	writeInteger(sonar_dis, 10);
-	if(sonar_dis <= 8) emergencyBrake();
-}
-
-/************************************************************************/
-/* changes desired motorspeeds according to input                       */
-/************************************************************************/
-void usartToMotors(uint8_t leftOver){
-	int leftTarget = 0, rightTarget = 0;
-	int speed = 75;
-	
-	if(leftOver == 'w') {leftTarget += 2 * speed; rightTarget += 2 * speed; }
-	if(leftOver == 's') {leftTarget -= 2 * speed; rightTarget -= 2 * speed;}
-	if(leftOver == 'a') { leftTarget -= speed; rightTarget += speed; }
-	if(leftOver == 'd') { leftTarget += speed; rightTarget -= speed; }
-	if(leftOver == 'e') {leftTarget = 0; rightTarget = 0;}
-	rightDesiredSpeed = rightTarget;
-	leftDesiredSpeed = leftTarget;
-}
-
 ISR(TWI_vect) {
-	writeString("interupt");
 	slaaftwi();
 }

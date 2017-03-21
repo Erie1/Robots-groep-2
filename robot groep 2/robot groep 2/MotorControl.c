@@ -10,6 +10,9 @@
  #include <stdlib.h>
  #include <avr/io.h>
  #include <avr/interrupt.h>
+ 
+ void setLeftMotor(int speed);
+ void setRightMotor(int speed);
 
  /************************************************************************/
  /* initialize the motors                                                */
@@ -62,6 +65,11 @@
  void emergencyBrake(){
 	 setMotors(0, 0);
 	 rightDesiredSpeed = leftDesiredSpeed = 0;
+	 blocked = 0xff;
+ }
+
+ void driveDistance(uint8_t distance){
+	// TODO
  }
 
  /************************************************************************/

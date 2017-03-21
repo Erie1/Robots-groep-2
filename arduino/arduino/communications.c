@@ -11,6 +11,10 @@
  #include <stdint.h>
  #include <avr/io.h>
  
+ void setMode(uint8_t set);
+ void verzenden_array(uint8_t address, uint8_t b[], uint8_t tel);
+
+ void (*mode) (uint8_t);
 
 /************************************************************************/
 /* initializes all communications                                       */
@@ -51,8 +55,8 @@
  /************************************************************************/
  /* sends a series of bytes regarding key presses                        */
  /************************************************************************/
- void sendControl(uint8_t key){
-	 uint8_t data[] = { CONTROL, key };
+ void sendControl(uint8_t targets[]){
+	 uint8_t data[] = { CONTROL, targets[0], targets[1] };
 	 verzenden_array(DEVICE_ADRES, data, 2);
  }
 
@@ -68,6 +72,21 @@
 		 mode = setMode;
 	 }
  }
+
+/************************************************************************/
+/* changes desired motorspeeds according to input                       */
+/************************************************************************/
+void usartToMotors(uint8_t leftOver){
+	uint8_t targets[] = { 0, 0 };
+	int speed = 75;
+	
+	if(leftOver == 'w') {targets[1] += 2 * speed; targets[0] += 2 * speed; }
+	if(leftOver == 's') {targets[1] -= 2 * speed; targets[0] -= 2 * speed;}
+	if(leftOver == 'a') { targets[1] -= speed; targets[0] += speed; }
+	if(leftOver == 'd') { targets[1] += speed; targets[0] -= speed; }
+	if(leftOver == 'e') {targets[1] = 0; targets[0] = 0;}
+	sendControl(targets);
+}
 
  /************************************************************************/
  /* interupt service routine for input from the pc                       */

@@ -4,7 +4,7 @@
  * Created: 17-3-2017 09:34:43
  *  Author: Erik
  */ 
-
+ #include <stdint.h>
 
 #ifndef MOTORCONTROL_H_
 #define MOTORCONTROL_H_
@@ -23,12 +23,12 @@
 // functions
 void initMotors();
 void setMotors(int left, int right);
-void setLeftMotor(int speed);
-void setRightMotor(int speed);
+void driveDistance(uint8_t distance);
 void emergencyBrake();
 
 // external variables
 int rightDesiredSpeed;
 int leftDesiredSpeed;
+uint8_t blocked;
 
 #endif /* MOTORCONTROL_H_ */

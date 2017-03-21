@@ -60,13 +60,6 @@ int main(void)
 		{
 			uint32_t distance;
 			distance = (PW/58); //convert to cm
-			uint8_t dist[5];
-			dist[0] = SONAR_DIS;
-			for( int i  = 1; i < 5; i++){
-				dist[i] = distance;
-				distance <<= 8;
-			}
-			verzenden_array(DEVICE_ADRES, dist, 4);
 		}
 	}
 }
