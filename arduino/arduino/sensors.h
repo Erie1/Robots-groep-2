@@ -11,6 +11,6 @@
 
 
 uint16_t getPulseWidth();
-
+void sendSensors();
 
 #endif /* SENSORS_H_ */

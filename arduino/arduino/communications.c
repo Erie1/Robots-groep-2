@@ -5,22 +5,24 @@
  *  Author: Erik
  */
  #include "../../shared/twi_codes.h"
-#include "../../shared/commando_codes.h"
+ #include "../../shared/commando_codes.h"
+
  #include "communications.h"
  #include "sensors.h"
  #include "i2c_mst.h"
+
  #include <stdint.h>
  #include <avr/io.h>
  
  void verzenden_array(uint8_t address, uint8_t b[], uint8_t tel);
 
- void setMode(uint8_t set);
+ void setInputMode(uint8_t set);
  // modes
- void sendControl(uint8_t targets[]);
- void sendDistance(uint8_t distance);
- void distanceAndDirection(uint8_t);
-
  void usartToMotors(uint8_t leftOver);
+ void distanceAndDirection(uint8_t data);
+ void parcours(uint8_t data);
+ 
+ void sendDistance(uint8_t distance);
 
  void (*mode) (uint8_t);
 
@@ -28,11 +30,12 @@
 /* initializes all communications                                       */
 /************************************************************************/
  void initCommunication(){
-	 mode = setMode;
+	 //mode = setInputMode;
 
 	 PORTD = 0x03; //pullup SDA en SCL
 	 initUSART();
-	 UCSR0B |= 1 << RXCIE0;
+	 writeString("usart works");
+	 //UCSR0B |= 1 << RXCIE0;
 	 init_master();
  }
  
@@ -76,16 +79,21 @@
  /************************************************************************/
  /* sets the function to be executed on the next bytes sent by the pc    */
  /************************************************************************/ 
- void setMode(uint8_t set){
+ void setInputMode(uint8_t set){
 	 switch (set & 0xE0){
-		 case CONTROL:
+		 case COM_CONTROL:
 			mode = usartToMotors;
 			break;
-		 case SET_DISTANCE :
+		 case COM_AFSTANDRICHTING :
 			mode = distanceAndDirection;
 			break;
+		case COM_PARCOURS :
+			mode = parcours;
+			break;
+		 case COM_REQUEST_SENSORS :
+			sendSensors();
 		 default:
-		 mode = setMode;
+		 mode = setInputMode;
 	 }
  }
 
@@ -102,6 +110,19 @@ void usartToMotors(uint8_t leftOver){
 	if(leftOver == 'd') { targets[1] += speed; targets[0] -= speed; }
 	if(leftOver == 'e') {targets[1] = 0; targets[0] = 0;}
 	sendControl(targets);
+	mode = setInputMode;
+}
+
+void distanceAndDirection(uint8_t data){
+	// TODO
+}
+
+void parcours(uint8_t data){
+	// TODO
+}
+
+void emergencyBrake(){
+	verzenden(DEVICE_ADRES, EMERGENCY_BRAKE);
 }
 
  /************************************************************************/
@@ -110,5 +131,6 @@ void usartToMotors(uint8_t leftOver){
  ISR(USART0_RX_vect){
 	 uint8_t data = UDR0;
 	 usartToMotors(data);
-	 setMode(data);
+	 mode(data);
+	 writeString(ACK);
  }

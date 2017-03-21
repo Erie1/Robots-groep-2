@@ -47,12 +47,14 @@
 	 setRightMotor(right);
  }
  void setLeftMotor(int speed){
+	if(blocked == 0xff) return;
 	 int absSpeed = abs(speed);
 	 if(MOTORSPEED_L != absSpeed) MOTORSPEED_L = absSpeed;
 
 	 speed < 0 ? (PORTC |= DIR_L) : (PORTC &= ~DIR_L);
  }
  void setRightMotor(int speed){
+	if(blocked == 0xff) return;
 	 int absSpeed = abs(speed);
 	 if(MOTORSPEED_R != absSpeed) MOTORSPEED_R = absSpeed;
 

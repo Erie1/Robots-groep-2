@@ -30,11 +30,20 @@ int main(void)
 {
 	void initCommunication();
 	sei();
-	uint16_t PW; //Pulse width for US
+	//uint16_t PW; //Pulse width for US
 	writeString("Ultra Sonic Active"); //debug message
 
-	while (1)
+	uint8_t temp[] = { 200, 200 };
+	sendControl(temp);
+	for (int i = 0; i < 20; i++)
 	{
+		_delay_ms(250);
+	}
+	emergencyBrake();
+	sendControl(temp);
+
+	while (1)
+	{/*
 		US_DDR |= (1<<US_POS); //Set Ultra Sonic Port as out
 		_delay_us(10);
 		//Give the US pin a 15us High Pulse
@@ -60,7 +69,7 @@ int main(void)
 		{
 			uint32_t distance;
 			distance = (PW/58); //convert to cm
-		}
+		}*/
 	}
 }
 

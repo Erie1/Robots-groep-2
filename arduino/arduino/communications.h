@@ -13,6 +13,8 @@
 
 // functions
 void initCommunication();
+void sendControl(uint8_t targets[]);
+void emergencyBrake();
 
 
 
