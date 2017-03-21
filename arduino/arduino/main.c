@@ -7,13 +7,6 @@
 #define F_CPU 16000000
 #define DEVICE_ADRES   8
 
-#define US_PORT			PORTD //the port of the sensor
-#define US_PIN			PIND //the pin of the sensor
-#define US_DDR			DDRD
-#define US_POS			PD5 //PORTD5
-#define US_ERROR		0xffff //time-out system
-#define US_NO_OBSTACLE	0xfffe // no obstacle in range
-
 #include "../../shared/twi_codes.h"
 #include "i2c_mst.h"
 #include <avr/io.h>
@@ -21,6 +14,13 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <stdint.h>
+
+#define US_PORT			PORTD //the port of the sensor
+#define US_PIN			PIND //the pin of the sensor
+#define US_DDR			DDRD
+#define US_POS			PD5 //PORTD5
+#define US_ERROR		0xffff //time-out system
+#define US_NO_OBSTACLE	0xfffe // no obstacle in range
 
 // functions
 void (*mode) (uint8_t);
