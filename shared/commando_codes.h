@@ -1,6 +1,6 @@
-#define COM_CONTROL 0x20
-#define COM_AFSTANDRICHTING 0x40
-#define COM_PARCOURS 0x60
+#define COM_CONTROL 1 << 5S
+#define COM_AFSTANDRICHTING 2 << 5
+#define COM_PARCOURS 3 << 5
 
 
 
