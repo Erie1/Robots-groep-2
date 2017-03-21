@@ -11,3 +11,7 @@
  #include <stdint.h>
  #include <util/delay.h>
  #include <avr/interrupt.h>
+
+ void sendSensors(){
+	// TODO
+ }

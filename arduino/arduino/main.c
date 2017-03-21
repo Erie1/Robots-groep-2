@@ -4,8 +4,6 @@
  * Created: 12-3-2017 13:25:33
  * Author : Erik
  */ 
-#define F_CPU 16000000
-
 #define US_PORT			PORTD //the port of the sensor
 #define US_PIN			PIND //the pin of the sensor
 #define US_DDR			DDRD
@@ -30,20 +28,20 @@ int main(void)
 {
 	void initCommunication();
 	sei();
-	//uint16_t PW; //Pulse width for US
+	uint16_t PW; //Pulse width for US
 	writeString("Ultra Sonic Active"); //debug message
 
-	uint8_t temp[] = { 200, 200 };
+	/*uint8_t temp[] = { 200, 200 };
 	sendControl(temp);
 	for (int i = 0; i < 20; i++)
 	{
 		_delay_ms(250);
 	}
 	emergencyBrake();
-	sendControl(temp);
+	sendControl(temp);*/
 
 	while (1)
-	{/*
+	{
 		US_DDR |= (1<<US_POS); //Set Ultra Sonic Port as out
 		_delay_us(10);
 		//Give the US pin a 15us High Pulse
@@ -69,7 +67,7 @@ int main(void)
 		{
 			uint32_t distance;
 			distance = (PW/58); //convert to cm
-		}*/
+		}
 	}
 }
 
@@ -80,15 +78,15 @@ uint16_t getPulseWidth()
 	uint32_t i, result;
 	
 	//wait for the rising edge
-	/*for(i=0;i<600000;i++)
+	for(i=0;i<600000;i++)
 	{
-		if(!(US_PIN & (1<<US_POS)))ea
+		if(!(US_PIN & (1<<US_POS)))
 			continue;
 		else
 			break;
 	}
 	if(i == 600000)
-		return 0xffff; //indicates time out*/
+		return 0xffff; //indicates time out
 	
 	//High edge found
 	//Setup Timer1

@@ -13,6 +13,7 @@
 
  #include <stdint.h>
  #include <avr/io.h>
+ #include <avr/interrupt.h>
  
  void verzenden_array(uint8_t address, uint8_t b[], uint8_t tel);
 
