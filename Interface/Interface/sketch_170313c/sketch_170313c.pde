@@ -3,18 +3,98 @@ Serial myPort;  // Create object from Serial class
 String val;     // Data received from the serial port
 
 boolean[] keyList = {false, false, false, false};
-int dataToSend = 0;
+int xSize = 800;
+int ySize = 675;
+
+int inpOffsetX = 0;
+int inpOffsetY = 400;
+int speedOffsetX = 0;
+int speedOffsetY = 0;
+int directionOffsetX = 0;
+int directionOffsetY = 0;
+
 
 void setup(){
-
-  size(400, 275);
+  //Setup the canvas
+  size(800,675);
   
-  String portName = Serial.list()[0]; //change the 0 to a 1 or 2 etc. to match your port
+  //Draw first assets on the canvas
+  drawBackground();
+  drawEmptyKeys();
+  //drawSpeedMeter(6);
+  drawDirectionBox();
+  
+  //Open serial communcation on first open port
+  String portName = Serial.list()[0]; 
   myPort = new Serial(this, portName, 9600);
+  //Print the port to make sure it's the right one
   println(Serial.list()[0]);
-  delay(5000);
+  //Wait 4 seconds to make sure it's all ready.
+  delay(4000);
 }
 
+
+
+
+void draw(){
+   //<>//
+  myPort.write(keysToNumber());
+  clear();
+  
+  drawBackground();
+  drawKeys();
+  drawSpeedMeter(343);
+  drawArrow(400,400, mouseX, mouseY, 0,0,0);
+  
+  
+}
+
+void drawDirectionBox(){
+  translate(directionOffsetX, directionOffsetY);
+  
+  fill(255);
+  ellipse(200, 200, 300, 300);
+  
+  fill(0);
+  
+  
+  noFill();
+  arc(200,200,300, 300, 0, TWO_PI,CHORD);
+  
+  
+  
+  
+  
+  translate(-directionOffsetX, -directionOffsetY);
+}
+
+void serialEvent(Serial test){
+  //print((char)test.read());
+}
+
+
+void drawSpeedMeter(int speed){
+  fill(0,0,255);
+  ellipse(speedOffsetX+200, speedOffsetY+200, 300,300);
+  
+}
+
+
+void drawBackground(){
+  fill(13,36,73);
+  rect(0,0,xSize, ySize); 
+  
+  
+}
+
+void drawEmptyKeys(){
+  fill(100,100,100);
+  rect(inpOffsetX+150, inpOffsetY+25, 100, 100);
+  rect(inpOffsetX+25, inpOffsetY+150, 100, 100);
+  rect(inpOffsetX+150, inpOffsetY+150, 100, 100);
+  rect(inpOffsetX+275, inpOffsetY+150, 100, 100);
+}
+  
 void keyPressed(){
   if(key == 'w'){
     keyList[0] = true;
@@ -46,56 +126,86 @@ void keyReleased()
   }
 } 
 
+int distance(int x,int y){
+  //println(sqrt((x*x)+(y*y)));
+  return (int)sqrt((x*x)+(y*y));
+}
 
+void mouseMoved(){
+  //Check if mouse has been moved in direction options
+  if(distance(directionOffsetX+200-mouseX, directionOffsetY+200-mouseY ) < 150){
+    fill(255);
+    rect(0,0,20,20);
+  }else{
+    fill(255,0,0);
+    rect(0,0,20,20);
+  }
+  //println(distance(directionOffsetX+200-mouseX, directionOffsetY+200-mouseY ));
+}
 
-
-void draw(){
+void drawArrow(int xStart, int yStart,int xEnd,int yEnd,int R,int G,int B){
+  fill(R, G, B);
+  line(xStart, yStart, xEnd, yEnd);
+  float rotationVec = atan2((float)(xStart - xEnd), (float)(yStart- yEnd));
+  float leftRotationVec = rotationVec - (0.75*PI);
+  float rightRotationVec = rotationVec + (-0.25*PI);
   
-  dataToSend = 128;
+  line(xEnd, yEnd, xEnd + cos(-leftRotationVec)*50, yEnd + sin(-leftRotationVec)*50);
+  line(xEnd, yEnd, xEnd + cos(-rightRotationVec)*50, yEnd + sin(-rightRotationVec)*50);
+  
+  println(rotationVec);
+  
+  
+  
+  
+  
+}
+
+void drawKeys(){
   if(keyList[0]){
-    dataToSend += 8;
     fill(0,255,0);
     
   }else{
     fill(255,0,0);
   }
-  rect(150, 25, 100, 100);
+  rect(inpOffsetX+150, inpOffsetY+25, 100, 100);
   if(keyList[1]){
-    dataToSend += 4;
     fill(0,255,0);
   }else{
     fill(255,0,0);
   }
-  rect(25, 150, 100, 100);
+  rect(inpOffsetX+25, inpOffsetY+150, 100, 100);
   
   if(keyList[2]){
-    dataToSend += 2;
     fill(0,255,0);
   }else{
     fill(255,0,0);
   }
-  rect(150, 150, 100, 100);
+  rect(inpOffsetX+150, inpOffsetY+150, 100, 100);
+  
+  if(keyList[3]){
+    fill(0,255,0);
+  }else{
+    fill(255,0,0);
+  }
+  rect(inpOffsetX+275, inpOffsetY+150, 100, 100);
+}
+
+
+int keysToNumber(){
+  int dataToSend = 128;
+  if(keyList[0]){
+    dataToSend += 8;
+  }
+  if(keyList[1]){
+    dataToSend += 4;
+  }
+  if(keyList[2]){
+    dataToSend += 2;
+  }
   
   if(keyList[3]){
     dataToSend += 1;
-    fill(0,255,0);
-  }else{
-    fill(255,0,0);
   }
-  rect(275, 150, 100, 100);
-
-  
-  
-   //println(dataToSend); //<>//
-  myPort.write(0x21);
-  myPort.write(dataToSend);
-
- 
- 
-  //delay(5000);
-  
-}
-
-void serialEvent(Serial test){
-  print((char)test.read());
+  return dataToSend;
 }
