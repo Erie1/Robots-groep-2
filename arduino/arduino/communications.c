@@ -30,12 +30,12 @@
 /* initializes all communications                                       */
 /************************************************************************/
  void initCommunication(){
-	 //mode = setInputMode;
+	 mode = setInputMode;
 
 	 PORTD = 0x03; //pullup SDA en SCL
 	 initUSART();
 	 writeString("usart works");
-	 //UCSR0B |= 1 << RXCIE0;
+	 UCSR0B |= 1 << RXCIE0;
 	 init_master();
  }
  
