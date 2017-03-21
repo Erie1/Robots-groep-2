@@ -13,17 +13,17 @@
 #define US_ERROR		0xffff //time-out system
 #define US_NO_OBSTACLE	0xfffe // no obstacle in range
 
-#include <avr/io.h>
-#include <stdlib.h>
-#include <util/delay.h>
-#include <avr/interrupt.h>
-#include <stdint.h>
-
 #include "communications.h"
 #include "sensors.h"
 
 #include "../../shared/twi_codes.h"
 #include "i2c_mst.h"
+
+#include <avr/io.h>
+#include <stdlib.h>
+#include <util/delay.h>
+#include <avr/interrupt.h>
+#include <stdint.h>
 
 
 int main(void)
