@@ -70,11 +70,33 @@ void ontvangData(uint8_t data[],uint8_t tel){
 		case SET_DISTANCE:
 			driveDistance(data_ont[0]);
 			break;
-		case CONTROL:
-			rightDesiredSpeed = data_ont[1];
-			if(~data_ont[0] & 1) rightDesiredSpeed *= -1;
-			leftDesiredSpeed = data_ont[2];
-			if(~data_ont[0] & 2) rightDesiredSpeed *= -1;
+		case INCREASE_LEFT :
+			setLeftMotor(MOTORSPEED_L + 5);	
+			break;
+		case INCREASE_RIGHT :
+			setRightMotor(MOTORSPEED_R + 5);
+			break;
+		case DECREASE_LEFT :
+			setLeftMotor(MOTORSPEED_L - 5);
+			break;
+		case DECREASE_RIGHT :
+			setRightMotor(MOTORSPEED_R + 5);
+			break;
+		case INCREASE :
+			setRightMotor(MOTORSPEED_R + 5);
+			setLeftMotor(MOTORSPEED_L + 5);
+			break;
+		case DECREASE :
+			setRightMotor(MOTORSPEED_R - 5);
+			setLeftMotor(MOTORSPEED_L - 5);
+			break;
+		case TURN_RIGHT :
+			setRightMotor(MOTORSPEED_R += 5);
+			setLeftMotor(MOTORSPEED_L -= 5);
+			break;
+		case TURN_LEFT :
+			setRightMotor(MOTORSPEED_R -= 5);
+			setLeftMotor(MOTORSPEED_L += 5);
 			break;
 		case UNBLOCK :
 			blocked = 0x00;

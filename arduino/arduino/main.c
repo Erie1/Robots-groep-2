@@ -31,14 +31,8 @@ int main(void)
 	uint16_t PW; //Pulse width for US
 	writeString("Ultra Sonic Active"); //debug message
 
-	/*uint8_t temp[] = { 200, 200 };
-	sendControl(temp);
-	for (int i = 0; i < 20; i++)
-	{
-		_delay_ms(250);
-	}
+	for(int i = 0; i < 20; i++) usartToMotors(1);
 	emergencyBrake();
-	sendControl(temp);*/
 
 	while (1)
 	{

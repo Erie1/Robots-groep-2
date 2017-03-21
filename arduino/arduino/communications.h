@@ -17,5 +17,6 @@ void sendControl(int targets[]);
 void emergencyBrake();
 
 
+void usartToMotors(uint8_t leftOver);
 
 #endif /* COMMUNICATIONS_H_ */

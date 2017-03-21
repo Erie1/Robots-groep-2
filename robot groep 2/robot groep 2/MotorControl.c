@@ -23,13 +23,6 @@
 	 TCCR1A |= 1 << COM1A1 | (1 << COM1B1);	// non inverted mode on both motors
 	 TCCR1B |= 1 << CS10;					// no prescaler
 
-
-	 // sets timer0 for acceleration and deceleration
-	 TCCR2 = WGM21;							// CTC mode
-	 TCCR2 |= 1 << CS20 | (1 << CS22);		// 1024 prescaler
-	 TIMSK |= 1 << OCIE2;					// enable the timers interrupt mask bit
-	 OCR2 = MOTOR_ADJUST_DELAY;				// set the compare register for timer0
-
 	 
 	 // set the motor registers
 	 DDRC |= DIR_R | DIR_L;					// set direction pins as output
@@ -49,14 +42,14 @@
  void setLeftMotor(int speed){
 	if(blocked == 0xff) return;
 	 int absSpeed = abs(speed);
-	 if(MOTORSPEED_L != absSpeed) MOTORSPEED_L = absSpeed;
+	 if(MOTORSPEED_L != absSpeed && absSpeed < 200) MOTORSPEED_L = absSpeed;
 
 	 speed < 0 ? (PORTC |= DIR_L) : (PORTC &= ~DIR_L);
  }
  void setRightMotor(int speed){
 	if(blocked == 0xff) return;
 	 int absSpeed = abs(speed);
-	 if(MOTORSPEED_R != absSpeed) MOTORSPEED_R = absSpeed;
+	 if(MOTORSPEED_R != absSpeed && absSpeed < 200) MOTORSPEED_R = absSpeed;
 
 	 speed < 0 ? (PORTC |= DIR_R) : (PORTC &= ~DIR_R);
  }
@@ -77,7 +70,7 @@
  /************************************************************************/
  /* chances the speed of the motors on timer0 COMP interrupt             */
  /************************************************************************/
- ISR(TIMER2_COMP_vect){
+ /*ISR(TIMER2_COMP_vect){
 	 int rightTarget = MOTORSPEED_R;
 	 if(PORTC & DIR_R) rightTarget = -rightTarget;
 	 int leftTarget = MOTORSPEED_L;
@@ -91,4 +84,4 @@
 		 leftTarget += (leftDesiredSpeed - leftTarget) / MOTOR_ADJUST_FREQUENTIE;
 		 leftDesiredSpeed > leftTarget ? setLeftMotor(++leftTarget) : setLeftMotor(--leftTarget);
 	 }
- }
+ }*/
