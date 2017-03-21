@@ -35,7 +35,6 @@
 
 	 PORTD = 0x03; //pullup SDA en SCL
 	 initUSART();
-	 writeString("usart works");
 	 UCSR0B |= 1 << RXCIE0;
 	 init_master();
  }
@@ -67,9 +66,12 @@
  /************************************************************************/
  /* sends a series of bytes regarding key presses                        */
  /************************************************************************/
- void sendControl(uint8_t targets[]){
-	 uint8_t data[] = { CONTROL, targets[0], targets[1] };
-	 verzenden_array(DEVICE_ADRES, data, 3);
+ void sendControl(int targets[]){
+	 uint8_t direction = 0;
+	 if(targets[0] < 0) direction |= 1;
+	 if (targets[0] < 0) direction |= 2;
+	 uint8_t data[] = { CONTROL, direction, targets[0], targets[1] };
+	 verzenden_array(DEVICE_ADRES, data, 4);
  }
 
  void sendDistance(uint8_t distance){
@@ -102,14 +104,15 @@
 /* changes desired motorspeeds according to input                       */
 /************************************************************************/
 void usartToMotors(uint8_t leftOver){
-	uint8_t targets[] = { 0, 0 };
+	int targets[] = { 0, 0 };
 	int speed = 75;
 	
-	if(leftOver == 'w') {targets[1] += 2 * speed; targets[0] += 2 * speed; }
-	if(leftOver == 's') {targets[1] -= 2 * speed; targets[0] -= 2 * speed;}
+	if(leftOver == 'w') { targets[1] += 2 * speed; targets[0] += 2 * speed; }
+	if(leftOver == 's') { targets[1] -= 2 * speed; targets[0] -= 2 * speed;}
 	if(leftOver == 'a') { targets[1] -= speed; targets[0] += speed; }
 	if(leftOver == 'd') { targets[1] += speed; targets[0] -= speed; }
-	if(leftOver == 'e') {targets[1] = 0; targets[0] = 0;}
+	if(leftOver == 'e') { targets[1] = 0; targets[0] = 0;}
+	writeInteger(targets[0], 10); writeString(" "); writeInteger(targets[1], 10);
 	sendControl(targets);
 	mode = setInputMode;
 }
@@ -133,5 +136,5 @@ void emergencyBrake(){
 	 uint8_t data = UDR0;
 	 usartToMotors(data);
 	 mode(data);
-	 writeString(ACK);
+	 //writeString(ACK);
  }

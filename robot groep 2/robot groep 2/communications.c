@@ -13,7 +13,7 @@
 #include <util/twi.h>
 #include <avr/interrupt.h>
 
-uint8_t data_ont[20]; //max 20
+int8_t data_ont[20]; //max 20
 volatile uint8_t data_flag;
 volatile uint8_t databyte;
 
@@ -68,11 +68,13 @@ void ontvangData(uint8_t data[],uint8_t tel){
 			emergencyBrake();
 			break;
 		case SET_DISTANCE:
-			driveDistance(data[0]);
+			driveDistance(data_ont[0]);
 			break;
 		case CONTROL:
-			rightDesiredSpeed = data[0];
-			leftDesiredSpeed = data[1];
+			rightDesiredSpeed = data_ont[1];
+			if(~data_ont[0] & 1) rightDesiredSpeed *= -1;
+			leftDesiredSpeed = data_ont[2];
+			if(~data_ont[0] & 2) rightDesiredSpeed *= -1;
 			break;
 		case UNBLOCK :
 			blocked = 0x00;

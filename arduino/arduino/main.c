@@ -26,7 +26,7 @@
 
 int main(void)
 {
-	void initCommunication();
+	initCommunication();
 	sei();
 	uint16_t PW; //Pulse width for US
 	writeString("Ultra Sonic Active"); //debug message
@@ -56,7 +56,7 @@ int main(void)
 		//Handle Errors
 		if(PW == US_ERROR)
 		{
-			writeString("US ERROR!");
+			//writeString("US ERROR!");
 		}
 		else if( PW == US_NO_OBSTACLE)
 		{
