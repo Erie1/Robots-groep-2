@@ -5,14 +5,22 @@
  *  Author: Erik
  */
  #include "../../shared/twi_codes.h"
+#include "../../shared/commando_codes.h"
  #include "communications.h"
  #include "sensors.h"
  #include "i2c_mst.h"
  #include <stdint.h>
  #include <avr/io.h>
  
- void setMode(uint8_t set);
  void verzenden_array(uint8_t address, uint8_t b[], uint8_t tel);
+
+ void setMode(uint8_t set);
+ // modes
+ void sendControl(uint8_t targets[]);
+ void sendDistance(uint8_t distance);
+ void distanceAndDirection(uint8_t);
+
+ void usartToMotors(uint8_t leftOver);
 
  void (*mode) (uint8_t);
 
@@ -27,7 +35,7 @@
 	 UCSR0B |= 1 << RXCIE0;
 	 init_master();
  }
-
+ 
  /************************************************************************/
  /* met deze functie kan een array van bytes worden verzonden            */
  /************************************************************************/
@@ -57,17 +65,25 @@
  /************************************************************************/
  void sendControl(uint8_t targets[]){
 	 uint8_t data[] = { CONTROL, targets[0], targets[1] };
-	 verzenden_array(DEVICE_ADRES, data, 2);
+	 verzenden_array(DEVICE_ADRES, data, 3);
+ }
+
+ void sendDistance(uint8_t distance){
+	uint8_t data[] = { SET_DISTANCE, distance };
+	verzenden_array(DEVICE_ADRES, data, 2);
  }
 
  /************************************************************************/
  /* sets the function to be executed on the next bytes sent by the pc    */
  /************************************************************************/ 
  void setMode(uint8_t set){
-	 switch (set){
+	 switch (set & 0xE0){
 		 case CONTROL:
-		 mode = sendControl;
-		 break;
+			mode = usartToMotors;
+			break;
+		 case SET_DISTANCE :
+			mode = distanceAndDirection;
+			break;
 		 default:
 		 mode = setMode;
 	 }
@@ -93,5 +109,6 @@ void usartToMotors(uint8_t leftOver){
  /************************************************************************/
  ISR(USART0_RX_vect){
 	 uint8_t data = UDR0;
-	 sendControl(data);
+	 usartToMotors(data);
+	 setMode(data);
  }
