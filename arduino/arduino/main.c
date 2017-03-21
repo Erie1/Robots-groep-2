@@ -15,6 +15,7 @@
 #include "sensors.h"
 
 #include "../../shared/twi_codes.h"
+#include "../../shared/commando_codes.h"
 #include "i2c_mst.h"
 
 #include <avr/io.h>
