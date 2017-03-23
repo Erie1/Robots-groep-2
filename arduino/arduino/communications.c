@@ -25,7 +25,6 @@
  
  void sendDistance(uint8_t distance);
 
- char ack = ACK, nack = NACK;
  int (*mode) (uint8_t);
 
 /************************************************************************/
@@ -73,25 +72,25 @@
  /* sets the function to be executed on the next bytes sent by the pc    */
  /************************************************************************/ 
  int setInputMode(uint8_t set){
-	 if (~set & 128) return 1;
-	 switch (set & 0xE0){
-		 case COM_CONTROL:
-			mode = usartToMotors;
-			break;
-		 case COM_AFSTANDRICHTING :
-			mode = distanceAndDirection;
-			break;
-		case COM_PARCOURS :
-			mode = parcours;
-			break;
-		 case COM_REQUEST_SENSORS :
-			sendSensors();
-			break;
-		 default:
-		 mode = setInputMode;
-		 return 1;
-	 }
-	 return 0;
+	 if (set & 128){
+		 switch (set & 0x70){
+			 case COM_CONTROL:
+				mode = usartToMotors;
+				break;
+			 case COM_AFSTANDRICHTING :
+				mode = distanceAndDirection;
+				break;
+			case COM_PARCOURS :
+				mode = parcours;
+				break;
+			 case COM_REQUEST_SENSORS :
+				sendSensors();
+				break;
+			 default:
+			 return 1;
+		 }
+		 return 0;
+	 } return 1;
  }
 
 /************************************************************************/
@@ -126,5 +125,5 @@ void emergencyBrake(){
  /************************************************************************/
  ISR(USART0_RX_vect){
 	 uint8_t data = UDR0;
-	 mode(data) == 0 ? writeString(&ack) : writeString(&nack);
+	 mode(data) == 0 ? writeString((char)ACK) : writeString((char)NACK);
  }
