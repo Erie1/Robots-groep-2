@@ -1,20 +1,152 @@
+//COPYRIGHT GROEP 2
+
 import processing.serial.*;
+import controlP5.*;
+
+
+
 Serial myPort;  // Create object from Serial class
 String val;     // Data received from the serial port
 
 boolean[] keyList = {false, false, false, false};
-int dataToSend = 0;
+int xSize = 800;
+int ySize = 875;
+
+int newSpeed = 0;
+int drawSpeed = 0;
+
+int inpOffsetX = 0;
+int inpOffsetY = 600;
+int speedOffsetX = 0;
+int speedOffsetY = 0;
+int directionOffsetX = 0;
+int directionOffsetY = 0;
+
+int endArrowX = 200+directionOffsetX;
+int endArrowY = 200+directionOffsetY;
+
+int staticArrowX = 200+directionOffsetX;
+int staticArrowY = 200+directionOffsetY;
+
+boolean clickedOnDirection = false;
+boolean movedInsideDirection = false;
+
+boolean newCommand = true;
+int afstand = 0;
+
+ControlP5 distanceBox;
+
+
+
+
 
 void setup(){
-
-  size(400, 275);
+  //Setup the canvas
+  size(800,875);
   
-  String portName = Serial.list()[0]; //change the 0 to a 1 or 2 etc. to match your port
+  //Draw first assets on the canvas
+  drawBackground();
+  drawEmptyKeys();
+  drawSpeedMeter(6);
+  drawDirectionBox();
+  
+  //Font
+  PFont font1 = createFont("arial", 20);
+  
+  //Initialize inputBox 
+  distanceBox = new ControlP5(this);
+  distanceBox.addTextfield(" ").setPosition(50, 480).setSize(300, 20).setFont(font1).setValue(100);
+  
+  
+  textSize(20);
+  
+  //Open serial communcation on first open port
+  
+  //String portName = "COM8";
+  String portName = Serial.list()[0]; 
   myPort = new Serial(this, portName, 9600);
+  //Print the port to make sure it's the right one
   println(Serial.list()[0]);
-  delay(5000);
+  //Wait 4 seconds to make sure it's all ready.
+  delay(4000);
 }
 
+
+
+
+void draw(){
+  //if(newCommand){
+    //newCommand = false;
+    myPort.write(0x21);
+    myPort.write(keysToNumber());
+    //while(!newCommand){}
+  //}
+  
+  afstand = int(distanceBox.get(Textfield.class, " ").getText());
+  
+  //Krijg de afstand.
+  //afstand = distance; //<>//
+  //clear(); //<>//
+  
+  drawBackground();
+  drawKeys();
+  drawSpeedMeter(343);
+  if(clickedOnDirection){
+    drawArrow(directionOffsetX+200, directionOffsetY + 200, staticArrowX, staticArrowY, 255,0,0);
+  }
+  if(movedInsideDirection){
+    drawArrow(directionOffsetX+200, directionOffsetY + 200, endArrowX, endArrowY, 0,0,0);
+    drawSpeed = (int)ceil(0.6666666666666666666666666*distance(endArrowX - (directionOffsetX+200), endArrowY-(directionOffsetY + 200)));
+  }
+  
+  text("Direction: "+directionToDegrees(staticArrowX, staticArrowY)+"°   ("+directionToDegrees(endArrowX, endArrowY)+"°) ", directionOffsetX + 50, directionOffsetY + 400);  
+  text("Snelheid:  "+newSpeed + "%  ("+drawSpeed+"%)", directionOffsetX + 50, 430); 
+  text("Afstand: " + afstand + " cm", 50, 460);
+}
+
+void drawDirectionBox(){
+  strokeWeight(0);
+  translate(directionOffsetX, directionOffsetY);
+  
+  fill(255,255,255);
+  
+  ellipse(200, 200, 300, 300);
+  arc(200,200,300, 300, 0, TWO_PI,CHORD);
+
+  translate(-directionOffsetX, -directionOffsetY);
+}
+
+void serialEvent(Serial test){
+  
+   
+   print((char)test.read());
+}
+
+
+void drawSpeedMeter(int speed){
+  strokeWeight(0);
+  fill(255,255,255);
+  ellipse(speedOffsetX+200, speedOffsetY+200, 300,300);
+  
+}
+
+
+void drawBackground(){
+  fill(13,36,73);
+  rect(0,0,xSize, ySize); 
+  
+  
+}
+
+void drawEmptyKeys(){
+  strokeWeight(0);
+  fill(100,100,100);
+  rect(inpOffsetX+150, inpOffsetY+25, 100, 100);
+  rect(inpOffsetX+25, inpOffsetY+150, 100, 100);
+  rect(inpOffsetX+150, inpOffsetY+150, 100, 100);
+  rect(inpOffsetX+275, inpOffsetY+150, 100, 100);
+}
+  
 void keyPressed(){
   if(key == 'w'){
     keyList[0] = true;
@@ -46,59 +178,110 @@ void keyReleased()
   }
 } 
 
+int distance(int x,int y){
+  //println(sqrt((x*x)+(y*y)));
+  return (int)sqrt((x*x)+(y*y));
+}
 
+void mouseClicked(){
+  //Check if mouse has been moved in direction options
+  if(distance(directionOffsetX+200-mouseX, directionOffsetY+200-mouseY ) < 150){
+     newSpeed = (int)ceil(0.66666666666666666666666*distance(directionOffsetX+200-mouseX, directionOffsetY+200-mouseY));
+     staticArrowX= endArrowX;
+     staticArrowY = endArrowY;
+     clickedOnDirection = true;
+  }
+}
 
+void mouseMoved(){
+  //Check if mouse has been moved in direction options
+  if(distance(directionOffsetX+200-mouseX, directionOffsetY+200-mouseY ) < 150){
+    endArrowX = mouseX;
+    endArrowY = mouseY;
+    movedInsideDirection = true;
+    //rect(0,0,20,20);
+  }else{
+   
+  }
+  //println(distance(directionOffsetX+200-mouseX, directionOffsetY+200-mouseY ));
+}
 
-void draw(){
+void drawArrow(int xStart, int yStart,int xEnd,int yEnd,int R,int G,int B){
+  strokeWeight(3);
   
-  dataToSend = 0;
+  stroke(R, G, B);
+  line(xStart, yStart, xEnd, yEnd);
+  float rotationVec = atan2((float)(xStart - xEnd), (float)(yStart- yEnd));
+  float leftRotationVec = rotationVec - (0.65*PI);
+  float rightRotationVec = rotationVec + (-0.35*PI);
+  
+  line(xEnd, yEnd, xEnd + cos(-leftRotationVec)*25, yEnd + sin(-leftRotationVec)*25);
+  line(xEnd, yEnd, xEnd + cos(-rightRotationVec)*25, yEnd + sin(-rightRotationVec)*25);
+  
+  //println(rotationVec);
+  
+  
+  
+  
+  
+}
+
+int directionToDegrees(int xCoord,int yCoord){
+  int degrees = 0;
+  
+  float rotationVec = atan2((float)((directionOffsetX + 200)-(xCoord)), (float)((directionOffsetY + 200)-(yCoord)));
+  rotationVec = (-rotationVec);
+  //println(rotationVec);
+  degrees = (int)ceil(rotationVec * 57.295795); 
+  return degrees;
+}
+
+void drawKeys(){
+  strokeWeight(0);
   if(keyList[0]){
-    dataToSend += 8;
     fill(0,255,0);
     
   }else{
     fill(255,0,0);
   }
-  rect(150, 25, 100, 100);
+  rect(inpOffsetX+150, inpOffsetY+25, 100, 100);
   if(keyList[1]){
-    dataToSend += 4;
     fill(0,255,0);
   }else{
     fill(255,0,0);
   }
-  rect(25, 150, 100, 100);
+  rect(inpOffsetX+25, inpOffsetY+150, 100, 100);
   
   if(keyList[2]){
-    dataToSend += 2;
     fill(0,255,0);
   }else{
     fill(255,0,0);
   }
-  rect(150, 150, 100, 100);
+  rect(inpOffsetX+150, inpOffsetY+150, 100, 100);
+  
+  if(keyList[3]){
+    fill(0,255,0);
+  }else{
+    fill(255,0,0);
+  }
+  rect(inpOffsetX+275, inpOffsetY+150, 100, 100);
+}
+
+
+int keysToNumber(){
+  int dataToSend = 128;
+  if(keyList[0]){
+    dataToSend += 8;
+  }
+  if(keyList[1]){
+    dataToSend += 4;
+  }
+  if(keyList[2]){
+    dataToSend += 2;
+  }
   
   if(keyList[3]){
     dataToSend += 1;
-    fill(0,255,0);
-  }else{
-    fill(255,0,0);
   }
-  rect(275, 150, 100, 100);
-
-  
-  
-   //println(dataToSend); //<>// //<>//
-  myPort.write(0x91);
-  myPort.write(dataToSend);
-
- 
- 
-  //delay(2500);
-  
-}
-
-void serialEvent(Serial test){
-  char temp = (char)test.read();
-  if(temp == 0x06) println("ACK received");
-  if(temp == 0x15) println("NACK received");
-  print(temp);
+  return dataToSend;
 }
