@@ -86,12 +86,12 @@ void setup(){
 void draw(){
   //if(newCommand){
     //newCommand = false;
-  if(ACK_received || NACK_received){
-    myPort.write(0x21);
+    myPort.write(0x21); //<>//
+    while(!ACK_received)
+      if(NACK_received) myPort.write(0x21);
     myPort.write(keysToNumber()); //<>//
     NACK_received = false;
     ACK_received = false;
-  }
     //while(!newCommand){}
   if((startTimer+5000)<millis()){
     println("Connnection lost");

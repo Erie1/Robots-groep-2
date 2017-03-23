@@ -124,5 +124,5 @@ void emergencyBrake(){
  /************************************************************************/
  ISR(USART0_RX_vect){
 	 uint8_t data = UDR0;
-	 mode(data) == 0 ? writeString((char)ACK) : writeString((char)NACK);
+	 mode(data) == 0 ? writeString("\x06") : writeString("\x15");
  }
