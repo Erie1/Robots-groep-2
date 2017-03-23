@@ -4,6 +4,7 @@
  * Created: 19-3-2017 09:14:28
  *  Author: Erik
  */ 
+ #define F_CPU 8000000
 
 #include "communications.h"
 #include "MotorControl.h"

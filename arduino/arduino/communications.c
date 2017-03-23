@@ -17,15 +17,16 @@
  
  void verzenden_array(uint8_t address, uint8_t b[], uint8_t tel);
 
- void setInputMode(uint8_t set);
+ int setInputMode(uint8_t set);
  // modes
- void usartToMotors(uint8_t leftOver);
- void distanceAndDirection(uint8_t data);
- void parcours(uint8_t data);
+ int usartToMotors(uint8_t leftOver);
+ int distanceAndDirection(uint8_t data);
+ int parcours(uint8_t data);
  
  void sendDistance(uint8_t distance);
 
- void (*mode) (uint8_t);
+ char ack = ACK, nack = NACK;
+ int (*mode) (uint8_t);
 
 /************************************************************************/
 /* initializes all communications                                       */
@@ -71,7 +72,8 @@
  /************************************************************************/
  /* sets the function to be executed on the next bytes sent by the pc    */
  /************************************************************************/ 
- void setInputMode(uint8_t set){
+ int setInputMode(uint8_t set){
+	 if (~set & 128) return 1;
 	 switch (set & 0xE0){
 		 case COM_CONTROL:
 			mode = usartToMotors;
@@ -84,29 +86,35 @@
 			break;
 		 case COM_REQUEST_SENSORS :
 			sendSensors();
+			break;
 		 default:
 		 mode = setInputMode;
+		 return 1;
 	 }
+	 return 0;
  }
 
 /************************************************************************/
 /* changes desired motorspeeds according to input                       */
 /************************************************************************/
-void usartToMotors(uint8_t leftOver){
-	if(leftOver == 1) verzenden(DEVICE_ADRES, INCREASE);
-	if(leftOver == 2) verzenden(DEVICE_ADRES, DECREASE);
-	if(leftOver == 3) verzenden(DEVICE_ADRES, TURN_LEFT);
-	if(leftOver == 4) verzenden(DEVICE_ADRES, TURN_RIGHT);
-	if(leftOver == 5) emergencyBrake();
+int usartToMotors(uint8_t leftOver){
+	if(leftOver & 8) verzenden(DEVICE_ADRES, INCREASE);
+	if(leftOver & 4) verzenden(DEVICE_ADRES, TURN_LEFT);
+	if(leftOver & 2) verzenden(DEVICE_ADRES, DECREASE);
+	if(leftOver & 1) verzenden(DEVICE_ADRES, TURN_RIGHT);
+	if(leftOver & 15) emergencyBrake();
 	mode = setInputMode;
+	return 0;
 }
 
-void distanceAndDirection(uint8_t data){
+int distanceAndDirection(uint8_t data){
 	// TODO
+	return 0;
 }
 
-void parcours(uint8_t data){
+int parcours(uint8_t data){
 	// TODO
+	return 0;
 }
 
 void emergencyBrake(){
@@ -118,7 +126,5 @@ void emergencyBrake(){
  /************************************************************************/
  ISR(USART0_RX_vect){
 	 uint8_t data = UDR0;
-	 usartToMotors(data);
-	 //mode(data);
-	 //writeString(ACK);
+	 mode(data) == 0 ? writeString(&ack) : writeString(&nack);
  }

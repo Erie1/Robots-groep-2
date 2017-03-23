@@ -31,8 +31,6 @@ int main(void)
 	sei();
 	uint16_t PW; //Pulse width for US
 	writeString("Ultra Sonic Active"); //debug message
-
-	for(int i = 0; i < 20; i++) usartToMotors(1);
 	emergencyBrake();
 
 	while (1)
@@ -51,7 +49,7 @@ int main(void)
 		//Handle Errors
 		if(PW == US_ERROR)
 		{
-			//writeString("US ERROR!");
+			writeString("US ERROR!");
 		}
 		else if( PW == US_NO_OBSTACLE)
 		{

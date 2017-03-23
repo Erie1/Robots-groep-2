@@ -51,7 +51,7 @@ void keyReleased()
 
 void draw(){
   
-  dataToSend = 128;
+  dataToSend = 0;
   if(keyList[0]){
     dataToSend += 8;
     fill(0,255,0);
@@ -86,16 +86,19 @@ void draw(){
 
   
   
-   //println(dataToSend); //<>//
-  myPort.write(0x21);
+   //println(dataToSend); //<>// //<>//
+  myPort.write(0x91);
   myPort.write(dataToSend);
 
  
  
-  //delay(5000);
+  //delay(2500);
   
 }
 
 void serialEvent(Serial test){
-  print((char)test.read());
+  char temp = (char)test.read();
+  if(temp == 0x06) println("ACK received");
+  if(temp == 0x15) println("NACK received");
+  print(temp);
 }
