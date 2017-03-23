@@ -15,4 +15,5 @@
 void initCommunication();
 void emergencyBrake();
 
+
 #endif /* COMMUNICATIONS_H_ */

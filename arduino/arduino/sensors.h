@@ -12,5 +12,10 @@
 
 uint16_t getPulseWidth();
 void sendSensors();
+void changeDirection();
+void initSensors();
+
+int followDirection;
+uint8_t degrees;
 
 #endif /* SENSORS_H_ */

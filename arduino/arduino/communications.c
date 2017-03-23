@@ -16,15 +16,12 @@
  
  void verzenden_array(char address, char b[], char tel);
 
- // modes
  void usartToMotors(char leftOver);
  void distanceAndDirection(char data[]);
  void parcours(char data[]);
+ void continueParcours(char data[]);
+
  
- void sendDistance(char distance);
-
- int (*mode) (char);
-
 /************************************************************************/
 /* initializes all communications                                       */
 /************************************************************************/
@@ -59,11 +56,6 @@
 	 TWCR=(1<<TWINT)|(1<<TWSTO)|(1<<TWEN);
  }
 
- void sendDistance(char distance){
-	char data[] = { SET_DISTANCE, distance };
-	verzenden_array(DEVICE_ADRES, data, 2);
- }
-
 /************************************************************************/
 /* changes desired motorspeeds according to input                       */
 /************************************************************************/
@@ -76,7 +68,10 @@ void usartToMotors(char leftOver){
 }
 
 void distanceAndDirection(char data[]){
-	// TODO
+	degrees = data[0];
+	followDirection = 1;
+	char dataToSend[] = { SET_DISTANCE, data[1], data[2] };
+	verzenden_array(DEVICE_ADRES, dataToSend, 3);
 }
 
 void parcours(char data[]){

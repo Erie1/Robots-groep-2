@@ -27,13 +27,15 @@
 
 int main(void)
 {
+	initSensors();
 	initCommunication();
 	sei();
 	uint16_t PW; //Pulse width for US
-	writeString("Ultra Sonic Active"); //debug message
 
 	while (1)
 	{
+		if(followDirection == 1) adjustDirection();
+
 		US_DDR |= (1<<US_POS); //Set Ultra Sonic Port as out
 		_delay_us(10);
 		//Give the US pin a 15us High Pulse
