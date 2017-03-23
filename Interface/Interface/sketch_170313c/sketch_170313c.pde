@@ -71,7 +71,7 @@ void setup(){
   //Open serial communcation on first open port
   
   //String portName = "COM8";
-  String portName = Serial.list()[0]; 
+  String portName = Serial.list()[1]; 
   myPort = new Serial(this, portName, 9600);
   //Print the port to make sure it's the right one
   println(Serial.list()[0]);
@@ -87,28 +87,30 @@ void draw(){
     //newCommand = false;
     if(!headerSend){
       myPort.write(0x21); //<>//
-      headerSend = true;
+      headerSend = true; //<>//
     } else if(ACK_received) {
-        myPort.write(keysToNumber()); //<>//
+      println("ack received");
+        myPort.write(keysToNumber()); //<>// //<>//
         headerSend = false;
         ACK_received = NACK_received = false;
     } else if(NACK_received) {
+      println("nack received");
       headerSend = false;
       ACK_received = NACK_received = false;      
     } else
-      //println("waiting");
+      println("waiting");
     //while(!newCommand){}
   if((startTimer+1000) < millis()){
     println("retrying connection");
       headerSend = false;
       startTimer = millis();
   }  
-    
+     //<>//
    //<>//
   afstand = int(distanceBox.get(Textfield.class, " ").getText());
   distanceBox.get(Textfield.class, " ").isFocus();
-  
-  //Krijg de afstand.
+   //<>//
+  //Krijg de afstand. //<>//
   //afstand = distance; //<>//
   //clear(); //<>//
   

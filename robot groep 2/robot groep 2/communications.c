@@ -16,7 +16,6 @@
 
 int8_t data_ont[20]; //max 20
 volatile uint8_t data_flag;
-volatile uint8_t databyte;
 
 void ontvangData(uint8_t data[],uint8_t tel);
 uint8_t verzendByte();
@@ -25,7 +24,6 @@ void sonar(uint8_t data[], uint8_t tel);
 
 void initCommunication(){
 	data_flag = FALSE;
-	databyte = 0x00;
 	initUSART();
 	
 	init_i2c_slave(8);
@@ -65,20 +63,20 @@ void ontvangData(uint8_t data[], uint8_t tel){
 			driveDistance(data_ont[0]);
 			break;
 		case INCREASE :
-			setRightMotor(MOTORSPEED_R + 5);
-			setLeftMotor(MOTORSPEED_L + 5);
+			rightDesiredSpeed += 5;
+			leftDesiredSpeed += 5;
 			break;
 		case DECREASE :
-			setRightMotor(MOTORSPEED_R - 5);
-			setLeftMotor(MOTORSPEED_L - 5);
+			rightDesiredSpeed -= 5;
+			leftDesiredSpeed -= 5;
 			break;
 		case TURN_RIGHT :
-			setRightMotor(MOTORSPEED_R + 5);
-			setLeftMotor(MOTORSPEED_L - 5);
+			rightDesiredSpeed -= 5;
+			leftDesiredSpeed + 5;
 			break;
 		case TURN_LEFT :
-			setRightMotor(MOTORSPEED_R - 5);
-			setLeftMotor(MOTORSPEED_L + 5);
+			rightDesiredSpeed += 5;
+			leftDesiredSpeed -= 5;
 			break;
 		case UNBLOCK :
 			blocked = 0x00;

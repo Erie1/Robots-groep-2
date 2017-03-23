@@ -69,7 +69,7 @@
  /************************************************************************/
  /* chances the speed of the motors on timer0 COMP interrupt             */
  /************************************************************************/
- /*ISR(TIMER2_COMP_vect){
+ ISR(TIMER2_COMP_vect){
 	 int rightTarget = MOTORSPEED_R;
 	 if(PORTC & DIR_R) rightTarget = -rightTarget;
 	 int leftTarget = MOTORSPEED_L;
@@ -83,4 +83,4 @@
 		 leftTarget += (leftDesiredSpeed - leftTarget) / MOTOR_ADJUST_FREQUENTIE;
 		 leftDesiredSpeed > leftTarget ? setLeftMotor(++leftTarget) : setLeftMotor(--leftTarget);
 	 }
- }*/
+ }
