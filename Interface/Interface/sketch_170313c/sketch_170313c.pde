@@ -1,15 +1,22 @@
 //COPYRIGHT GROEP 2
 
 import processing.serial.*;
+import controlP5.*;
+
+
+
 Serial myPort;  // Create object from Serial class
 String val;     // Data received from the serial port
 
 boolean[] keyList = {false, false, false, false};
 int xSize = 800;
-int ySize = 675;
+int ySize = 875;
+
+int newSpeed = 0;
+int drawSpeed = 0;
 
 int inpOffsetX = 0;
-int inpOffsetY = 400;
+int inpOffsetY = 600;
 int speedOffsetX = 0;
 int speedOffsetY = 0;
 int directionOffsetX = 0;
@@ -25,18 +32,31 @@ boolean clickedOnDirection = false;
 boolean movedInsideDirection = false;
 
 boolean newCommand = true;
+int afstand = 0;
+
+ControlP5 distanceBox;
+
+
 
 
 
 void setup(){
   //Setup the canvas
-  size(800,675);
+  size(800,875);
   
   //Draw first assets on the canvas
   drawBackground();
   drawEmptyKeys();
   drawSpeedMeter(6);
   drawDirectionBox();
+  
+  //Font
+  PFont font1 = createFont("arial", 20);
+  
+  //Initialize inputBox 
+  distanceBox = new ControlP5(this);
+  distanceBox.addTextfield(" ").setPosition(50, 480).setSize(300, 20).setFont(font1).setValue(100);
+  
   
   textSize(20);
   
@@ -57,12 +77,15 @@ void setup(){
 void draw(){
   //if(newCommand){
     //newCommand = false;
-    //myPort.write(0x21);
+    myPort.write(0x21);
     myPort.write(keysToNumber());
     //while(!newCommand){}
   //}
-   //<>//
   
+  afstand = int(distanceBox.get(Textfield.class, " ").getText());
+  
+  //Krijg de afstand.
+  //afstand = distance; //<>//
   //clear();
   
   drawBackground();
@@ -73,9 +96,12 @@ void draw(){
   }
   if(movedInsideDirection){
     drawArrow(directionOffsetX+200, directionOffsetY + 200, endArrowX, endArrowY, 0,0,0);
+    drawSpeed = (int)ceil(0.6666666666666666666666666*distance(endArrowX - (directionOffsetX+200), endArrowY-(directionOffsetY + 200)));
   }
   
-  text("Direction: "+directionToDegrees(staticArrowX, staticArrowY)+" degrees("+directionToDegrees(endArrowX, endArrowY)+")", directionOffsetX + 50, directionOffsetY + 35);  
+  text("Direction: "+directionToDegrees(staticArrowX, staticArrowY)+"°   ("+directionToDegrees(endArrowX, endArrowY)+"°) ", directionOffsetX + 50, directionOffsetY + 400);  
+  text("Snelheid:  "+newSpeed + "%  ("+drawSpeed+"%)", directionOffsetX + 50, 430); 
+  text("Afstand: " + afstand + " cm", 50, 460);
 }
 
 void drawDirectionBox(){
@@ -160,6 +186,7 @@ int distance(int x,int y){
 void mouseClicked(){
   //Check if mouse has been moved in direction options
   if(distance(directionOffsetX+200-mouseX, directionOffsetY+200-mouseY ) < 150){
+     newSpeed = (int)ceil(0.66666666666666666666666*distance(directionOffsetX+200-mouseX, directionOffsetY+200-mouseY));
      staticArrowX= endArrowX;
      staticArrowY = endArrowY;
      clickedOnDirection = true;

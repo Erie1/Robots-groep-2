@@ -79,6 +79,7 @@ int main(void)
 	}
 }
 
+
 void verzenden_array(uint8_t address, uint8_t b[], uint8_t tel) {
 	// send start bit, wait for ack
 	TWCR |= (1<<TWSTA);
