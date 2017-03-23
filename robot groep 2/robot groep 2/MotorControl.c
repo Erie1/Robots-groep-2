@@ -11,6 +11,8 @@
  #include <avr/io.h>
  #include <avr/interrupt.h>
 
+ uint8_t distance;
+
  /************************************************************************/
  /* initialize the motors                                                */
  /************************************************************************/
@@ -61,8 +63,9 @@
 	 blocked = 0xff;
  }
 
- void driveDistance(uint8_t distance, uint8_t speed){
-	// TODO
+ void driveDistance(uint8_t length, uint8_t speed){
+	rightDesiredSpeed = leftDesiredSpeed = speed;
+	distance = length;
  }
 
  /************************************************************************/
