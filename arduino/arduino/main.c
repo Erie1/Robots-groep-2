@@ -34,7 +34,7 @@ int main(void)
 
 	while (1)
 	{
-		if(followDirection == 1) adjustDirection();
+		if(followDirection == 1) changeDirection();
 
 		US_DDR |= (1<<US_POS); //Set Ultra Sonic Port as out
 		_delay_us(10);

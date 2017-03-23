@@ -16,6 +16,8 @@ void changeDirection();
 void initSensors();
 
 int followDirection;
-uint8_t degrees;
+uint8_t distanceDirection[3];
+
+uint8_t getCompass();
 
 #endif /* SENSORS_H_ */

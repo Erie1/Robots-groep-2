@@ -68,10 +68,9 @@ void usartToMotors(char leftOver){
 }
 
 void distanceAndDirection(char data[]){
-	degrees = data[0];
+	for(int i = 0; i < 3; i++)
+		distanceDirection[i] = data[i];
 	followDirection = 1;
-	char dataToSend[] = { SET_DISTANCE, data[1], data[2] };
-	verzenden_array(DEVICE_ADRES, dataToSend, 3);
 }
 
 void parcours(char data[]){
@@ -84,6 +83,11 @@ void continueParcours(char data[]){
 
 void emergencyBrake(){
 	verzenden(DEVICE_ADRES, EMERGENCY_BRAKE);
+}
+
+void brake(){
+	emergencyBrake();
+	verzenden(DEVICE_ADRES, UNBLOCK);
 }
 
  /************************************************************************/

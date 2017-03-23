@@ -14,6 +14,7 @@
 // functions
 void initCommunication();
 void emergencyBrake();
+void brake();
 
 
 #endif /* COMMUNICATIONS_H_ */
