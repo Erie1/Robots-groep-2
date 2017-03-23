@@ -5,8 +5,6 @@
  *  Author: Erik
  */ 
 
-#include <stdint.h>
-
 #ifndef COMMUNICATIONS_H_
 #define COMMUNICATIONS_H_
 
