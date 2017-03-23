@@ -11,7 +11,7 @@
 
 
 // defines
-#define MAXSPEED					255
+#define MAXSPEED					180
 #define MOTORSPEED_R				OCR1A
 #define MOTORSPEED_L				OCR1B
 
