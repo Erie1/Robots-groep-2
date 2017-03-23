@@ -20,8 +20,6 @@ volatile uint8_t data_flag;
 void ontvangData(uint8_t data[],uint8_t tel);
 uint8_t verzendByte();
 
-void sonar(uint8_t data[], uint8_t tel);
-
 void initCommunication(){
 	data_flag = FALSE;
 	initUSART();
@@ -52,15 +50,14 @@ void ontvangData(uint8_t data[], uint8_t tel){
 	uint8_t description = data[0];
 	for(int i = 1; i < tel; ++i)
 	    data_ont[i - 1] = data[i];
-	data_flag = TRUE;
 	writeInteger(description, 10);
 
-	switch (description) {
+	switch (data[0]) {
 		case EMERGENCY_BRAKE:
 			emergencyBrake();
 			break;
 		case SET_DISTANCE:
-			driveDistance(data_ont[0]);
+			driveDistance(data[1], data[2]);
 			break;
 		case INCREASE :
 			rightDesiredSpeed += 5;
@@ -72,7 +69,7 @@ void ontvangData(uint8_t data[], uint8_t tel){
 			break;
 		case TURN_RIGHT :
 			rightDesiredSpeed -= 5;
-			leftDesiredSpeed + 5;
+			leftDesiredSpeed += 5;
 			break;
 		case TURN_LEFT :
 			rightDesiredSpeed += 5;

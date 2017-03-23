@@ -11,28 +11,24 @@
  #include "sensors.h"
  #include "i2c_mst.h"
 
- #include <stdint.h>
  #include <avr/io.h>
  #include <avr/interrupt.h>
  
- void verzenden_array(uint8_t address, uint8_t b[], uint8_t tel);
+ void verzenden_array(char address, char b[], char tel);
 
- int setInputMode(uint8_t set);
  // modes
- int usartToMotors(uint8_t leftOver);
- int distanceAndDirection(uint8_t data);
- int parcours(uint8_t data);
+ void usartToMotors(char leftOver);
+ void distanceAndDirection(char data[]);
+ void parcours(char data[]);
  
- void sendDistance(uint8_t distance);
+ void sendDistance(char distance);
 
- int (*mode) (uint8_t);
+ int (*mode) (char);
 
 /************************************************************************/
 /* initializes all communications                                       */
 /************************************************************************/
  void initCommunication(){
-	 mode = setInputMode;
-
 	 PORTD = 0x03; //pullup SDA en SCL
 	 initUSART();
 	 UCSR0B |= 1 << RXCIE0;
@@ -42,7 +38,7 @@
  /************************************************************************/
  /* met deze functie kan een array van bytes worden verzonden            */
  /************************************************************************/
-  void verzenden_array(uint8_t address, uint8_t b[], uint8_t tel) {
+  void verzenden_array(char address, char b[], char tel) {
 	 // send start bit, wait for ack
 	 TWCR |= (1<<TWSTA);
 	 while(!(TWCR & (1<<TWINT)));
@@ -63,54 +59,32 @@
 	 TWCR=(1<<TWINT)|(1<<TWSTO)|(1<<TWEN);
  }
 
- void sendDistance(uint8_t distance){
-	uint8_t data[] = { SET_DISTANCE, distance };
+ void sendDistance(char distance){
+	char data[] = { SET_DISTANCE, distance };
 	verzenden_array(DEVICE_ADRES, data, 2);
- }
-
- /************************************************************************/
- /* sets the function to be executed on the next bytes sent by the pc    */
- /************************************************************************/ 
- int setInputMode(uint8_t set){
-	 switch (set & 0xE0){
-		case COM_CONTROL:
-			mode = usartToMotors;
-			break;
-		case COM_AFSTANDRICHTING :
-			mode = distanceAndDirection;
-			break;
-		case COM_PARCOURS :
-			mode = parcours;
-			break;
-		case COM_REQUEST_SENSORS :
-			sendSensors();
-			break;
-		default:
-			return 1;
-	 } return 0;
  }
 
 /************************************************************************/
 /* changes desired motorspeeds according to input                       */
 /************************************************************************/
-int usartToMotors(uint8_t leftOver){
+void usartToMotors(char leftOver){
 	if(leftOver & 8) verzenden(DEVICE_ADRES, INCREASE);
 	if(leftOver & 4) verzenden(DEVICE_ADRES, TURN_LEFT);
 	if(leftOver & 2) verzenden(DEVICE_ADRES, DECREASE);
 	if(leftOver & 1) verzenden(DEVICE_ADRES, TURN_RIGHT);
 	if(leftOver & 15) emergencyBrake();
-	mode = setInputMode;
-	return 0;
 }
 
-int distanceAndDirection(uint8_t data){
+void distanceAndDirection(char data[]){
 	// TODO
-	return 0;
 }
 
-int parcours(uint8_t data){
+void parcours(char data[]){
 	// TODO
-	return 0;
+}
+
+void continueParcours(char data[]){
+	// TODO
 }
 
 void emergencyBrake(){
@@ -121,6 +95,31 @@ void emergencyBrake(){
  /* interupt service routine for input from the pc                       */
  /************************************************************************/
  ISR(USART0_RX_vect){
-	 uint8_t data = UDR0;
-	 mode(data) == 0 ? writeString("\x06") : writeString("\x15");
+	char mode = UDR0;
+	char dataAmount = mode & 0x1F;
+	char data[dataAmount];
+	// receive data bytes and store them in an array
+	for(int i = 0; i < dataAmount; i++){
+		while(UCSR0A & (1 << RXC0));
+		data[i] = UDR0;
+	}
+	// decide what to do with data
+	switch (mode & 0xE0){
+		case COM_CONTROL:
+			usartToMotors(data[0]);
+			break;
+		case COM_AFSTANDRICHTING :
+			distanceAndDirection(data);
+			break;
+		case COM_PARCOURS :
+			parcours(data);
+			break;
+		case COM_CONTINUE_PARCOURS:
+			continueParcours(data);
+			break;
+		case COM_REQUEST_SENSORS :
+			sendSensors();
+			break;
+		default: break;
+	 }
  }

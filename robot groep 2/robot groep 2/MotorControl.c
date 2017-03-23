@@ -27,7 +27,6 @@
 
 	 OCR1A = OCR1B = 0;						// initialize motor PWM timers with no speed
  }
-
  
  /************************************************************************/
  /* set the motors                                                       */
@@ -62,7 +61,7 @@
 	 blocked = 0xff;
  }
 
- void driveDistance(uint8_t distance){
+ void driveDistance(uint8_t distance, uint8_t speed){
 	// TODO
  }
 
@@ -74,11 +73,13 @@
 	 if(PORTC & DIR_R) rightTarget = -rightTarget;
 	 int leftTarget = MOTORSPEED_L;
 	 if(PORTC & DIR_L) leftTarget = -leftTarget;
-
+	 
+	 if(rightDesiredSpeed > 180) rightDesiredSpeed = 180;
 	 if(rightDesiredSpeed != rightTarget){
 		 rightTarget += (rightDesiredSpeed - rightTarget) / MOTOR_ADJUST_FREQUENTIE;
 		 rightDesiredSpeed > rightTarget ? setRightMotor(++rightTarget) : setRightMotor(--rightTarget);
 	 }
+	 if(leftDesiredSpeed > 180) leftDesiredSpeed = 180;
 	 if(leftDesiredSpeed != leftTarget){
 		 leftTarget += (leftDesiredSpeed - leftTarget) / MOTOR_ADJUST_FREQUENTIE;
 		 leftDesiredSpeed > leftTarget ? setLeftMotor(++leftTarget) : setLeftMotor(--leftTarget);
