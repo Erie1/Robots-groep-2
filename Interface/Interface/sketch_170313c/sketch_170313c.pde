@@ -86,12 +86,12 @@ void setup(){
 void draw(){
   //if(newCommand){
     //newCommand = false;
-  if(ACK_received || NACK_received){
-    myPort.write(0x21);
-    myPort.write(keysToNumber());
+    myPort.write(0x21); //<>//
+    while(!ACK_received)
+      if(NACK_received) myPort.write(0x21);
+    myPort.write(keysToNumber()); //<>//
     NACK_received = false;
     ACK_received = false;
-  }
     //while(!newCommand){}
   if((startTimer+5000)<millis()){
     println("Connnection lost");
@@ -140,8 +140,10 @@ void serialEvent(Serial test){
    int receivedData = test.read();
    if(receivedData == ACK){
      ACK_received = true;
+     println("ack received");
    }else if(receivedData == NACK){
      NACK_received = true;
+     println("nack received");
    }else{
      print((char)receivedData);
    }

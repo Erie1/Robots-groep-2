@@ -94,6 +94,8 @@
 /* changes desired motorspeeds according to input                       */
 /************************************************************************/
 int usartToMotors(uint8_t leftOver){
+	writeInteger(leftOver, 10);
+	writeString("\n\r");
 	if(leftOver & 8) verzenden(DEVICE_ADRES, INCREASE); 
 	if(leftOver & 4) verzenden(DEVICE_ADRES, TURN_LEFT);
 	if(leftOver & 2) verzenden(DEVICE_ADRES, DECREASE);
@@ -122,5 +124,5 @@ void emergencyBrake(){
  /************************************************************************/
  ISR(USART0_RX_vect){
 	 uint8_t data = UDR0;
-	 mode(data) == 0 ? writeString((char)ACK) : writeString((char)NACK);
+	 mode(data) == 0 ? writeString("\x06") : writeString("\x15");
  }
