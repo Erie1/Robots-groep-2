@@ -50,7 +50,7 @@ ControlP5 distanceBox;
 
 void setup(){
   //Setup the canvas
-  size(800,875);
+  size(400,875);
   
   //Draw first assets on the canvas
   drawBackground();
@@ -106,6 +106,7 @@ void draw(){
     
    //<>//
   afstand = int(distanceBox.get(Textfield.class, " ").getText());
+  distanceBox.get(Textfield.class, " ").isFocus();
   
   //Krijg de afstand.
   //afstand = distance; //<>//
@@ -125,7 +126,8 @@ void draw(){
   text("Direction: "+directionToDegrees(staticArrowX, staticArrowY)+"°   ("+directionToDegrees(endArrowX, endArrowY)+"°) ", directionOffsetX + 50, directionOffsetY + 400);  
   text("Snelheid:  "+newSpeed + "%  ("+drawSpeed+"%)", directionOffsetX + 50, 430); 
   text("Afstand: " + afstand + " cm", 50, 460);
-  text(millis(), 400, 400);
+  //text(millis(), 400, 400);
+  
 }
 
 void drawDirectionBox(){
@@ -179,17 +181,19 @@ void drawEmptyKeys(){
 }
   
 void keyPressed(){
-  if(key == 'w'){
-    keyList[0] = true;
-  }
-  if(key == 'a'){
-    keyList[1] = true;
-  }
-  if(key == 's'){
-    keyList[2] = true;
-  }
-  if(key == 'd'){
-    keyList[3] = true;
+  if(distanceBox.get(Textfield.class, " ").isFocus()){}else{
+    if(key == 'w'){
+      keyList[0] = true;
+    }
+    if(key == 'a'){
+      keyList[1] = true;
+    }
+    if(key == 's'){
+      keyList[2] = true;
+    }
+    if(key == 'd'){
+      keyList[3] = true;
+    }
   }
 }
 

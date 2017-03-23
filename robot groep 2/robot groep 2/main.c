@@ -22,9 +22,29 @@
 	
 	sei(); //De slave van i2c werkt met interrupt
 	
-
-	while(1){
 	
+	
+	
+	DDRD = 0x00;
+	DDRC = 0x00;
+	DDRB = 0x00;
+	DDRA = 0x00;
+	
+	PORTD = 0xFF;
+	PORTC = 0xFF;
+	PORTB = 0xFF;
+	PORTA = 0xFF;
+	
+	
+	while(1){
+		writeInteger(PINA, 10);
+		writeInteger(PINB, 10);
+		writeInteger(PINC 10);
+		writeInteger(PIND 10);
+		writeString("\n\r");
 	}
+	
+	
+	return 0;
 }
  
