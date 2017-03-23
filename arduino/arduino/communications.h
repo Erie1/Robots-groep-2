@@ -13,7 +13,6 @@
 
 // functions
 void initCommunication();
-void sendControl(int targets[]);
 void emergencyBrake();
 
 #endif /* COMMUNICATIONS_H_ */

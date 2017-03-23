@@ -9,7 +9,7 @@ int NACK = 0x15;
 
 boolean ACK_received = false;
 boolean NACK_received = false;
-
+boolean headerSend = false;
 
 
 Serial myPort;  // Create object from Serial class
@@ -44,7 +44,6 @@ int afstand = 0;
 int startTimer = 0;
 
 ControlP5 distanceBox;
-
 
 
 
@@ -86,15 +85,23 @@ void setup(){
 void draw(){
   //if(newCommand){
     //newCommand = false;
-    myPort.write(0x21); //<>//
-    while(!ACK_received)
-      if(NACK_received) myPort.write(0x21);
-    myPort.write(keysToNumber()); //<>//
-    NACK_received = false;
-    ACK_received = false;
+    if(!headerSend){
+      myPort.write(0x21); //<>//
+      headerSend = true;
+    } else if(ACK_received) {
+        myPort.write(keysToNumber()); //<>//
+        headerSend = false;
+        ACK_received = NACK_received = false;
+    } else if(NACK_received) {
+      headerSend = false;
+      ACK_received = NACK_received = false;      
+    } else
+      //println("waiting");
     //while(!newCommand){}
-  if((startTimer+5000)<millis()){
-    println("Connnection lost");
+  if((startTimer+1000) < millis()){
+    println("retrying connection");
+      headerSend = false;
+      startTimer = millis();
   }  
     
    //<>//
@@ -134,14 +141,13 @@ void drawDirectionBox(){
 }
 
 void serialEvent(Serial test){
-   startTimer = millis();
    int receivedData = test.read();
    if(receivedData == ACK){
      ACK_received = true;
-     println("ack received");
+   startTimer = millis();
    }else if(receivedData == NACK){
      NACK_received = true;
-     println("nack received");
+   startTimer = millis();
    }else{
      print((char)receivedData);
    }
