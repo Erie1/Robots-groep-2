@@ -4,6 +4,13 @@ import processing.serial.*;
 import controlP5.*;
 
 
+int ACK  = 0x06;
+int NACK = 0x15;
+
+boolean ACK_received = false;
+boolean NACK_received = false;
+
+
 
 Serial myPort;  // Create object from Serial class
 String val;     // Data received from the serial port
@@ -51,11 +58,11 @@ void setup(){
   drawDirectionBox();
   
   //Font
-  PFont font1 = createFont("arial", 20);
+  PFont font1 = createFont("arial", 30);
   
   //Initialize inputBox 
   distanceBox = new ControlP5(this);
-  distanceBox.addTextfield(" ").setPosition(50, 480).setSize(300, 20).setFont(font1).setValue(100);
+  distanceBox.addTextfield(" ").setPosition(50, 480).setSize(300, 30).setFont(font1).setValue(100);
   
   
   textSize(20);
@@ -77,10 +84,15 @@ void setup(){
 void draw(){
   //if(newCommand){
     //newCommand = false;
+  if(ACK_received || NACK_received){
     myPort.write(0x21);
     myPort.write(keysToNumber());
+    NACK_received = false;
+    ACK_received = false;
+  }
     //while(!newCommand){}
-  //}
+    
+    
   
   afstand = int(distanceBox.get(Textfield.class, " ").getText());
   
@@ -102,6 +114,7 @@ void draw(){
   text("Direction: "+directionToDegrees(staticArrowX, staticArrowY)+"°   ("+directionToDegrees(endArrowX, endArrowY)+"°) ", directionOffsetX + 50, directionOffsetY + 400);  
   text("Snelheid:  "+newSpeed + "%  ("+drawSpeed+"%)", directionOffsetX + 50, 430); 
   text("Afstand: " + afstand + " cm", 50, 460);
+  text(millis(), 400, 400);
 }
 
 void drawDirectionBox(){
@@ -117,9 +130,14 @@ void drawDirectionBox(){
 }
 
 void serialEvent(Serial test){
-  
-   
-   print((char)test.read());
+   int receivedData = test.read();
+   if(receivedData == ACK){
+     ACK_received = true;
+   }else if(receivedData == NACK){
+     NACK_received = true;
+   }else{
+     print((char)test.read());
+   }
 }
 
 
