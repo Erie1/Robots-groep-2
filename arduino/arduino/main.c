@@ -31,7 +31,6 @@ int main(void)
 	sei();
 	uint16_t PW; //Pulse width for US
 	writeString("Ultra Sonic Active"); //debug message
-	emergencyBrake();
 
 	while (1)
 	{

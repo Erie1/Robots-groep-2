@@ -21,30 +21,23 @@ volatile uint8_t databyte;
 void ontvangData(uint8_t data[],uint8_t tel);
 uint8_t verzendByte();
 
-void quickAdjust(uint8_t data);
-
-void motorControl();
 void sonar(uint8_t data[], uint8_t tel);
 
 void initCommunication(){
 	data_flag = FALSE;
 	databyte = 0x00;
 	initUSART();
-	writeString("Passed usart \n\r");
 	
 	init_i2c_slave(8);
-	writeString("Passed slave init \n\r");
 
 	/*ontvangData is de functie die uitgevoerd wordt 
 	wanneer een byte via de i2c bus ontvangen wordt
 	*/
-	init_i2c_ontvang(ontvangData); 
-	writeString("Passed ontvangData init \n\r");
+	init_i2c_ontvang(ontvangData);
 	
 	/*verzendByte is de functie die aangeroepen wordt
 	wanneer de slave een byte naar de master verzend*/
 	init_i2c_verzend(verzendByte);
-	writeString("Passed verzendByte \n\r");
 }
 
 /************************************************************************/
@@ -57,12 +50,12 @@ uint8_t verzendByte() {
 /************************************************************************/
 /* functie die wordt aangeroepen als er data is ontvangen van de master */
 /************************************************************************/ 
-void ontvangData(uint8_t data[],uint8_t tel){
+void ontvangData(uint8_t data[], uint8_t tel){
 	uint8_t description = data[0];
 	for(int i = 1; i < tel; ++i)
 	    data_ont[i - 1] = data[i];
 	data_flag = TRUE;
-
+	writeInteger(description, 10);
 
 	switch (description) {
 		case EMERGENCY_BRAKE:
