@@ -41,6 +41,8 @@ boolean movedInsideDirection = false;
 boolean newCommand = true;
 int afstand = 0;
 
+int startTimer = 0;
+
 ControlP5 distanceBox;
 
 
@@ -91,9 +93,11 @@ void draw(){
     ACK_received = false;
   }
     //while(!newCommand){}
+  if((startTimer+5000)<millis()){
+    println("Connnection lost");
+  }  
     
-    
-  
+   //<>//
   afstand = int(distanceBox.get(Textfield.class, " ").getText());
   
   //Krijg de afstand.
@@ -130,13 +134,14 @@ void drawDirectionBox(){
 }
 
 void serialEvent(Serial test){
+   startTimer = millis();
    int receivedData = test.read();
    if(receivedData == ACK){
      ACK_received = true;
    }else if(receivedData == NACK){
      NACK_received = true;
    }else{
-     print((char)test.read());
+     print((char)receivedData);
    }
 }
 
