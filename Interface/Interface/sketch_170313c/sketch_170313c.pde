@@ -86,7 +86,7 @@ void draw(){
     //newCommand = false;
   if(ACK_received || NACK_received){
     myPort.write(0x21);
-    myPort.write(keysToNumber());
+    myPort.write(keysToNumber()); //<>//
     NACK_received = false;
     ACK_received = false;
   }
@@ -133,10 +133,12 @@ void serialEvent(Serial test){
    int receivedData = test.read();
    if(receivedData == ACK){
      ACK_received = true;
+     println("ack received");
    }else if(receivedData == NACK){
      NACK_received = true;
+     println("nack received");
    }else{
-     print((char)test.read());
+     print((char)receivedData);
    }
 }
 

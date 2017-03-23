@@ -94,6 +94,8 @@
 /* changes desired motorspeeds according to input                       */
 /************************************************************************/
 int usartToMotors(uint8_t leftOver){
+	writeInteger(leftOver, 10);
+	writeString("\n\r");
 	if(leftOver & 8) verzenden(DEVICE_ADRES, INCREASE); 
 	if(leftOver & 4) verzenden(DEVICE_ADRES, TURN_LEFT);
 	if(leftOver & 2) verzenden(DEVICE_ADRES, DECREASE);
