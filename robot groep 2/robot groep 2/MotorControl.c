@@ -38,17 +38,19 @@
  }
  void setLeftMotor(int speed){
 	if(blocked == 0xff) return;
-	 int absSpeed = abs(speed);
-	 if(MOTORSPEED_L != absSpeed && absSpeed < 200) MOTORSPEED_L = absSpeed;
+	int absSpeed = abs(speed);
+	if(absSpeed < 180)
+		if(MOTORSPEED_L != absSpeed && absSpeed < 200) MOTORSPEED_L = absSpeed;
 
-	 speed < 0 ? (PORTC |= DIR_L) : (PORTC &= ~DIR_L);
+	speed < 0 ? (PORTC |= DIR_L) : (PORTC &= ~DIR_L);
  }
  void setRightMotor(int speed){
 	if(blocked == 0xff) return;
-	 int absSpeed = abs(speed);
-	 if(MOTORSPEED_R != absSpeed && absSpeed < 200) MOTORSPEED_R = absSpeed;
+	int absSpeed = abs(speed);
+	if (absSpeed < 180)
+		if(MOTORSPEED_R != absSpeed && absSpeed < 200) MOTORSPEED_R = absSpeed;
 
-	 speed < 0 ? (PORTC |= DIR_R) : (PORTC &= ~DIR_R);
+	speed < 0 ? (PORTC |= DIR_R) : (PORTC &= ~DIR_R);
  }
 
  /************************************************************************/

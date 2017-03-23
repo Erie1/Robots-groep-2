@@ -71,18 +71,6 @@ void ontvangData(uint8_t data[],uint8_t tel){
 		case SET_DISTANCE:
 			driveDistance(data_ont[0]);
 			break;
-		case INCREASE_LEFT :
-			setLeftMotor(MOTORSPEED_L + 5);	
-			break;
-		case INCREASE_RIGHT :
-			setRightMotor(MOTORSPEED_R + 5);
-			break;
-		case DECREASE_LEFT :
-			setLeftMotor(MOTORSPEED_L - 5);
-			break;
-		case DECREASE_RIGHT :
-			setRightMotor(MOTORSPEED_R + 5);
-			break;
 		case INCREASE :
 			setRightMotor(MOTORSPEED_R + 5);
 			setLeftMotor(MOTORSPEED_L + 5);
@@ -92,12 +80,12 @@ void ontvangData(uint8_t data[],uint8_t tel){
 			setLeftMotor(MOTORSPEED_L - 5);
 			break;
 		case TURN_RIGHT :
-			setRightMotor(MOTORSPEED_R += 5);
-			setLeftMotor(MOTORSPEED_L -= 5);
+			setRightMotor(MOTORSPEED_R + 5);
+			setLeftMotor(MOTORSPEED_L - 5);
 			break;
 		case TURN_LEFT :
-			setRightMotor(MOTORSPEED_R -= 5);
-			setLeftMotor(MOTORSPEED_L += 5);
+			setRightMotor(MOTORSPEED_R - 5);
+			setLeftMotor(MOTORSPEED_L + 5);
 			break;
 		case UNBLOCK :
 			blocked = 0x00;

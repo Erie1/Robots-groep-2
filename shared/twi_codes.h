@@ -1,11 +1,7 @@
 #define EMERGENCY_BRAKE		1
 #define SET_DISTANCE		2
 #define UNBLOCK				3
-#define INCREASE_LEFT		4
-#define INCREASE_RIGHT		5
-#define DECREASE_LEFT		6
-#define DECREASE_RIGHT		7
-#define INCREASE			8
-#define DECREASE			9
-#define TURN_RIGHT			10
-#define TURN_LEFT			11
+#define INCREASE			4
+#define DECREASE			5
+#define TURN_RIGHT			6
+#define TURN_LEFT			7
