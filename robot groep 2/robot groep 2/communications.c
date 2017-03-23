@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include <util/twi.h>
 #include <avr/interrupt.h>
+#include <avr/io.h>
 
 uint8_t data_ont[20]; //max 20
 volatile uint8_t data_flag;
@@ -109,5 +110,6 @@ void usartToMotors(uint8_t leftOver){
 
 ISR(TWI_vect) {
 	writeString("interupt");
+	//usartToMotors(UDR0);
 	slaaftwi();
 }

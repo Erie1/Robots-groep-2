@@ -1,3 +1,5 @@
+//COPYRIGHT GROEP 2
+
 import processing.serial.*;
 Serial myPort;  // Create object from Serial class
 String val;     // Data received from the serial port
@@ -22,6 +24,9 @@ int staticArrowY = 200+directionOffsetY;
 boolean clickedOnDirection = false;
 boolean movedInsideDirection = false;
 
+boolean newCommand = true;
+
+
 
 void setup(){
   //Setup the canvas
@@ -30,12 +35,14 @@ void setup(){
   //Draw first assets on the canvas
   drawBackground();
   drawEmptyKeys();
-  //drawSpeedMeter(6);
+  drawSpeedMeter(6);
   drawDirectionBox();
   
   textSize(20);
   
   //Open serial communcation on first open port
+  
+  //String portName = "COM8";
   String portName = Serial.list()[0]; 
   myPort = new Serial(this, portName, 9600);
   //Print the port to make sure it's the right one
@@ -48,9 +55,15 @@ void setup(){
 
 
 void draw(){
+  //if(newCommand){
+    //newCommand = false;
+    //myPort.write(0x21);
+    myPort.write(keysToNumber());
+    //while(!newCommand){}
+  //}
    //<>//
-  myPort.write(keysToNumber());
-  clear();
+  
+  //clear();
   
   drawBackground();
   drawKeys();
@@ -62,11 +75,7 @@ void draw(){
     drawArrow(directionOffsetX+200, directionOffsetY + 200, endArrowX, endArrowY, 0,0,0);
   }
   
-  text("Direction: "+directionToDegrees(staticArrowX, staticArrowY)+" degrees("+directionToDegrees(endArrowX, endArrowY)+")", directionOffsetX + 50, directionOffsetY + 35);
-  
-  
-  
-  
+  text("Direction: "+directionToDegrees(staticArrowX, staticArrowY)+" degrees("+directionToDegrees(endArrowX, endArrowY)+")", directionOffsetX + 50, directionOffsetY + 35);  
 }
 
 void drawDirectionBox(){
@@ -82,7 +91,9 @@ void drawDirectionBox(){
 }
 
 void serialEvent(Serial test){
-  //print((char)test.read());
+  
+   
+   print((char)test.read());
 }
 
 
