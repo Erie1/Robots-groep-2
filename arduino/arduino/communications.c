@@ -72,32 +72,29 @@
  /* sets the function to be executed on the next bytes sent by the pc    */
  /************************************************************************/ 
  int setInputMode(uint8_t set){
-	 if (set & 128){
-		 switch (set & 0x70){
-			 case COM_CONTROL:
-				mode = usartToMotors;
-				break;
-			 case COM_AFSTANDRICHTING :
-				mode = distanceAndDirection;
-				break;
-			case COM_PARCOURS :
-				mode = parcours;
-				break;
-			 case COM_REQUEST_SENSORS :
-				sendSensors();
-				break;
-			 default:
-			 return 1;
-		 }
-		 return 0;
-	 } return 1;
+	 switch (set & 0xE0){
+		case COM_CONTROL:
+			mode = usartToMotors;
+			break;
+		case COM_AFSTANDRICHTING :
+			mode = distanceAndDirection;
+			break;
+		case COM_PARCOURS :
+			mode = parcours;
+			break;
+		case COM_REQUEST_SENSORS :
+			sendSensors();
+			break;
+		default:
+			return 1;
+	 } return 0;
  }
 
 /************************************************************************/
 /* changes desired motorspeeds according to input                       */
 /************************************************************************/
 int usartToMotors(uint8_t leftOver){
-	if(leftOver & 8) verzenden(DEVICE_ADRES, INCREASE);
+	if(leftOver & 8) verzenden(DEVICE_ADRES, INCREASE); 
 	if(leftOver & 4) verzenden(DEVICE_ADRES, TURN_LEFT);
 	if(leftOver & 2) verzenden(DEVICE_ADRES, DECREASE);
 	if(leftOver & 1) verzenden(DEVICE_ADRES, TURN_RIGHT);
