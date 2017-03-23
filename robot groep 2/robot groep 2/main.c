@@ -39,8 +39,8 @@
 	while(1){
 		writeInteger(PINA, 10);
 		writeInteger(PINB, 10);
-		writeInteger(PINC 10);
-		writeInteger(PIND 10);
+		writeInteger(PINC, 10);
+		writeInteger(PIND, 10);
 		writeString("\n\r");
 	}
 	
