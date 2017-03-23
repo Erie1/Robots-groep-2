@@ -5,15 +5,18 @@
  * Author : Erik
  */ 
  
- #include "rp6aansluitingen.h"
- #include "MotorControl.h"
- #include "communications.h"
+
  #include <stdint.h>
  #include <stdlib.h>
  #include <avr/io.h>
  #include <avr/interrupt.h>
  
+#include "rp6aansluitingen.h"
+#include "MotorControl.h"
+#include "communications.h"
+//#include "../../shared/twi_codes.h";
  
+// void initCommunication();
  
  int main(void)
  {
@@ -37,14 +40,16 @@
 	
 	
 	while(1){
+		
 		writeInteger(PINA, 10);
 		writeInteger(PINB, 10);
-		writeInteger(PINC 10);
-		writeInteger(PIND 10);
+		writeInteger(PINC, 10);
+		writeInteger(PIND, 10);
 		writeString("\n\r");
+	
 	}
 	
 	
-	return 0;
+	////////////
 }
  
