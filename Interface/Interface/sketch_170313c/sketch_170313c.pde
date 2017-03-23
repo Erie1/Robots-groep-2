@@ -83,27 +83,15 @@ void setup(){
 
 
 void draw(){
-  //if(newCommand){
-    //newCommand = false;
-    if(!headerSend){
-      myPort.write(0x21); //<>//
-      headerSend = true; //<>//
-    } else if(ACK_received) {
-      println("ack received");
-        myPort.write(keysToNumber()); //<>// //<>//
-        headerSend = false;
-        ACK_received = NACK_received = false;
-    } else if(NACK_received) {
-      println("nack received");
-      headerSend = false;
-      ACK_received = NACK_received = false;      
-    } else
-      println("waiting");
-    //while(!newCommand){}
-  if((startTimer+1000) < millis()){
+   //
+  //
+  
+  
+  
+  if((startTimer+1000) < millis()){ //<>//
     println("retrying connection");
       headerSend = false;
-      startTimer = millis();
+      startTimer = millis(); //<>//
   }  
      //<>//
    //<>//
@@ -117,6 +105,45 @@ void draw(){
   drawBackground();
   drawKeys();
   drawSpeedMeter(343);
+  checkMovedAndClicked();
+  drawValues(); //<>//
+ 
+  
+}
+
+ //<>//
+void serialEvent(Serial test){ //<>//
+   int receivedData = test.read();
+   if(receivedData == ACK){
+     ACK_received = true;
+     startTimer = millis();
+   }else if(receivedData == NACK){
+     NACK_received = true;
+     startTimer = millis();
+   }else{
+     print((char)receivedData);
+   }
+   
+   
+   
+  if(!headerSend){
+    myPort.write(0x21); //<>//
+    headerSend = true; //<>//
+  }else if(ACK_received) {
+    println("ack received");
+    myPort.write(keysToNumber()); //<>// //<>//
+    headerSend = false;
+    ACK_received = NACK_received = false;
+  } else if(NACK_received) {
+    println("nack received");
+    headerSend = false;
+    ACK_received = NACK_received = false;      
+  } else
+    println("waiting");
+  //while(!newCommand){}
+}
+
+void checkMovedAndClicked(){
   if(clickedOnDirection){
     drawArrow(directionOffsetX+200, directionOffsetY + 200, staticArrowX, staticArrowY, 255,0,0);
   }
@@ -124,14 +151,14 @@ void draw(){
     drawArrow(directionOffsetX+200, directionOffsetY + 200, endArrowX, endArrowY, 0,0,0);
     drawSpeed = (int)ceil(0.6666666666666666666666666*distance(endArrowX - (directionOffsetX+200), endArrowY-(directionOffsetY + 200)));
   }
-  
+}
+
+void drawValues(){
   text("Direction: "+directionToDegrees(staticArrowX, staticArrowY)+"°   ("+directionToDegrees(endArrowX, endArrowY)+"°) ", directionOffsetX + 50, directionOffsetY + 400);  
   text("Snelheid:  "+newSpeed + "%  ("+drawSpeed+"%)", directionOffsetX + 50, 430); 
   text("Afstand: " + afstand + " cm", 50, 460);
   //text(millis(), 400, 400);
-  
 }
-
 void drawDirectionBox(){
   strokeWeight(0);
   translate(directionOffsetX, directionOffsetY);
@@ -144,18 +171,6 @@ void drawDirectionBox(){
   translate(-directionOffsetX, -directionOffsetY);
 }
 
-void serialEvent(Serial test){
-   int receivedData = test.read();
-   if(receivedData == ACK){
-     ACK_received = true;
-   startTimer = millis();
-   }else if(receivedData == NACK){
-     NACK_received = true;
-   startTimer = millis();
-   }else{
-     print((char)receivedData);
-   }
-}
 
 
 void drawSpeedMeter(int speed){
