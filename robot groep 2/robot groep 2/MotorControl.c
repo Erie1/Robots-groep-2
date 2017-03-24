@@ -60,7 +60,7 @@
  void emergencyBrake(){
 	 setMotors(0, 0);
 	 rightDesiredSpeed = leftDesiredSpeed = 0;
-	 blocked = 0xff;
+	 blocked = 0xF0;
  }
 
  void driveDistance(uint8_t length, uint8_t speed){

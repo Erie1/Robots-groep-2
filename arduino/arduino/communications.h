@@ -16,6 +16,7 @@ void verzenden_array(char address, char b[], char tel);
 void initCommunication();
 void emergencyBrake();
 void brake();
+uint8_t getBlocked();
 
 uint8_t parcours;
 
