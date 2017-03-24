@@ -34,6 +34,7 @@ int main(void)
 
 	while (1)
 	{
+		if(parcours == 1) driveParcours();
 		if(followDirection == 1) changeDirection();
 
 		US_DDR |= (1<<US_POS); //Set Ultra Sonic Port as out
