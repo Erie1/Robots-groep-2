@@ -23,13 +23,12 @@
 int main(void)
 {	
 	initCommunication();
-	DDRD |= 1 <<PIND2;
-	PORTD |= (1 << PIND2);
-	//initSensors();
+	initSensors();
 	sei();
 	
     while (1) 
     {
+	    writeInteger(getCompass(), 10);
 	    if(getBlocked() == 0xF0) evade();
 	    if(parcours == 1) driveParcours();
 	    if(followDirection == 1) changeDirection();

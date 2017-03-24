@@ -19,15 +19,11 @@ void changeDirection();
 uint8_t adjust;
 
 void initSensors(){
-	DDRD |= 1 <<PIND2;
-	PORTD |= (1 << PIND2);
-
-/*
 	head->next = tail;
 	adjust = 1;
 	writeString("read_Ulatrasone entered"); //debug purposes
 	PORTD |= (1 << PIND2); // turn on PIND2
-	init_timer1();*/
+	init_timer1();
 }
 
 void changeDirection(){
@@ -66,10 +62,10 @@ void changeDirection(){
  }
 
  uint8_t getCompass(){
-	verzenden(192, 0x01);
-	uint8_t temp[1], temp2 = 0;
-	ontvangen(192, temp, temp2);
-	return temp[0];
+	 verzenden(96, 0x01);
+	 uint8_t temp[1];
+	 ontvangen(96, temp, 1);
+	 return temp[0];
  }
 
  void sendSensors(){
