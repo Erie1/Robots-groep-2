@@ -13,12 +13,10 @@
 
  #include <avr/io.h>
  #include <avr/interrupt.h>
- 
- void verzenden_array(char address, char b[], char tel);
 
  void usartToMotors(char leftOver);
  void distanceAndDirection(char data[]);
- void parcours(char data[]);
+ void getParcours(char data[]);
  void continueParcours(char data[]);
 
  
@@ -73,12 +71,19 @@ void distanceAndDirection(char data[]){
 	followDirection = 1;
 }
 
-void parcours(char data[]){
-	// TODO
+void getParcours(char data[]){
+	struct Node node;
+	for(int i = 0; i < 3; i++) node.data[i] = data[i];
+	while(head != tail) head = head->next;
+	head = tail = &node;
 }
 
 void continueParcours(char data[]){
-	// TODO
+	struct Node node;
+	if(data[0] == 0){ parcours = 1; return; }
+	for(int i = 0; i < 3; i++) node.data[i] = data[i];
+	tail->next = &node;
+	tail = &node;
 }
 
 void emergencyBrake(){
@@ -88,6 +93,12 @@ void emergencyBrake(){
 void brake(){
 	emergencyBrake();
 	verzenden(DEVICE_ADRES, UNBLOCK);
+}
+
+uint8_t getBlocked(){
+	uint8_t blocked[1]; uint8_t temp = 0;
+	ontvangen(DEVICE_ADRES, blocked, temp);
+	return blocked[0];
 }
 
  /************************************************************************/
@@ -111,7 +122,7 @@ void brake(){
 			distanceAndDirection(data);
 			break;
 		case COM_PARCOURS :
-			parcours(data);
+			getParcours(data);
 			break;
 		case COM_CONTINUE_PARCOURS:
 			continueParcours(data);
