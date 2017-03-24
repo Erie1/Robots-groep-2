@@ -23,10 +23,10 @@
 int main(void)
 {	
 	initCommunication();
-	initSensors();
+	DDRD |= 1 <<PIND2;
+	PORTD |= (1 << PIND2);
+	//initSensors();
 	sei();
-	writeString("Ultra Sonic Active"); //Debug message
-	initUltrasone();
 	
     while (1) 
     {

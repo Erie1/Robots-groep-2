@@ -20,7 +20,6 @@ uint8_t getCompass();
 
 void init_timer1();
 void init_PCINT2();
-void initUltrasone();
 
 
 typedef struct Node Node;
