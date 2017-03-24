@@ -65,8 +65,10 @@ void changeDirection(){
  }
 
  uint8_t getCompass(){
-	// TODO
-	return 0;
+	verzenden(192, 255);
+	uint8_t temp[1], temp2 = 0;
+	ontvangen(192, temp, temp2);
+	return temp[0];
  }
 
  void sendSensors(){
