@@ -7,11 +7,17 @@
  
  #include "rp6aansluitingen.h"
  #include "MotorControl.h"
+ #include "i2c.h"
  #include <stdlib.h>
  #include <avr/io.h>
  #include <avr/interrupt.h>
 
  uint8_t distance;
+ 
+ int32_t leftEncTicks = 0;
+ int32_t rightEncTicks = 0;
+ 
+ int16_t testVariable = 0;
 
  /************************************************************************/
  /* initialize the motors                                                */
@@ -26,8 +32,18 @@
 	 // set the motor registers
 	 DDRC |= DIR_R | DIR_L;					// set direction pins as output
 	 DDRD |= MOTOR_R | MOTOR_L;				// MOTOR_R & MOTOR_L as output
+	 
+	 DDRD &= ~(ENC_R | ENC_L);				//Set encoder bits to input.
 
 	 OCR1A = OCR1B = 0;						// initialize motor PWM timers with no speed
+	 
+	 GICR |= (1 << 7) | (1 << 6); //Enable interupts on the encoders (int1, int0)
+	 MCUCR |= (1 << ISC00) | (1 << ISC10); //Set when interupts occure(At falling and rising edge)
+	 //EIMSK |= (1 << INT0) | (1 << INT1);
+	 
+	 
+	 PORTB |= PWRON;
+	 
  }
  
  /************************************************************************/
@@ -88,3 +104,28 @@
 		 leftDesiredSpeed > leftTarget ? setLeftMotor(++leftTarget) : setLeftMotor(--leftTarget);
 	 }
  }
+ 
+ /*
+ int32_t getTicks(){
+	 
+	 return leftEncTicks;
+ }
+ 
+ */
+/*
+ISR(INT0_vect){ //Left encoder triggerd.
+	leftEncTicks++;
+	writeString("\n\rEnc changed to ");
+	writeInteger(leftEncTicks, 10);
+	writeString("\n\r ");
+}
+/*
+/*
+ISR(INT1_vect){ //right encoder triggerd.
+	rightEncTicks++;
+	writeString("\n\rEnc changed to                  ");
+	writeInteger(rightEncTicks, 10);
+	writeString("\n\r ");
+}
+
+*/

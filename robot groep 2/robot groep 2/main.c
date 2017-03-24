@@ -14,8 +14,9 @@
  #include <avr/io.h>
  #include <avr/interrupt.h>
  
+//int32_t leftEncTicks = 0;
  
- 
+
  int main(void)
  {
 	initMotors();
@@ -23,12 +24,19 @@
 	
 	sei(); //De slave van i2c werkt met interrupt
 	
-	
-	
+	PORTD |= 1 << PIND4;
+	setMotors(100, 100);
 	while(1){
+		//writeInteger(GIFR, 2);
+		//writeString("\n\r");
+		////testVariable = leftEncTicks >> 16;
+		////writeInteger(testVariable, 10);
+		//writeString("\n\r");
 	}
 	
 	
 	return 0;
 }
  
+ 
+  

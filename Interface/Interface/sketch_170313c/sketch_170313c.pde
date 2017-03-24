@@ -43,6 +43,8 @@ int afstand = 0;
 
 int startTimer = 0;
 
+boolean drawArrow = false;
+
 ControlP5 distanceBox;
 
 
@@ -71,10 +73,17 @@ void setup(){
   //Open serial communcation on first open port
   
   //String portName = "COM8";
-  String portName = Serial.list()[1]; 
-  myPort = new Serial(this, portName, 9600);
+  String portName = Serial.list()[(Serial.list().length-1)]; 
+  
+  if(Serial.list().length > 0){
+    myPort = new Serial(this, portName, 9600);
+  }else{
+    println("\n\n Er zijn geen poorten om mee te verbinden");
+    exit();
+  }
+  
   //Print the port to make sure it's the right one
-  println(Serial.list()[0]);
+  println(portName);
   //Wait 4 seconds to make sure it's all ready.
   delay(4000);
 }
@@ -138,8 +147,9 @@ void serialEvent(Serial test){ //<>//
     println("nack received");
     headerSend = false;
     ACK_received = NACK_received = false;      
-  } else
+  } else{
     println("waiting");
+  }
   //while(!newCommand){}
 }
 
@@ -148,8 +158,13 @@ void checkMovedAndClicked(){
     drawArrow(directionOffsetX+200, directionOffsetY + 200, staticArrowX, staticArrowY, 255,0,0);
   }
   if(movedInsideDirection){
-    drawArrow(directionOffsetX+200, directionOffsetY + 200, endArrowX, endArrowY, 0,0,0);
-    drawSpeed = (int)ceil(0.6666666666666666666666666*distance(endArrowX - (directionOffsetX+200), endArrowY-(directionOffsetY + 200)));
+    if(drawArrow){
+      drawArrow(directionOffsetX+200, directionOffsetY + 200, endArrowX, endArrowY, 0,0,0);
+      drawSpeed = (int)ceil(0.6666666666666666666666666*distance(endArrowX - (directionOffsetX+200), endArrowY-(directionOffsetY + 200)));
+      if(drawSpeed > 100){
+        drawSpeed = 100;
+      }
+    }
   }
 }
 
@@ -176,13 +191,14 @@ void drawDirectionBox(){
 void drawSpeedMeter(int speed){
   strokeWeight(0);
   fill(255,255,255);
-  ellipse(speedOffsetX+200, speedOffsetY+200, 300,300);
+  ellipse(speedOffsetX+200, speedOffsetY+200, 310,310);
   
 }
 
 
 void drawBackground(){
   fill(13,36,73);
+  strokeWeight(0);
   rect(0,0,xSize, ySize); 
   
   
@@ -237,8 +253,11 @@ int distance(int x,int y){
 
 void mouseClicked(){
   //Check if mouse has been moved in direction options
-  if(distance(directionOffsetX+200-mouseX, directionOffsetY+200-mouseY ) < 150){
+  if(distance(directionOffsetX+200-mouseX, directionOffsetY+200-mouseY ) < 155){
      newSpeed = (int)ceil(0.66666666666666666666666*distance(directionOffsetX+200-mouseX, directionOffsetY+200-mouseY));
+     if(newSpeed > 100){
+       newSpeed = 100;
+     }
      staticArrowX= endArrowX;
      staticArrowY = endArrowY;
      clickedOnDirection = true;
@@ -247,13 +266,14 @@ void mouseClicked(){
 
 void mouseMoved(){
   //Check if mouse has been moved in direction options
-  if(distance(directionOffsetX+200-mouseX, directionOffsetY+200-mouseY ) < 150){
+  if(distance(directionOffsetX+200-mouseX, directionOffsetY+200-mouseY ) < 155){
     endArrowX = mouseX;
     endArrowY = mouseY;
+    drawArrow = true;
     movedInsideDirection = true;
     //rect(0,0,20,20);
   }else{
-   
+     drawArrow = false;
   }
   //println(distance(directionOffsetX+200-mouseX, directionOffsetY+200-mouseY ));
 }

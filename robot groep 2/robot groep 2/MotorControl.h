@@ -27,6 +27,7 @@ void setLeftMotor(int speed);
 void setRightMotor(int speed);
 void driveDistance(uint8_t distance, uint8_t speed);
 void emergencyBrake();
+int32_t getTicks();
 
 // external variables
 int rightDesiredSpeed;
