@@ -70,11 +70,18 @@ void setup(){
   
   //Open serial communcation on first open port
   
-  //String portName = "COM8";
-  String portName = Serial.list()[1]; 
-  myPort = new Serial(this, portName, 9600);
+  String portName = "COM8";
+  //String portName = Serial.list()[(Serial.list().length-1)]; 
+  
+  if(Serial.list().length > 0){
+    myPort = new Serial(this, portName, 9600);
+  }else{
+    println("\n\n Er zijn geen poorten om mee te verbinden");
+    exit();
+  }
+  
   //Print the port to make sure it's the right one
-  println(Serial.list()[0]);
+  println(portName);
   //Wait 4 seconds to make sure it's all ready.
   delay(4000);
 }
@@ -138,8 +145,9 @@ void serialEvent(Serial test){ //<>//
     println("nack received");
     headerSend = false;
     ACK_received = NACK_received = false;      
-  } else
+  } else{
     println("waiting");
+  }
   //while(!newCommand){}
 }
 
