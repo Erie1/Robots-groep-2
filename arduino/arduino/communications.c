@@ -80,7 +80,7 @@ void getParcours(char data[]){
 
 void continueParcours(char data[]){
 	struct Node node;
-	if(data[0] = 0){ parcours = 1; return; }
+	if(data[0] == 0){ parcours = 1; return; }
 	for(int i = 0; i < 3; i++) node.data[i] = data[i];
 	tail->next = &node;
 	tail = &node;

@@ -18,6 +18,11 @@ void initSensors();
 void driveParcours();
 uint8_t getCompass();
 
+void init_timer1();
+void init_PCINT2();
+void initUltrasone();
+
+
 typedef struct Node Node;
 struct Node {
 	struct Node *next;
@@ -27,5 +32,6 @@ struct Node {
 struct Node *head, *tail;
 int followDirection;
 uint8_t distanceDirection[3];
+int sensorDistance;
 
 #endif /* SENSORS_H_ */
