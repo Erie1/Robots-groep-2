@@ -111,6 +111,7 @@ void changeDirection(){
  {
 	 sensorDistance = TCNT1;
 	 sensorDistance /= 58;
+	 if(sensorDistance < 8.0) emergencyBrake();
 	 writeInteger(sensorDistance, 10);
  }
 
