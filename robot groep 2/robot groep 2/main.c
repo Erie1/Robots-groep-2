@@ -24,14 +24,14 @@
 	
 	sei(); //De slave van i2c werkt met interrupt
 	
-	PORTD |= 1 << PIND4;
-	setMotors(100, 100);
+	//PORTD |= 1 << PIND4;
+	
+	setMotors(179, 179);
+	writeString("Test");
 	while(1){
-		//writeInteger(GIFR, 2);
-		//writeString("\n\r");
-		////testVariable = leftEncTicks >> 16;
-		////writeInteger(testVariable, 10);
-		//writeString("\n\r");
+		if((leftEncTicks > (625*50)) && (rightEncTicks > (625*50))){
+			emergencyBrake();
+		}
 	}
 	
 	
