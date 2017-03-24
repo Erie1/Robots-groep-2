@@ -11,7 +11,6 @@
  #include "i2c_mst.h"
 
  #include <avr/io.h>
- #include <util/delay.h>
  #include <avr/interrupt.h>
 
 void changeDirection();
@@ -19,15 +18,13 @@ void changeDirection();
 uint8_t adjust;
 
 void initSensors(){
-	DDRD |= 1 <<PIND2;
-	PORTD |= (1 << PIND2);
 
-/*
+
 	head->next = tail;
 	adjust = 1;
 	writeString("read_Ulatrasone entered"); //debug purposes
-	PORTD |= (1 << PIND2); // turn on PIND2
-	init_timer1();*/
+	PORTD |= (1 << PIND3); // turn on PIND2
+	init_timer1();
 }
 
 void changeDirection(){
@@ -66,10 +63,10 @@ void changeDirection(){
  }
 
  uint8_t getCompass(){
-	verzenden(192, 0x01);
-	uint8_t temp[1], temp2 = 0;
-	ontvangen(192, temp, temp2);
-	return temp[0];
+	 verzenden(96, 0x01);
+	 uint8_t temp[1];
+	 ontvangen(96, temp, 1);
+	 return temp[0];
  }
 
  void sendSensors(){
@@ -78,45 +75,44 @@ void changeDirection(){
 
  /************************************************************************/
  /* initialize timer, interrupt and variable  (100 ms timer)             */
- /************************************************************************/
+ /******************************************** ****************************/
  void init_timer1()
  {
-	 TCCR1B |= (1 << WGM12)|(1 << CS11)|(1 << CS10); // set up timer with prescealer = 64 and enable CTC mode
+	 TCCR1B |= (1 << WGM12)|(1 << CS11)|(1 << CS10); // set up timer with prescaler = 64 and enable CTC mode
 	 TCNT1 = 0; 	// initialize counter
 	 TIMSK1 |= (1 << OCIE1A); // enable compare interrupt
 	 OCR1A = 24999;
  }
 
- /************************************************************************/
- /* initialize PCINT2, interrupt and variable                            */
+ /****************************** ******************************************/
+ /* initialize PC INT2, interrupt and variable                            */
  /************************************************************************/
  void init_PCINT2()
  {
 	 TCNT1 = 0;
-	 DDRD &= ~(1 << PIND2); //PD2 (PCINT2 pin) is now an input
+	 DDRD &= ~(1 << PIND3); //PD2 (PCINT2 pin) is now an input
 	 
-	 EICRA |= (1 << ISC21) | (1 << ISC20);		//set PCIE2 to enable PCMSK2 scan
-	 EIMSK |= (1 << INT2);	//set PCINT2 to trigger an interrupt on status chance
+	 EICRA |= (1 << ISC31);
+	 EIMSK |= (1 << INT3);	//set PCINT2 to trigger an interrupt on status chance
  }
 
- /**************************************************************************************/
+ /*********************************************** ***************************************/
  /* TIMER1 compare interrupt service routine called whenever there is a compare match  */
  /**************************************************************************************/
  ISR(TIMER1_COMPA_vect)
  {
-	DDRD |= 1 << PIND2;
-	_delay_us(15);
+	DDRD |= 1 << PIND3;
 	init_PCINT2();
  }
 
  /** ***********************************************************************************/
  /* Pin Chance interrupt2 service routine called upon when sensor pin state chances   */
- /*************************************************************************************/
- ISR(INT2_vect)
+ /************************************************************* ************************/
+ ISR(INT3_vect)
  {
-	writeString("moggel");
+	 writeString("\n\r");
 	 sensorDistance = TCNT1;
-	 sensorDistance /= 58;
 	 if(sensorDistance < 8.0) emergencyBrake();
 	 writeInteger(sensorDistance, 10);
+	 TCNT1 = 0;
  }

@@ -24,7 +24,7 @@
 /* initializes all communications                                       */
 /************************************************************************/
  void initCommunication(){
-	 PORTD = 0x03; //pullup SDA en SCL
+	 PORTD |= 0x03; //pullup SDA en SCL
 	 initUSART();
 	 UCSR0B |= 1 << RXCIE0;
 	 init_master();
