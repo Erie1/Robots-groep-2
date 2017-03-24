@@ -33,8 +33,8 @@
 #define ACS_PWR		(1 << PIND6)	// Output
 #define MOTOR_R		(1 << PIND5)	// PWM Output (OC1A)
 #define MOTOR_L		(1 << PIND4)	// PWM Output (OC1B)
-#define ENC_R 		(1 << PIND3)	// INT1 (Input)
-#define ENC_L 		(1 << PIND2)	// INT0 (Input)
+#define ENC_R 		(1 << PIND3)	// INT1 (Input) De encoder aan de rechterkant
+#define ENC_L 		(1 << PIND2)	// INT0 (Input) De encoedr aan de linkerkant.
 #define TX 		(1 << PIND1)	// USART TX (Output)
 #define RX 		(1 << PIND0)	// USART RX (Input)
 
