@@ -95,6 +95,12 @@ void brake(){
 	verzenden(DEVICE_ADRES, UNBLOCK);
 }
 
+uint8_t getBlocked(){
+	uint8_t blocked[1]; uint8_t temp = 0;
+	ontvangen(DEVICE_ADRES, blocked, temp);
+	return blocked[0];
+}
+
  /************************************************************************/
  /* interupt service routine for input from the pc                       */
  /************************************************************************/

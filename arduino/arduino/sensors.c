@@ -23,16 +23,10 @@ void initSensors(){
 	adjust = 1;
 }
 
-uint8_t getBlocked(){
-	uint8_t blocked[1]; uint8_t temp = 0;
-	ontvangen(DEVICE_ADRES, blocked, temp);
-	return blocked[0];
-}
-
 void changeDirection(){
 	// check of de robot niet klaar/geblokeerd is
 	uint8_t blocked = getBlocked();
-	if(blocked == 0xFF) {
+	if(blocked == 0x0F) {
 		followDirection = 0;
 		adjust = 1;
 		verzenden(DEVICE_ADRES, UNBLOCK);
@@ -53,7 +47,7 @@ void changeDirection(){
  }
 
  void driveParcours(){
-	if(getBlocked() == 0xFF){
+	if(getBlocked() == 0x0F){
 		if(head != tail){
 			for (int i = 0; i < 3; i++) distanceDirection[i] = head->data[i];
 			head = head->next;
