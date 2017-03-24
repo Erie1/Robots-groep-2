@@ -65,7 +65,7 @@ void changeDirection(){
  }
 
  uint8_t getCompass(){
-	verzenden(192, 255);
+	verzenden(192, 0x01);
 	uint8_t temp[1], temp2 = 0;
 	ontvangen(192, temp, temp2);
 	return temp[0];
