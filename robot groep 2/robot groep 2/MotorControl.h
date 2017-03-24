@@ -34,4 +34,7 @@ int rightDesiredSpeed;
 int leftDesiredSpeed;
 uint8_t blocked;
 
+int32_t leftEncTicks;
+int32_t rightEncTicks;
+
 #endif /* MOTORCONTROL_H_ */

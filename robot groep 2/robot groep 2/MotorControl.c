@@ -14,8 +14,7 @@
 
  uint8_t distance;
  
- int32_t leftEncTicks = 0;
- int32_t rightEncTicks = 0;
+
  
  int16_t testVariable = 0;
 
@@ -44,28 +43,31 @@
 	 
 	 PORTB |= PWRON;
 	 
+	 leftEncTicks = 0;
+	 rightEncTicks = 0;
+	 
  }
  
  /************************************************************************/
  /* set the motors                                                       */
  /************************************************************************/
  void setMotors(int left, int right){
-	 setLeftMotor(left);
+     setLeftMotor(left);
 	 setRightMotor(right);
  }
  void setLeftMotor(int speed){
 	if(blocked == 0xff) return;
-	int absSpeed = abs(speed);
-	if(absSpeed < 180)
-		if(MOTORSPEED_L != absSpeed && absSpeed < 200) MOTORSPEED_L = absSpeed;
-
+	uint8_t absSpeed = abs(speed);
+	
+	if(MOTORSPEED_L != absSpeed && absSpeed < MAXSPEED) MOTORSPEED_L = absSpeed;
+	
 	speed < 0 ? (PORTC |= DIR_L) : (PORTC &= ~DIR_L);
  }
  void setRightMotor(int speed){
 	if(blocked == 0xff) return;
-	int absSpeed = abs(speed);
-	if (absSpeed < 180)
-		if(MOTORSPEED_R != absSpeed && absSpeed < 200) MOTORSPEED_R = absSpeed;
+	uint8_t absSpeed = abs(speed);
+	
+    if(MOTORSPEED_R != absSpeed && absSpeed < MAXSPEED) MOTORSPEED_R = absSpeed;
 
 	speed < 0 ? (PORTC |= DIR_R) : (PORTC &= ~DIR_R);
  }
@@ -83,7 +85,12 @@
 	rightDesiredSpeed = leftDesiredSpeed = speed;
 	distance = length;
  }
-
+ 
+ /*
+ int getDistance(){
+	 
+ }
+ */
  /************************************************************************/
  /* chances the speed of the motors on timer0 COMP interrupt             */
  /************************************************************************/
@@ -112,20 +119,26 @@
  }
  
  */
-/*
+
 ISR(INT0_vect){ //Left encoder triggerd.
-	leftEncTicks++;
-	writeString("\n\rEnc changed to ");
-	writeInteger(leftEncTicks, 10);
-	writeString("\n\r ");
-}
-/*
-/*
-ISR(INT1_vect){ //right encoder triggerd.
-	rightEncTicks++;
-	writeString("\n\rEnc changed to                  ");
-	writeInteger(rightEncTicks, 10);
-	writeString("\n\r ");
+	if(PORTC & DIR_L)
+		leftEncTicks--;
+	else
+		leftEncTicks++;
+	
+	//writeString("\n\rLeft changed to ");
+	//writeInteger(leftEncTicks, 10);
+	//writeString("\n\r ");
 }
 
-*/
+ISR(INT1_vect){ //right encoder triggerd.
+	if(PORTC & DIR_L)
+		rightEncTicks--;
+	else
+		rightEncTicks++;
+	
+	//writeString("\n\rRight changed to                  ");
+	//writeInteger(rightEncTicks, 10);
+	//writeString("\n\r ");
+}
+
