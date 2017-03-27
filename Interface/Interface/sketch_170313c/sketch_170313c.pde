@@ -105,7 +105,7 @@ void draw(){
    //
   //
   array[0] = keysToNumber();
-  verzend(0x21, array);
+  verzend(0x20, array);
   println(frames);
   frames++;
   
