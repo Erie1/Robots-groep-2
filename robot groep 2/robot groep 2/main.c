@@ -17,6 +17,7 @@
 
  int main(void)
  {
+	//initialzes motors and communication
 	initMotors();
 	initCommunication();
 	
@@ -24,9 +25,6 @@
 
 	while(1){
 	}
-	
-	
-	return 0;
 }
  
  
