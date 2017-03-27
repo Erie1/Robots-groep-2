@@ -97,37 +97,37 @@ void setup(){
   //Wait 4 seconds to make sure it's all ready.
   delay(4000);
 }
+ //<>//
 
 
-
-
+ //<>//
 void draw(){
-   //
-  //
+   // //<>//
+  // //<>//
   array[0] = keysToNumber();
   verzend(0x20, array);
-  println(frames);
-  frames++;
-  
-  if((startTimer+2000) < millis()){ //<>//
+  println(frames); //<>//
+  frames++; //<>//
+   //<>//
+  if((startTimer+2000) < millis()){ //<>// //<>//
     println("retrying connection");
       headerSend = false;
       startTimer = millis(); //<>//
   }  
   
-     //<>//
+     //<>// //<>//
    //<>//
   afstand = int(distanceBox.get(Textfield.class, " ").getText());
   distanceBox.get(Textfield.class, " ").isFocus();
    //<>//
-  //Krijg de afstand. //<>//
-  //afstand = distance; //<>//
+  //Krijg de afstand. //<>// //<>//
+  //afstand = distance; //<>// //<>//
   //clear(); //<>//
-  
-  drawBackground();
+   //<>//
+  drawBackground(); //<>//
   drawKeys();
   drawSpeedMeter(343);
-  checkMovedAndClicked();
+  checkMovedAndClicked(); //<>//
   drawValues(); //<>//
  
   
@@ -170,8 +170,6 @@ boolean verzend(int header, int data[]){
      }
      println("Data send");
    }
-   
-   
    return true;
 }
 

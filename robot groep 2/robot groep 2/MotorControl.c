@@ -4,7 +4,7 @@
  * Created: 17-3-2017 09:35:00
  *  Author: Erik
  */ 
- 
+ #define  SPEEDSCALER				100/100
  #include "rp6aansluitingen.h"
  #include "MotorControl.h"
  #include "i2c.h"
@@ -12,11 +12,8 @@
  #include <avr/io.h>
  #include <avr/interrupt.h>
 
- uint8_t distance;
- 
-
- 
- int16_t testVariable = 0;
+ double distance;
+ int timeScale0, timeScale2;
 
  /************************************************************************/
  /* initialize the motors                                                */
@@ -27,7 +24,8 @@
 	 TCCR1A |= 1 << COM1A1 | (1 << COM1B1);	// non inverted mode on both motors
 	 TCCR1B |= 1 << CS10;					// no prescaler
 
-	 
+	 TCCR0 = TCCR2 = 1 << CS00;
+
 	 // set the motor registers
 	 DDRC |= DIR_R | DIR_L;					// set direction pins as output
 	 DDRD |= MOTOR_R | MOTOR_L;				// MOTOR_R & MOTOR_L as output
@@ -36,15 +34,11 @@
 
 	 OCR1A = OCR1B = 0;						// initialize motor PWM timers with no speed
 	 
-	 GICR |= (1 << 7) | (1 << 6); //Enable interupts on the encoders (int1, int0)
-	 MCUCR |= (1 << ISC00) | (1 << ISC10); //Set when interupts occure(At falling and rising edge)
-	 //EIMSK |= (1 << INT0) | (1 << INT1);
+	 GICR |= (1 << 7) | (1 << 6);			//Enable interupts on the encoders (int1, int0)
+	 MCUCR |= (1 << ISC00) | (1 << ISC10);	//Set when interupts occure(At falling and rising edge)
 	 
 	 
 	 PORTB |= PWRON;
-	 
-	 leftEncTicks = 0;
-	 rightEncTicks = 0;
 	 
  }
  
@@ -55,6 +49,7 @@
      setLeftMotor(left);
 	 setRightMotor(right);
  }
+
  void setLeftMotor(int speed){
 	if(blocked == 0xff) return;
 	uint8_t absSpeed = abs(speed);
@@ -63,6 +58,7 @@
 	
 	speed < 0 ? (PORTC |= DIR_L) : (PORTC &= ~DIR_L);
  }
+
  void setRightMotor(int speed){
 	if(blocked == 0xff) return;
 	uint8_t absSpeed = abs(speed);
@@ -85,12 +81,7 @@
 	rightDesiredSpeed = leftDesiredSpeed = speed;
 	distance = length;
  }
- 
- /*
- int getDistance(){
-	 
- }
- */
+
  /************************************************************************/
  /* chances the speed of the motors on timer0 COMP interrupt             */
  /************************************************************************/
@@ -100,45 +91,49 @@
 	 int leftTarget = MOTORSPEED_L;
 	 if(PORTC & DIR_L) leftTarget = -leftTarget;
 	 
-	 if(rightDesiredSpeed > 180) rightDesiredSpeed = 180;
 	 if(rightDesiredSpeed != rightTarget){
 		 rightTarget += (rightDesiredSpeed - rightTarget) / MOTOR_ADJUST_FREQUENTIE;
 		 rightDesiredSpeed > rightTarget ? setRightMotor(++rightTarget) : setRightMotor(--rightTarget);
 	 }
-	 if(leftDesiredSpeed > 180) leftDesiredSpeed = 180;
 	 if(leftDesiredSpeed != leftTarget){
 		 leftTarget += (leftDesiredSpeed - leftTarget) / MOTOR_ADJUST_FREQUENTIE;
 		 leftDesiredSpeed > leftTarget ? setLeftMotor(++leftTarget) : setLeftMotor(--leftTarget);
 	 }
  }
- 
- /*
- int32_t getTicks(){
-	 
-	 return leftEncTicks;
+
+ void driving(){
+	if(distance <= 0.0) return;
+	distance -= 0.012;
+	if(distance <= 0.0) {
+		rightDesiredSpeed = leftDesiredSpeed = 0;
+		setMotors(0, 0);
+		blocked |= 0x0f;
+	}
  }
- 
- */
 
-ISR(INT0_vect){ //Left encoder triggerd.
-	if(PORTC & DIR_L)
-		leftEncTicks--;
-	else
-		leftEncTicks++;
-	
-	//writeString("\n\rLeft changed to ");
-	//writeInteger(leftEncTicks, 10);
-	//writeString("\n\r ");
+ISR(INT0_vect){
+	driving();
+	if(leftDesiredSpeed > 100) leftDesiredSpeed = 100;
+	uint8_t temp = TCNT1 + timeScale0 * 256;
+	uint8_t scale = abs(leftDesiredSpeed) * SPEEDSCALER;
+	if(temp < scale) setLeftMotor(MOTORSPEED_L + 5);
+	else if(temp > scale) setLeftMotor( MOTORSPEED_L - 5);
+	TCNT0 = timeScale0 = 0;
 }
 
-ISR(INT1_vect){ //right encoder triggerd.
-	if(PORTC & DIR_L)
-		rightEncTicks--;
-	else
-		rightEncTicks++;
-	
-	//writeString("\n\rRight changed to                  ");
-	//writeInteger(rightEncTicks, 10);
-	//writeString("\n\r ");
+ISR(INT1_vect){
+	driving();
+	if(rightDesiredSpeed > 100) rightDesiredSpeed = 100;
+	uint8_t temp = TCNT2 + timeScale2 * 256;
+	uint8_t scale = abs(rightDesiredSpeed) * SPEEDSCALER;
+	if(temp < scale) setRightMotor(MOTORSPEED_L + 5);
+	else if(temp > scale) setRightMotor(MOTORSPEED_L - 5);
+	TCNT2 = timeScale2 = 0;
 }
 
+ISR(TIMER0_OVF_vect){
+	++timeScale0;
+}
+ISR(TIMER2_OVF_vect){
+	++timeScale2;
+}
