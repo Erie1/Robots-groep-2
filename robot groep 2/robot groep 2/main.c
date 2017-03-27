@@ -23,7 +23,6 @@
 	sei();
 
 	while(1){
-		rightDesiredSpeed = 100;
 	}
 	
 	

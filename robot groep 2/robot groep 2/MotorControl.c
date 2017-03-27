@@ -4,7 +4,7 @@
  * Created: 17-3-2017 09:35:00
  *  Author: Erik
  */ 
- #define  SPEEDSCALER				100/100
+ #define  SPEEDSCALER				2700/100
  #include "rp6aansluitingen.h"
  #include "MotorControl.h"
  #include "i2c.h"
