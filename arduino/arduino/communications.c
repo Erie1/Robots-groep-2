@@ -130,6 +130,9 @@ uint8_t getBlocked(){
 		case COM_REQUEST_SENSORS :
 			sendSensors();
 			break;
-		default: break;
+		default:
+			writeString("/x15");
+			break;
 	 }
+	 writeString("/x06");
  }

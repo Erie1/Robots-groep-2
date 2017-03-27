@@ -29,9 +29,6 @@ int main(void)
     {
 
 	   // if(getBlocked() == 0xF0) evade();
-
-	    //if(getBlocked() == 0xF0) evade();
-
 	    //if(parcours == 1) driveParcours();
 	    //if(followDirection == 1) changeDirection();
     }
