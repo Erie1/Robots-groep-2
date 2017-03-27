@@ -7,9 +7,15 @@ import controlP5.*;
 int ACK  = 0x06;
 int NACK = 0x15;
 
+
+
+int frames = 0;
 boolean ACK_received = false;
 boolean NACK_received = false;
 boolean headerSend = false;
+
+boolean receivedSomething;
+int message = 0;
 
 
 Serial myPort;  // Create object from Serial class
@@ -47,13 +53,17 @@ boolean drawArrow = false;
 
 ControlP5 distanceBox;
 
+int array[] = new int[1];
 
 
+int receivedData;
 
 void setup(){
   //Setup the canvas
   size(400,875);
   
+  
+  frameRate(10);
   //Draw first assets on the canvas
   drawBackground();
   drawEmptyKeys();
@@ -94,14 +104,17 @@ void setup(){
 void draw(){
    //
   //
+  array[0] = keysToNumber();
+  verzend(0x21, array);
+  println(frames);
+  frames++;
   
-  
-  
-  if((startTimer+1000) < millis()){ //<>//
+  if((startTimer+2000) < millis()){ //<>//
     println("retrying connection");
       headerSend = false;
       startTimer = millis(); //<>//
   }  
+  
      //<>//
    //<>//
   afstand = int(distanceBox.get(Textfield.class, " ").getText());
@@ -120,41 +133,94 @@ void draw(){
   
 }
 
- //<>//
-void serialEvent(Serial test){ //<>//
-  //println(myPort.available()); 
-  
-  int receivedData = test.read();
-   if(receivedData == ACK){
+int waitForMessage(){
+  while(!receivedSomething){
+    println("received nothing yet");
+  }
+  println("Received something");
+  startTimer = millis();
+  return receivedData;
+}
+
+boolean verzend(int header, int data[]){
+   println("---------------------------------");
+   println("attempting to send  header");
+   header += data.length;
+   
+   myPort.write(header);
+   message  = waitForMessage();
+   println("                                       " +message);
+   if(message == ACK){
      println("ACK Received");
-     ACK_received = true;
-     startTimer = millis();
-   }else if(receivedData == NACK){
-     NACK_received = true;
-     startTimer = millis();
+   }else if(message == NACK){
+     return false;
    }else{
-     //print((char)receivedData);
+     //return false;
+   }
+   println("header send");
+   for(int msg = 0; msg < data.length; msg++){
+     println("attempting to send data:");
+     myPort.write(data[msg]);
+     message  = waitForMessage();
+     if(message == ACK){
+     }else if(message == NACK){
+       return false;
+     }else{
+       //return false;
+     }
+     println("Data send");
    }
    
    
-   
-  if(!headerSend){
-    myPort.write(0x21); //<>//
-    headerSend = true; //<>//
-  }else if(ACK_received) {
-    println("ack received");
-    myPort.write(keysToNumber()); //<>// //<>//
-    headerSend = false;
-    ACK_received = NACK_received = false;
-  } else if(NACK_received) {
-    println("nack received");
-    headerSend = false;
-    ACK_received = NACK_received = false;      
-  } else{
-    //println("waiting");
-  }
-  //while(!newCommand){}
+   return true;
 }
+
+
+void serialEvent(Serial test){
+  
+  receivedSomething = true;
+  receivedData = test.read();
+}
+
+
+/* //<>//
+void serialEvent(Serial test){ //<>//
+  println(myPort.available()); 
+  //for(int x = 0; x < myPort.available(); x++){
+    int receivedData = test.read();
+     if(receivedData == ACK){
+       println("ACK Received");
+       ACK_received = true;
+       startTimer = millis();
+     }else if(receivedData == NACK){
+       NACK_received = true;
+       startTimer = millis();
+     }else{
+       //print((char)receivedData);
+     }
+     
+     
+     
+    if(!headerSend){
+      myPort.write(0x21); //<>//
+      headerSend = true; //<>//
+    }else if(ACK_received) {
+      println("ack received");
+      myPort.write(keysToNumber()); //<>// //<>//
+      headerSend = false;
+      ACK_received = NACK_received = false;
+    } else if(NACK_received) {
+      println("nack received");
+      headerSend = false;
+      ACK_received = NACK_received = false;      
+    } else{
+      //println("waiting");
+    }
+    //while(!newCommand){}
+  //}
+}
+
+*/
 
 void checkMovedAndClicked(){
   if(clickedOnDirection){
