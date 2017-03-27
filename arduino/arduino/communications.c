@@ -108,10 +108,13 @@ uint8_t getBlocked(){
 	char mode = UDR0;
 	char dataAmount = mode & 0x1F;
 	char data[dataAmount];
+	writeChar(ACK);
+
 	// receive data bytes and store them in an array
 	for(int i = 0; i < dataAmount; i++){
 		while(UCSR0A & (1 << RXC0));
 		data[i] = UDR0;
+		writeChar(ACK);
 	}
 	// decide what to do with data
 	switch (mode & 0xE0){
@@ -134,8 +137,9 @@ uint8_t getBlocked(){
 			writeChar(NACK);
 			break;
 	 }
+
 	 writeChar(ACK);
  }
  
  
- //Useless commit.
+ 
