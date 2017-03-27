@@ -122,15 +122,18 @@ void draw(){
 
  //<>//
 void serialEvent(Serial test){ //<>//
-   int receivedData = test.read();
+  //println(myPort.available()); 
+  
+  int receivedData = test.read();
    if(receivedData == ACK){
+     println("ACK Received");
      ACK_received = true;
      startTimer = millis();
    }else if(receivedData == NACK){
      NACK_received = true;
      startTimer = millis();
    }else{
-     print((char)receivedData);
+     //print((char)receivedData);
    }
    
    
@@ -148,7 +151,7 @@ void serialEvent(Serial test){ //<>//
     headerSend = false;
     ACK_received = NACK_received = false;      
   } else{
-    println("waiting");
+    //println("waiting");
   }
   //while(!newCommand){}
 }
