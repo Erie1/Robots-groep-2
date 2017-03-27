@@ -24,7 +24,8 @@
 	 TCCR1A |= 1 << COM1A1 | (1 << COM1B1);	// non inverted mode on both motors
 	 TCCR1B |= 1 << CS10;					// no prescaler
 
-	 
+	 TCCR0 = TCCR2 = 1 << CS00;
+
 	 // set the motor registers
 	 DDRC |= DIR_R | DIR_L;					// set direction pins as output
 	 DDRD |= MOTOR_R | MOTOR_L;				// MOTOR_R & MOTOR_L as output
@@ -113,7 +114,7 @@
 ISR(INT0_vect){
 	driving();
 	if(leftDesiredSpeed > 100) leftDesiredSpeed = 100;
-	uint8_t temp = TCNT1;
+	uint8_t temp = TCNT1 + timeScale0 * 256;
 	uint8_t scale = abs(leftDesiredSpeed) * SPEEDSCALER;
 	if(temp < scale) setLeftMotor(MOTORSPEED_L + 5);
 	else if(temp > scale) setLeftMotor( MOTORSPEED_L - 5);
@@ -123,7 +124,7 @@ ISR(INT0_vect){
 ISR(INT1_vect){
 	driving();
 	if(rightDesiredSpeed > 100) rightDesiredSpeed = 100;
-	uint8_t temp = TCNT2;
+	uint8_t temp = TCNT2 + timeScale2 * 256;
 	uint8_t scale = abs(rightDesiredSpeed) * SPEEDSCALER;
 	if(temp < scale) setRightMotor(MOTORSPEED_L + 5);
 	else if(temp > scale) setRightMotor(MOTORSPEED_L - 5);
