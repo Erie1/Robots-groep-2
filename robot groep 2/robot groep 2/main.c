@@ -20,8 +20,10 @@
 	initMotors();
 	initCommunication();
 	
-	sei(); //De slave van i2c werkt met interrupt
+	sei();
+
 	while(1){
+		rightDesiredSpeed = 100;
 	}
 	
 	
