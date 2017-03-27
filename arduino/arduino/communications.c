@@ -131,8 +131,8 @@ uint8_t getBlocked(){
 			sendSensors();
 			break;
 		default:
-			writeString("/x15");
+			writeChar(NACK);
 			break;
 	 }
-	 writeString("/x06");
+	 writeChar(ACK);
  }
