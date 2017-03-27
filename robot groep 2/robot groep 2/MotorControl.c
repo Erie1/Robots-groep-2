@@ -59,7 +59,7 @@
 	if(blocked == 0xff) return;
 	uint8_t absSpeed = abs(speed);
 	
-	if(MOTORSPEED_L != absSpeed && absSpeed < MAXSPEED) MOTORSPEED_L = absSpeed;
+	if(MOTORSPEED_L != absSpeed && absSpeed <= MAXSPEED) MOTORSPEED_L = absSpeed;
 	
 	speed < 0 ? (PORTC |= DIR_L) : (PORTC &= ~DIR_L);
  }
@@ -67,7 +67,7 @@
 	if(blocked == 0xff) return;
 	uint8_t absSpeed = abs(speed);
 	
-    if(MOTORSPEED_R != absSpeed && absSpeed < MAXSPEED) MOTORSPEED_R = absSpeed;
+    if(MOTORSPEED_R != absSpeed && absSpeed <= MAXSPEED) MOTORSPEED_R = absSpeed;
 
 	speed < 0 ? (PORTC |= DIR_R) : (PORTC &= ~DIR_R);
  }

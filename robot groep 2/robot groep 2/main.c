@@ -13,10 +13,18 @@
  #include <stdlib.h>
  #include <avr/io.h>
  #include <avr/interrupt.h>
+ #include <util/delay.h>
  
 //int32_t leftEncTicks = 0;
  
+ 
+ uint32_t fired = 0;
+ int timerValue = 0;
+ uint32_t ticks = 0;
 
+void initTimers2();
+
+int found = 1;
  int main(void)
  {
 	initMotors();
@@ -26,14 +34,33 @@
 	
 	PORTD |= 1 << PIND4;
 	
-	//setMotors(179, 179);
+	setMotors(179, 179);
 	writeString("Test");
+	for(int x=0; x<4; x++){
+		_delay_ms(250);
+	}
+	
+	initTimers2();
+	leftEncTicks =0;
+	rightEncTicks = 0;
 	while(1){
-		/*
-		if((leftEncTicks > (625*10)) && (rightEncTicks > (625*10))){
-			emergencyBrake();
+		if(found){
+			writeInteger(leftEncTicks, 10);
+			writeString("\n");
 		}
-		*/
+		if((leftEncTicks > (625*10)) && found){
+			found = 0;
+			setMotors(0, 0);
+			timerValue = TCNT2;
+			ticks = (255*fired);
+			
+			TIMSK |= (1 << TOIE2);			
+			
+			writeString("It took: ");
+			writeInteger(ticks, 10);
+			writeString("\n");
+		}
+		
 	}
 	
 	
@@ -41,4 +68,17 @@
 }
  
  
-  
+void initTimers2(){
+	TCNT2 = 0;
+	TCCR2 |= (1 << CS20);
+	TIMSK |= (1 << TOIE2);
+	
+	
+}
+
+ISR(TIMER2_OVF_vect){
+	fired++;	
+	//writeString("FIRED\n");
+}
+	
+	
