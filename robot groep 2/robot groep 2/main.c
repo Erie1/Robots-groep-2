@@ -14,8 +14,6 @@
  #include <avr/io.h>
  #include <avr/interrupt.h>
  
-//int32_t leftEncTicks = 0;
- 
 
  int main(void)
  {
@@ -23,17 +21,7 @@
 	initCommunication();
 	
 	sei(); //De slave van i2c werkt met interrupt
-	
-	PORTD |= 1 << PIND4;
-	
-	//setMotors(179, 179);
-	writeString("Test");
 	while(1){
-		/*
-		if((leftEncTicks > (625*10)) && (rightEncTicks > (625*10))){
-			emergencyBrake();
-		}
-		*/
 	}
 	
 	

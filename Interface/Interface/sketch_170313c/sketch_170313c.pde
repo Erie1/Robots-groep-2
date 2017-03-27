@@ -151,7 +151,7 @@ void serialEvent(Serial test){ //<>//
     headerSend = false;
     ACK_received = NACK_received = false;      
   } else{
-    //println("waiting");
+    println("waiting");
   }
   //while(!newCommand){}
 }

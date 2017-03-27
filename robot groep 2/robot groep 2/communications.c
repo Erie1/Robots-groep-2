@@ -50,7 +50,6 @@ void ontvangData(uint8_t data[], uint8_t tel){
 	uint8_t description = data[0];
 	for(int i = 1; i < tel; ++i)
 	    data_ont[i - 1] = data[i];
-	//writeInteger(description, 10);
 
 	switch (data[0]) {
 		case EMERGENCY_BRAKE:
