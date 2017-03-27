@@ -14,8 +14,8 @@
  #include <avr/io.h>
  #include <avr/interrupt.h>
 
- struct Wheel right;
- struct Wheel left;
+ Wheel right;
+ Wheel left;
 
  // distance left in distance and direction mode
  double distance;
@@ -26,8 +26,8 @@
  /* initialize the motors                                                */
  /************************************************************************/
  void initMotors(){	
-	 right = (struct Wheel) { OCR1A, DIR_R, 0 };
-	 left = (struct Wheel) { OCR1B, DIR_L, 0 };
+	 right = (Wheel) { OCR1A, DIR_R, 0 };
+	 left = (Wheel) { OCR1B, DIR_L, 0 };
 
 	 // set the PWM timer registers
 	 TCCR1A = 1 << WGM10;					// phase corrected PWM 8 bit w/ OCR1x

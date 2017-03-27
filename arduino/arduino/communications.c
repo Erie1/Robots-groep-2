@@ -18,6 +18,7 @@
  void distanceAndDirection(char data[]);
  void getParcours(char data[]);
  void continueParcours(char data[]);
+ Node makeNode(char data[]);
 
  
 /************************************************************************/
@@ -66,24 +67,25 @@ void usartToMotors(char leftOver){
 }
 
 void distanceAndDirection(char data[]){
-	for(int i = 0; i < 3; i++)
-		distanceDirection[i] = data[i];
-	followDirection = 1;
+	
 }
 
-void getParcours(char data[]){
-	struct Node node;
-	for(int i = 0; i < 3; i++) node.data[i] = data[i];
+void getParcours(char dataOnt[]){
 	while(head != tail) head = head->next;
-	head = tail = &node;
+	Node node = makeNode(dataOnt);
+	head = &node;
 }
 
-void continueParcours(char data[]){
-	struct Node node;
-	if(data[0] == 0){ parcours = 1; return; }
-	for(int i = 0; i < 3; i++) node.data[i] = data[i];
-	tail->next = &node;
-	tail = &node;
+void continueParcours(char dataOnt[]){
+	Node node = makeNode(dataOnt);
+	if(dataOnt[0] == 0){ parcours = 1; return; }
+	tail = tail->next = &node;
+}
+
+Node makeNode(char dataOnt[]){
+	DistanceDirection temp = { dataOnt[0], dataOnt[1], dataOnt[2] };
+	Node node = { .data = temp };
+	return node;
 }
 
 void emergencyBrake(){
