@@ -1,7 +1,7 @@
 /*
  * arduino.c
  *
- * Created: 12-3-2017 13:25:33
+ * Created: 12-3-2017 13:25:
  * Author : Erik
  */ 
 
@@ -25,11 +25,15 @@ int main(void)
 	sei();
 	initCommunication();
 	initSensors();
+	
+	
     while (1) 
     {
-
+		
+		/*
 	   if(getBlocked() == 0xF0) evade();
 	   if(parcours == 1) driveParcours();
 	   if(followDirection == 1) changeDirection();
+	   */
     }
 }

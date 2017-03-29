@@ -56,23 +56,33 @@ void ontvangData(uint8_t data[], uint8_t tel){
 			emergencyBrake();
 			break;
 		case SET_DISTANCE:
+			writeString("Setting distance to: ");
+			writeInteger(data[1], 10);
+			writeString(",  ");
+			writeInteger(data[2], 10);
+			writeString("\n\r");
 			driveDistance(data[1], data[2]);
+			
 			break;
 		case INCREASE :
 			rightDesiredSpeed += 5;
 			leftDesiredSpeed += 5;
+			writeString("Increasing speed\n\r");
 			break;
 		case DECREASE :
 			rightDesiredSpeed -= 5;
 			leftDesiredSpeed -= 5;
+			writeString("Decreasing speed\n\r");
 			break;
 		case TURN_RIGHT :
 			rightDesiredSpeed -= 5;
 			leftDesiredSpeed += 5;
+			writeString("Turning right\n\r");
 			break;
 		case TURN_LEFT :
 			rightDesiredSpeed += 5;
 			leftDesiredSpeed -= 5;
+			writeString("Turning left\n\r");
 			break;
 		case UNBLOCK :
 			blocked = 0x00;

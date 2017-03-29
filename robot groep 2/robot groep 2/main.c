@@ -18,7 +18,7 @@
 //int32_t leftEncTicks = 0;
  
  
- uint32_t fired = 0;
+
  int timerValue = 0;
  uint32_t ticks = 0;
 
@@ -31,9 +31,9 @@ int found = 1;
 	initCommunication();
 	
 	sei(); //De slave van i2c werkt met interrupt
-	
+	fired = 0;
 	PORTD |= 1 << PIND4;
-	
+	/*
 	setMotors(179, 179);
 	writeString("Test");
 	for(int x=0; x<4; x++){
@@ -52,18 +52,20 @@ int found = 1;
 			found = 0;
 			setMotors(0, 0);
 			timerValue = TCNT2;
-			ticks = (255*fired);
+			ticks = (fired);
 			
-			TIMSK |= (1 << TOIE2);			
+			
 			
 			writeString("It took: ");
-			writeInteger(ticks, 10);
+			writeInteger(fired, 10);
 			writeString("\n");
 		}
 		
 	}
-	
-	
+	*/
+	while(1){
+		
+	}
 	return 0;
 }
  
@@ -76,9 +78,3 @@ void initTimers2(){
 	
 }
 
-ISR(TIMER2_OVF_vect){
-	fired++;	
-	//writeString("FIRED\n");
-}
-	
-	

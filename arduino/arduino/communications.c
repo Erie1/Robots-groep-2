@@ -105,21 +105,28 @@ uint8_t getBlocked(){
  /* interupt service routine for input from the pc                       */
  /************************************************************************/
  ISR(USART0_RX_vect){
+	UCSR0B &= ~(1 << RXCIE0);
 	char mode = UDR0;
-	char dataAmount = mode & 0x1F;
+	char dataAmount = mode & 0x1F; //Bitmask for data ammount.
 	char data[dataAmount];
-	writeChar(ACK);
-
+	//writeChar(ACK);
+	//writeString("D ");
+	//writeInteger(dataAmount, 10);
+	//writeString("\n\r");
 	// receive data bytes and store them in an array
 	for(int i = 0; i < dataAmount; i++){
-		while(UCSR0A & (1 << RXC0));
+		while(!(UCSR0A & (1 << RXC0))){}
 		data[i] = UDR0;
-		writeChar(ACK);
+		//writeString("Data: ");
+		//writeChar(data[i]);
+			
 	}
-	// decide what to do with data
+	//writeChar(ACK);
+	// decide what to do with data 0xE0 Bitmask 3 MSB's
 	switch (mode & 0xE0){
 		case COM_CONTROL:
 			usartToMotors(data[0]);
+			//writeChar(126);
 			break;
 		case COM_AFSTANDRICHTING :
 			distanceAndDirection(data);
@@ -139,6 +146,7 @@ uint8_t getBlocked(){
 	 }
 
 	 writeChar(ACK);
+	 UCSR0B |= 1 << RXCIE0;
  }
  
  

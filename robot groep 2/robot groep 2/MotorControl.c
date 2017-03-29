@@ -69,7 +69,7 @@
  }
 
  /************************************************************************/
- /* lets the robot make an emergency brake and resets all movement       */
+ /* lets the robot make an ncy brake and resets all movement       */
  /************************************************************************/
  void emergencyBrake(){
 	 setMotors(0, 0);
@@ -134,6 +134,9 @@ ISR(INT1_vect){
 ISR(TIMER0_OVF_vect){
 	++timeScale0;
 }
+
 ISR(TIMER2_OVF_vect){
 	++timeScale2;
+	fired++;
 }
+
