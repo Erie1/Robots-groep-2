@@ -21,16 +21,29 @@ uint8_t getCompass();
 void init_timer1();
 void init_PCINT2();
 
+// a structure containing information for driving a distance in a direction
+typedef struct DistanceDirection {
+	uint8_t direction;
+	uint8_t speed;
+	uint8_t distance;
+} DistanceDirection;
 
-typedef struct Node Node;
-struct Node {
+// contains the current distance and direction if necessary 
+struct DistanceDirection drive;
+
+// Node for a simple linkedList
+typedef struct Node {
 	struct Node *next;
-	char data[3];
-};
+	DistanceDirection data;
+} Node;
 
-struct Node *head, *tail;
+// head and tail pointers for linkedList used in parcours
+Node *head, *tail;
+
+// stores if the robot is going through the distance and direction program
 int followDirection;
-uint8_t distanceDirection[3];
+
+// stores the last sonar distance measured
 int sensorDistance;
 
 #endif /* SENSORS_H_ */

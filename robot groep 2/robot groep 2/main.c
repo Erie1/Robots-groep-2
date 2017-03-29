@@ -13,8 +13,8 @@
  #include <stdlib.h>
  #include <avr/io.h>
  #include <avr/interrupt.h>
- #include <util/delay.h>
  
+
 //int32_t leftEncTicks = 0;
  
  
@@ -22,14 +22,13 @@
  int timerValue = 0;
  uint32_t ticks = 0;
 
-void initTimers2();
-
-int found = 1;
  int main(void)
  {
+	//initialzes motors and communication
 	initMotors();
 	initCommunication();
 	
+
 	sei(); //De slave van i2c werkt met interrupt
 	fired = 0;
 	PORTD |= 1 << PIND4;
@@ -78,3 +77,12 @@ void initTimers2(){
 	
 }
 
+
+	sei();
+
+	while(1){
+	}
+}
+ 
+ 
+  

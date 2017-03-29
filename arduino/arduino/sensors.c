@@ -13,13 +13,12 @@
  #include <avr/io.h>
  #include <avr/interrupt.h>
 
-void changeDirection();
+ void changeDirection();
 
-uint8_t adjust;
+ uint8_t adjust;
 
+// initializes all the sensors
 void initSensors(){
-
-
 	head->next = tail;
 	adjust = 1;
 	writeString("read_Ulatrasone entered"); //debug purposes
@@ -27,8 +26,9 @@ void initSensors(){
 	init_timer1();
 }
 
+// function used for driving in a certain direction and keeping that direction
 void changeDirection(){
-	// check of de robot niet klaar/geblokeerd is
+	// check if the robot isn't finished or crashed
 	uint8_t blocked = getBlocked();
 	if(blocked == 0x0F) {
 		followDirection = 0;
@@ -37,15 +37,17 @@ void changeDirection(){
 		return;
 	}
 
+	// set the rp6 to drive forward at the desired speed when pointing the right direction
 	uint8_t compass = getCompass();
-	if((compass == distanceDirection[2]) && adjust) {
+	if((compass == drive.direction) && adjust) {
 		brake(); 
-		char temp[] = { SET_DISTANCE, distanceDirection[0], distanceDirection[1] };
+		char temp[] = { SET_DISTANCE, drive.speed, drive.distance };
 		verzenden_array(DEVICE_ADRES, temp, 3);
 		adjust = 0;
 	}
 
-	int turn = distanceDirection[0] - compass;
+	// adjust the robot a little bit so it stays on course
+	int turn = drive.direction - compass;
 	if(turn > 127 && turn <= -127) verzenden(DEVICE_ADRES, TURN_RIGHT);
 	else verzenden(DEVICE_ADRES, TURN_LEFT); 
  }
@@ -53,7 +55,7 @@ void changeDirection(){
  void driveParcours(){
 	if(getBlocked() == 0x0F){
 		if(head != tail){
-			for (int i = 0; i < 3; i++) distanceDirection[i] = head->data[i];
+			for (int i = 0; i < 3; i++) drive = head->data;
 			head = head->next;
 		} else {
 			parcours = 0;

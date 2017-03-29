@@ -10,29 +10,29 @@
 #define MOTORCONTROL_H_
 
 
-// defines
-#define MAXSPEED					180
-#define MOTORSPEED_R				OCR1A
-#define MOTORSPEED_L				OCR1B
-
-// adjustment defines
-#define MOTOR_ADJUST_FREQUENTIE	50
-#define MOTOR_ADJUST_TIME			0.5
-#define MOTOR_ADJUST_DELAY			F_CPU / MOTOR_ADJUST_FREQUENTIE * MOTOR_ADJUST_TIME / 1024
+/************************************************************************/
+/* a structure which stores a register for controlling a wheels speed,  */
+/* a bit used to set its direction                                      */
+/* and the current speed as a number between -255 and 255               */
+/************************************************************************/
+typedef struct Wheel {
+	uint8_t speed;
+	uint8_t direction;
+	int16_t currentSpeed;
+} Wheel;
 
 // functions
 void initMotors();
 void setMotors(int left, int right);
-void setLeftMotor(int speed);
-void setRightMotor(int speed);
+void motor(int speed, Wheel *wheel);
 void driveDistance(uint8_t distance, uint8_t speed);
 void emergencyBrake();
-int32_t getTicks();
 
 // external variables
 int rightDesiredSpeed;
 int leftDesiredSpeed;
 uint8_t blocked;
+
 
 int32_t leftEncTicks;
 int32_t rightEncTicks;

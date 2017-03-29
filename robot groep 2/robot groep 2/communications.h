@@ -8,9 +8,6 @@
 #ifndef COMMUNICATIONS_H_
 #define COMMUNICATIONS_H_
 
-#define TRUE 0xFF;
-#define FALSE 0;
-
 // communication functions
 void initCommunication();
 

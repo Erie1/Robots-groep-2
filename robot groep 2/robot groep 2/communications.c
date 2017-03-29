@@ -14,16 +14,21 @@
 #include <util/twi.h>
 #include <avr/interrupt.h>
 
+// received data
 int8_t data_ont[20]; //max 20
-volatile uint8_t data_flag;
 
+// send and recieve functions
 void ontvangData(uint8_t data[],uint8_t tel);
 uint8_t verzendByte();
 
+/************************************************************************/
+/* initializes communication with pc on usb bus,						*/
+/* i2c and the i2c send and recieve functions                           */
+/************************************************************************/
 void initCommunication(){
-	data_flag = FALSE;
 	initUSART();
 	
+	/* initializes the rp6 as a slave on the i2c bus */
 	init_i2c_slave(8);
 
 	/*ontvangData is de functie die uitgevoerd wordt 
@@ -47,7 +52,6 @@ uint8_t verzendByte() {
 /* functie die wordt aangeroepen als er data is ontvangen van de master */
 /************************************************************************/ 
 void ontvangData(uint8_t data[], uint8_t tel){
-	uint8_t description = data[0];
 	for(int i = 1; i < tel; ++i)
 	    data_ont[i - 1] = data[i];
 
@@ -90,6 +94,9 @@ void ontvangData(uint8_t data[], uint8_t tel){
 	}
 }
 
+/************************************************************************/
+/* ISR gets called when something happens on the i2c bus                */
+/************************************************************************/
 ISR(TWI_vect) {
 	slaaftwi();
 }
