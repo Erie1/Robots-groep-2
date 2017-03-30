@@ -2,7 +2,7 @@
  * arduino.c
  *
  * Created: 12-3-2017 13:25:
- * Author : Erik
+ * Author : Oetze
  */ 
 
 #include "communications.h"

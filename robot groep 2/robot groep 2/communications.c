@@ -21,6 +21,8 @@ int8_t data_ont[20]; //max 20
 void ontvangData(uint8_t data[],uint8_t tel);
 uint8_t verzendByte();
 
+uint8_t speedScaler = 10;
+
 /************************************************************************/
 /* initializes communication with pc on usb bus,						*/
 /* i2c and the i2c send and recieve functions                           */
@@ -60,39 +62,41 @@ void ontvangData(uint8_t data[], uint8_t tel){
 			emergencyBrake();
 			break;
 		case SET_DISTANCE:
+			/*
 			writeString("Setting distance to: ");
 			writeInteger(data[1], 10);
 			writeString(",  ");
 			writeInteger(data[2], 10);
 			writeString("\n\r");
+			*/
 			driveDistance(data[1], data[2]);
 			
 			break;
 		case INCREASE :
-			rightDesiredSpeed += 5;
-			leftDesiredSpeed += 5;
+			rightDesiredSpeed += speedScaler;
+			leftDesiredSpeed += speedScaler;
 			writeString("Increasing speed\n\r");
 			break;
 		case DECREASE :
-			rightDesiredSpeed -= 5;
-			leftDesiredSpeed -= 5;
+			rightDesiredSpeed -= speedScaler;
+			leftDesiredSpeed -= speedScaler;
 			writeString("Decreasing speed\n\r");
 			break;
 		case TURN_RIGHT :
-			rightDesiredSpeed -= 5;
-			leftDesiredSpeed += 5;
+			rightDesiredSpeed -= speedScaler;
+			leftDesiredSpeed += speedScaler;
 			writeString("Turning right\n\r");
 			break;
 		case TURN_LEFT :
-			rightDesiredSpeed += 5;
-			leftDesiredSpeed -= 5;
+			rightDesiredSpeed += speedScaler;
+			leftDesiredSpeed -= speedScaler;
 			writeString("Turning left\n\r");
 			break;
 		case UNBLOCK :
 			blocked = 0x00;
 			break;
 	}
-	//setMotors(leftDesiredSpeed, rightDesiredSpeed);
+	setMotors(leftDesiredSpeed, rightDesiredSpeed);
 }
 
 /************************************************************************/

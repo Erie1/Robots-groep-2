@@ -20,6 +20,7 @@
  void continueParcours(char data[]);
  Node makeNode(char data[]);
 
+
  
 /************************************************************************/
 /* initializes all communications                                       */

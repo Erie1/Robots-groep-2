@@ -88,7 +88,7 @@ void setup(){
   
   //Open serial communcation on first open port
   
-  String portName = "COM8";
+  String portName = "COM6";
   //String portName = Serial.list()[(Serial.list().length-1)]; 
   
   if(Serial.list().length > 0){

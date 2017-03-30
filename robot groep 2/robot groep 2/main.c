@@ -34,7 +34,12 @@
 	PORTD |= 1 << PIND4;
 	
 	while(1){
-		
+		//setMotors(100, 100);
+		if(leftDesiredSpeed > 255) leftDesiredSpeed = 255;
+		if(leftDesiredSpeed < -255) leftDesiredSpeed = -255;
+		if(rightDesiredSpeed > 255) rightDesiredSpeed = 255;
+		if(rightDesiredSpeed < -255) rightDesiredSpeed = -255;
+		setMotors(leftDesiredSpeed, rightDesiredSpeed);
 	}
 	return 0;
 }
@@ -49,11 +54,4 @@ void initTimers2(){
 }
 
 
-	sei();
 
-	while(1){
-	}
-}
- 
- 
-  

@@ -16,7 +16,7 @@
 /* and the current speed as a number between -255 and 255               */
 /************************************************************************/
 typedef struct Wheel {
-	uint8_t speed;
+	uint8_t *speed;
 	uint8_t direction;
 	int16_t currentSpeed;
 } Wheel;

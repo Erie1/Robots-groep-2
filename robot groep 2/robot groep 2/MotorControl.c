@@ -26,8 +26,8 @@
  /* initialize the motors                                                */
  /************************************************************************/
  void initMotors(){	
-	 right = (Wheel) { OCR1A, DIR_R, 0 };
-	 left = (Wheel) { OCR1B, DIR_L, 0 };
+	 right = (Wheel) { &OCR1A, DIR_R, 0 };
+	 left = (Wheel) { &OCR1B, DIR_L, 0 };
 
 	 // set the PWM timer registers
 	 TCCR1A = 1 << WGM10;					// phase corrected PWM 8 bit w/ OCR1x
@@ -69,7 +69,7 @@
 
 	// sets speed of the motor
 	uint8_t absSpeed = abs(speed);
-	if(wheel->speed != absSpeed) wheel->speed = absSpeed;
+	if(*wheel->speed != absSpeed) *wheel->speed = absSpeed;
 	
 	// sets the direction of the motor based on positive or negative speed
 	speed < 0 ? (PORTC |= wheel->direction) : (PORTC &= ~(wheel->direction));
