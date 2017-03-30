@@ -92,6 +92,7 @@ void ontvangData(uint8_t data[], uint8_t tel){
 			blocked = 0x00;
 			break;
 	}
+	//setMotors(leftDesiredSpeed, rightDesiredSpeed);
 }
 
 /************************************************************************/

@@ -32,36 +32,7 @@
 	sei(); //De slave van i2c werkt met interrupt
 	fired = 0;
 	PORTD |= 1 << PIND4;
-	/*
-	setMotors(179, 179);
-	writeString("Test");
-	for(int x=0; x<4; x++){
-		_delay_ms(250);
-	}
 	
-	initTimers2();
-	leftEncTicks =0;
-	rightEncTicks = 0;
-	while(1){
-		if(found){
-			writeInteger(leftEncTicks, 10);
-			writeString("\n");
-		}
-		if((leftEncTicks > (625*10)) && found){
-			found = 0;
-			setMotors(0, 0);
-			timerValue = TCNT2;
-			ticks = (fired);
-			
-			
-			
-			writeString("It took: ");
-			writeInteger(fired, 10);
-			writeString("\n");
-		}
-		
-	}
-	*/
 	while(1){
 		
 	}
