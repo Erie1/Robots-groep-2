@@ -7,10 +7,8 @@
  #include "../../shared/twi_codes.h"
 
  #include "sensors.h"
- #include "communications.h"
- #include "i2c_mst.h"
+ #include "i2c_communication.h"
 
- #include <avr/io.h>
  #include <avr/interrupt.h>
 
  void changeDirection();
@@ -21,7 +19,6 @@
 void initSensors(){
 	head->next = tail;
 	adjust = 1;
-	writeString("read_Ulatrasone entered"); //debug purposes
 	PORTD |= (1 << PIND3); // turn on PIND2
 	init_timer1();
 }
@@ -33,7 +30,7 @@ void changeDirection(){
 	if(blocked == 0x0F) {
 		followDirection = 0;
 		adjust = 1;
-		verzenden(DEVICE_ADRES, UNBLOCK);
+		verzendenRP6(UNBLOCK);
 		return;
 	}
 
@@ -48,8 +45,8 @@ void changeDirection(){
 
 	// adjust the robot a little bit so it stays on course
 	int turn = drive.direction - compass;
-	if(turn > 127 && turn <= -127) verzenden(DEVICE_ADRES, TURN_RIGHT);
-	else verzenden(DEVICE_ADRES, TURN_LEFT); 
+	if(turn > 127 && turn <= -127) verzendenRP6(TURN_RIGHT);
+	else verzendenRP6(TURN_LEFT); 
  }
 
  void driveParcours(){
@@ -58,17 +55,9 @@ void changeDirection(){
 			for (int i = 0; i < 3; i++) drive = head->data;
 			head = head->next;
 		} else {
-			parcours = 0;
-			writeString("finished");
+			parcours = 2;
 		}
 	}
- }
-
- uint8_t getCompass(){
-	 verzenden(96, 0x01);
-	 uint8_t temp[1];
-	 ontvangen(96, temp, 1);
-	 return temp[0];
  }
 
  void sendSensors(){
@@ -112,9 +101,7 @@ void changeDirection(){
  /************************************************************* ************************/
  ISR(INT3_vect)
  {
-	 writeString("\n\r");
 	 sensorDistance = TCNT1;
 	 if(sensorDistance < 8.0) emergencyBrake();
-	 writeInteger(sensorDistance, 10);
 	 TCNT1 = 0;
  }

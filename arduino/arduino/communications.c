@@ -4,22 +4,22 @@
  * Created: 20-3-2017 15:16:29
  *  Author: Erik
  */
-#include <avr/io.h>
+#include <avr/interrupt.h>
 
- #include "../../shared/commando_codes.h"
+#include "../../shared/commando_codes.h"
 
- #include "communications.h"
- #include "sensors.h"
+#include "communications.h"
 #include "usartFunction.h"
+
+#include "i2c_mst.h"
+
  
 /************************************************************************/
-/* initializes all communications                                       */
+/* initializes pc communications                                        */
 /************************************************************************/
  void initCommunication(){
 	 initUSART();
  }
-
-
 
  /************************************************************************/
  /* interupt service routine for input from the pc                       */
@@ -29,10 +29,6 @@
 	char mode = UDR0;
 	char dataAmount = mode & 0x1F; //Bitmask for data ammount.
 	char data[dataAmount];
-	//writeChar(ACK);
-	//writeString("D ");
-	//writeInteger(dataAmount, 10);
-	//writeString("\n\r");
 	// receive data bytes and store them in an array
 	for(int i = 0; i < dataAmount; i++){
 		while(!(UCSR0A & (1 << RXC0))){}
@@ -41,12 +37,10 @@
 		//writeChar(data[i]);
 			
 	}
-	//writeChar(ACK);
 	// decide what to do with data 0xE0 Bitmask 3 MSB's
 	switch (mode & 0xE0){
 		case COM_CONTROL:
 			usartToMotors(data[0]);
-			//writeChar(126);
 			break;
 		case COM_AFSTANDRICHTING :
 			distanceAndDirection(data);
@@ -58,7 +52,7 @@
 			continueParcours(data);
 			break;
 		case COM_REQUEST_SENSORS :
-			sendSensors();
+			// sendSensors();
 			break;
 		default:
 			writeChar(NACK);

@@ -45,6 +45,17 @@ void verzenden_array(char address, char b[], char tel) {
 	TWCR=(1<<TWINT)|(1<<TWSTO)|(1<<TWEN);
 }
 
+void verzendenRP6(char command){
+	verzenden(DEVICE_ADRES, command);
+}
+
+uint8_t getCompass(){
+	 verzenden(96, 0x01);
+	 uint8_t temp[1];
+	 ontvangen(96, temp, 1);
+	 return temp[0];
+ }
+
 uint8_t getBlocked(){
 	uint8_t blocked[1]; uint8_t temp = 0;
 	ontvangen(DEVICE_ADRES, blocked, temp);

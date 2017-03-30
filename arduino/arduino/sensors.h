@@ -11,12 +11,11 @@
 #define SENSORS_H_
 
 
+void initSensors();
 uint16_t getPulseWidth();
 void sendSensors();
 void changeDirection();
-void initSensors();
 void driveParcours();
-uint8_t getCompass();
 
 void init_timer1();
 void init_PCINT2();
@@ -45,5 +44,7 @@ int followDirection;
 
 // stores the last sonar distance measured
 int sensorDistance;
+
+int parcours;
 
 #endif /* SENSORS_H_ */

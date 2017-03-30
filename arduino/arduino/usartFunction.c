@@ -6,21 +6,24 @@
  */ 
 #include "../../shared/twi_codes.h"
 #include "i2c_communication.h"
+#include "communications.h"
+
+#include "usartFunction.h"
 #include "sensors.h"
 
 /************************************************************************/
 /* changes desired motorspeeds according to input                       */
 /************************************************************************/
 void usartToMotors(char leftOver){
-	if(leftOver & 8) verzenden(DEVICE_ADRES, INCREASE);
-	if(leftOver & 4) verzenden(DEVICE_ADRES, TURN_LEFT);
-	if(leftOver & 2) verzenden(DEVICE_ADRES, DECREASE);
-	if(leftOver & 1) verzenden(DEVICE_ADRES, TURN_RIGHT);
+	if(leftOver & 8) verzendenRP6(INCREASE);
+	if(leftOver & 4) verzendenRP6(TURN_LEFT);
+	if(leftOver & 2) verzendenRP6(DECREASE);
+	if(leftOver & 1) verzendenRP6(TURN_RIGHT);
 	if(leftOver & 15) emergencyBrake();
 }
 
 void distanceAndDirection(char data[]){
-	
+	drive = (DistanceDirection) { data[0], data[1], data[2] };
 }
 
 void getParcours(char dataOnt[]){
@@ -42,10 +45,10 @@ Node getNode(char dataOnt[]){
 }
 
 void emergencyBrake(){
-	verzenden(DEVICE_ADRES, EMERGENCY_BRAKE);
+	verzendenRP6(EMERGENCY_BRAKE);
 }
 
 void brake(){
 	emergencyBrake();
-	verzenden(DEVICE_ADRES, UNBLOCK);
+	verzendenRP6(UNBLOCK);
 }
