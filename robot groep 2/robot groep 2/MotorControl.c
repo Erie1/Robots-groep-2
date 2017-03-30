@@ -24,8 +24,8 @@
  /* initialize the motors                                                */
  /************************************************************************/
  void initMotors(){	
-	 right = (Wheel) { &OCR1A, DIR_R, 0 };
-	 left = (Wheel) { &OCR1B, DIR_L, 0 };
+	 right = (Wheel) { (uint8_t*) &OCR1A, DIR_R, 0 };
+	 left = (Wheel) { (uint8_t*) &OCR1B, DIR_L, 0 };
 
 	 // set the PWM timer registers
 	 TCCR1A = 1 << WGM10;					// phase corrected PWM 8 bit w/ OCR1x
