@@ -88,7 +88,7 @@ void setup(){
   
   //Open serial communcation on first open port
   
-  String portName = "COM6";
+  String portName = "COM8";
   //String portName = Serial.list()[(Serial.list().length-1)]; 
   
   if(Serial.list().length > 0){
@@ -173,7 +173,7 @@ boolean waitForMessage(){
   while(!ACK_received){
     //println(" ");
    //delay(1);
-   if((ACK_startTime+1000)<millis()){
+   if((ACK_startTime+5000)<millis()){
      println("ACK Timed out");
      canSend = false;
      return false;

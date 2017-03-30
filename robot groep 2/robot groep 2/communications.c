@@ -54,6 +54,7 @@ uint8_t verzendByte() {
 /* functie die wordt aangeroepen als er data is ontvangen van de master */
 /************************************************************************/ 
 void ontvangData(uint8_t data[], uint8_t tel){
+	writeString("IK HEB DAYAYAYAYAJ");
 	for(int i = 1; i < tel; ++i)
 	    data_ont[i - 1] = data[i];
 

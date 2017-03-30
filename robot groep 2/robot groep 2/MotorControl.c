@@ -110,22 +110,28 @@
  /* used to maintain speed and calculate distance driven                 */
  /************************************************************************/
 ISR(INT0_vect){
+	
 	driving();
 	if(leftDesiredSpeed > 100) leftDesiredSpeed = 100;
-	uint8_t temp = TCNT1 + timeScale0 * 256;
+	if(leftDesiredSpeed < -100) leftDesiredSpeed = -100;
+	uint8_t temp = TCNT0 + timeScale0 * 256;
 	uint8_t scale = abs(leftDesiredSpeed) * SPEEDSCALER;
 	if(temp < scale) motor(left.currentSpeed + 5, &left);
 	else if(temp > scale) motor( left.currentSpeed - 5, &left);
 	TCNT0 = timeScale0 = 0;
+	
 }
 ISR(INT1_vect){
+	
 	driving();
 	if(rightDesiredSpeed > 100) rightDesiredSpeed = 100;
+	if(rightDesiredSpeed < -100) rightDesiredSpeed = -100;
 	uint8_t temp = TCNT2 + timeScale2 * 256;
 	uint8_t scale = abs(rightDesiredSpeed) * SPEEDSCALER;
 	if(temp < scale)  motor(right.currentSpeed + 5, &right);
 	else if(temp > scale) motor(right.currentSpeed - 5, &right);
 	TCNT2 = timeScale2 = 0;
+	
 }
 
 /************************************************************************/
@@ -138,6 +144,6 @@ ISR(TIMER0_OVF_vect){
 
 ISR(TIMER2_OVF_vect){
 	++timeScale2;
-	fired++;
+	//fired++;
 }
 

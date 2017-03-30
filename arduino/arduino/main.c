@@ -23,8 +23,8 @@ int main(void)
     while (1) 
     {
 		
-	   if(getBlocked() == 0xF0) evade();
+	   //if(getBlocked() == 0xF0) evade();
 	   // if(parcours == 1) driveParcours();
-	   if(followDirection == 1) changeDirection();
+	   //if(followDirection == 1) changeDirection();
     }
 }
