@@ -54,10 +54,16 @@ boolean drawArrow = false;
 ControlP5 distanceBox;
 
 int array[] = new int[1];
+int disDir[] = new int[2];
 
 
+boolean canSend;
 int receivedData;
 
+int ACK_startTime = 0;
+boolean canSendDisDir = false;
+
+int someCounter = 0;
 void setup(){
   //Setup the canvas
   size(400,875);
@@ -82,8 +88,8 @@ void setup(){
   
   //Open serial communcation on first open port
   
-  //String portName = "COM8";
-  String portName = Serial.list()[(Serial.list().length-1)]; 
+  String portName = "COM8";
+  //String portName = Serial.list()[(Serial.list().length-1)]; 
   
   if(Serial.list().length > 0){
     myPort = new Serial(this, portName, 9600);
@@ -103,17 +109,22 @@ void setup(){
  //<>//
 void draw(){
    // //<>//
-  // //<>//
+  println("---------------------------------------------"); //<>//
   array[0] = keysToNumber();
+  println("Array[0]: "+array[0]);
+  println("Frame: "+frames++);
+  canSend = true; 
   verzend(0x20, array);
-  println(frames); //<>//
-  frames++; //<>//
+  //<>//
+  //<>//
    //<>//
+  /*
   if((startTimer+2000) < millis()){ //<>// //<>//
     println("retrying connection");
       headerSend = false;
       startTimer = millis(); //<>//
-  }  
+  }
+  */
   
      //<>// //<>//
    //<>//
@@ -123,103 +134,115 @@ void draw(){
   //Krijg de afstand. //<>// //<>//
   //afstand = distance; //<>// //<>//
   //clear(); //<>//
+  
+  if(canSendDisDir){
+    canSendDisDir = false;
+    disDir[0] = afstand;
+    disDir[1] = directionToDegrees(staticArrowX, staticArrowY);
+    verzend(0x42, disDir);
+  }
    //<>//
   drawBackground(); //<>//
   drawKeys();
   drawSpeedMeter(343);
   checkMovedAndClicked(); //<>//
   drawValues(); //<>//
+  drawSendButton();
  
   
 }
 
-int waitForMessage(){
-  while(!receivedSomething){
-    println("received nothing yet");
+void drawSendButton(){
+  fill(0,255,0);
+  rect(50, 510, 300, 40);
+  fill(255);
+  text("Uitvoeren", 60, 545);
+
+}
+
+boolean isButton(){
+  if(mouseX > 50 && mouseX < 350 && mouseY > 510 && mouseY < 550){
+    return true;
+  }else{
+    return false;
   }
-  println("Received something");
+}
+
+boolean waitForMessage(){
+  ACK_startTime = millis();
+  while(!ACK_received){
+    //println(" ");
+   //delay(1);
+   if((ACK_startTime+1000)<millis()){
+     println("ACK Timed out");
+     canSend = false;
+     return false;
+   }
+  }
+  ACK_received = false;
+  //println("Received ACK");
   startTimer = millis();
-  return receivedData;
+  return true;
 }
 
 boolean verzend(int header, int data[]){
-   println("---------------------------------");
-   println("attempting to send  header");
-   header += data.length;
-   
-   myPort.write(header);
-   message  = waitForMessage();
-   println("                                       " +message);
-   if(message == ACK){
-     println("ACK Received");
-   }else if(message == NACK){
+  
+  //println("---------------------------------");
+  header += data.length;
+  //print(header+ " ");
+  for(int i=0; i<data.length; i++){
+    //print(data[i]+ " ");
+  }
+  //println(" "); 
+    //println("attempting to send  header");
+   if(!canSend) {
      return false;
    }else{
-     //return false;
+     myPort.write(header);
    }
-   println("header send");
+   
+   //println("header send, attempting to send data");
+   // println("attempting to send data:");
    for(int msg = 0; msg < data.length; msg++){
-     println("attempting to send data:");
-     myPort.write(data[msg]);
-     message  = waitForMessage();
-     if(message == ACK){
-     }else if(message == NACK){
+     if(!canSend) {
        return false;
      }else{
-       //return false;
+       myPort.write(data[msg]);
      }
-     println("Data send");
+     
+     //println("Data send");
    }
+   //println("Waiting for ACK:");
+   if(!waitForMessage()){
+     
+     return false;
+   }
+  
+     
+   //println("Data send");
    return true;
 }
 
 
 void serialEvent(Serial test){
   
-  receivedSomething = true;
+  
   receivedData = test.read();
+  if(receivedData == 6){
+     ACK_received = true;
+     canSend = false;
+     println("ACK received on serial");
+  }else if(receivedData == NACK){
+    println("NACK received");
+  
+  }else{
+    print((char)receivedData);
+  }
+  //println("I GOT A MESSGGE "+ receivedData+"  ->  "+); 
+  
 }
 
-
-/* //<>//
-void serialEvent(Serial test){ //<>//
-  println(myPort.available()); 
-  //for(int x = 0; x < myPort.available(); x++){
-    int receivedData = test.read();
-     if(receivedData == ACK){
-       println("ACK Received");
-       ACK_received = true;
-       startTimer = millis();
-     }else if(receivedData == NACK){
-       NACK_received = true;
-       startTimer = millis();
-     }else{
-       //print((char)receivedData);
-     }
-     
-     
-     
-    if(!headerSend){
-      myPort.write(0x21); //<>//
-      headerSend = true; //<>//
-    }else if(ACK_received) {
-      println("ack received");
-      myPort.write(keysToNumber()); //<>// //<>//
-      headerSend = false;
-      ACK_received = NACK_received = false;
-    } else if(NACK_received) {
-      println("nack received");
-      headerSend = false;
-      ACK_received = NACK_received = false;      
-    } else{
-      //println("waiting");
-    }
-    //while(!newCommand){}
-  //}
-}
-
-*/
-
+ //<>// //<>// //<>// //<>// //<>//
 void checkMovedAndClicked(){
   if(clickedOnDirection){
     drawArrow(directionOffsetX+200, directionOffsetY + 200, staticArrowX, staticArrowY, 255,0,0);
@@ -329,6 +352,9 @@ void mouseClicked(){
      staticArrowY = endArrowY;
      clickedOnDirection = true;
   }
+  if(isButton()){
+    canSendDisDir = true;
+  }
 }
 
 void mouseMoved(){
@@ -422,5 +448,6 @@ int keysToNumber(){
   if(keyList[3]){
     dataToSend += 1;
   }
+  //println("Data to send                                                             "+dataToSend);
   return dataToSend;
 }
