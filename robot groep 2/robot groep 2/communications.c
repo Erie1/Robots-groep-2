@@ -8,8 +8,8 @@
 
 #include "communications.h"
 #include "MotorControl.h"
-#include "../../shared/twi_codes.h"
 #include "i2c.h"
+#include "../../shared/twi_codes.h"
 #include <stdint.h>
 #include <util/twi.h>
 #include <avr/interrupt.h>

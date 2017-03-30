@@ -9,9 +9,7 @@
 
  #include "rp6aansluitingen.h"
  #include "MotorControl.h"
- #include "i2c.h"
  #include <stdlib.h>
- #include <avr/io.h>
  #include <avr/interrupt.h>
 
  Wheel right;
