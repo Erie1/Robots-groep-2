@@ -26,10 +26,15 @@
  /* interupt service routine for input from the pc                       */
  /************************************************************************/
  ISR(USART0_RX_vect){
-	UCSR0B &= ~(1 << RXCIE0);
+	//UCSR0B &= ~(1 << RXCIE0);
 	char mode = UDR0;
-	char dataAmount = mode & 0x1F; //Bitmask for data ammount.
+	int dataAmount = mode & 0x1F; //Bitmask for data ammount.
 	char data[dataAmount];
+	/*
+	writeString("DataAmmount: ");
+	writeInteger(dataAmount, 10);
+	writeString("\n\r");
+	*/
 	// receive data bytes and store them in an array
 	for(int i = 0; i < dataAmount; i++){
 		while(!(UCSR0A & (1 << RXC0))){}
@@ -39,12 +44,35 @@
 			
 	}
 	// decide what to do with data 0xE0 Bitmask 3 MSB's
+	/*
+	writeString("Received command: ");
+	writeInteger((mode & 0xE0), 10);
+	writeString("\n");
+	*/
 	switch (mode & 0xE0){
+		
 		case COM_CONTROL:
+			writeChar(ACK);
 			usartToMotors(data[0]);
+			//writeString("Usart to motors\n");
+			//writeChar(ACK);
 			break;
 		case COM_AFSTANDRICHTING :
+			/*
+			writeString("Direction: ");
+			writeInteger(data[0], 10);
+			writeString("  Speed: ");
+			writeInteger(data[1], 10);
+			writeString("  Distance: ");
+			writeInteger(data[2], 10);
+			writeString("\n");
+			*/
+			//writeChar('.');
+			
 			distanceAndDirection(data);
+			writeChar(ACK);
+			
+			//writeChar(ACK);
 			break;
 		case COM_PARCOURS :
 			getParcours(data);
@@ -59,9 +87,9 @@
 			writeChar(NACK);
 			break;
 	 }
-
-	 writeChar(ACK);
-	 UCSR0B |= 1 << RXCIE0;
+	
+	
+	 //UCSR0B |= 1 << RXCIE0;
  }
  
  

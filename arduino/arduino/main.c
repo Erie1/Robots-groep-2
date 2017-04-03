@@ -8,7 +8,7 @@
 #include "communications.h"
 #include "sensors.h"
 #include "i2c_communication.h"
-
+#include "i2c_mst.h"
 #include "evasion.h"
 
 #include <avr/interrupt.h>
@@ -25,6 +25,12 @@ int main(void)
 		
 	   //if(getBlocked() == 0xF0) evade();
 	   // if(parcours == 1) driveParcours();
-	   //if(followDirection == 1) changeDirection();
+	   
+	   writeString("Comp: ");
+	   writeInteger(getCompass(), 10);
+	   writeString("\n");
+	   
+	   //writeChar('.');
+	   if(followDirection == 1) changeDirection();
     }
 }

@@ -20,6 +20,8 @@ void driveParcours();
 void init_timer1();
 void init_PCINT2();
 
+
+uint8_t adjust;
 // a structure containing information for driving a distance in a direction
 typedef struct DistanceDirection {
 	uint8_t direction;

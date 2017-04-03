@@ -54,22 +54,24 @@ uint8_t verzendByte() {
 /* functie die wordt aangeroepen als er data is ontvangen van de master */
 /************************************************************************/ 
 void ontvangData(uint8_t data[], uint8_t tel){
-	writeString("IK HEB DAYAYAYAYAJ");
+	writeString("IK HEB DATA!: ");
 	for(int i = 1; i < tel; ++i)
 	    data_ont[i - 1] = data[i];
-
+	writeInteger(data[0], 10);
+	writeString(" < \n");
 	switch (data[0]) {
+		
 		case EMERGENCY_BRAKE:
 			emergencyBrake();
 			break;
 		case SET_DISTANCE:
-			/*
+			
 			writeString("Setting distance to: ");
+			writeInteger(data[0], 10);
+			writeString(", and speed to: ");
 			writeInteger(data[1], 10);
-			writeString(",  ");
-			writeInteger(data[2], 10);
 			writeString("\n\r");
-			*/
+			
 			driveDistance(data[1], data[2]);
 			
 			break;

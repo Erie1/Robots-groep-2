@@ -24,6 +24,8 @@ void usartToMotors(char leftOver){
 
 void distanceAndDirection(char data[]){
 	drive = (DistanceDirection) { data[0], data[1], data[2] };
+	followDirection = 1;
+	adjust = 1;
 }
 
 void getParcours(char dataOnt[]){

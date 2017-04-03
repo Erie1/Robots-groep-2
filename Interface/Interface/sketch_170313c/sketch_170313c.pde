@@ -54,7 +54,7 @@ boolean drawArrow = false;
 ControlP5 distanceBox;
 
 int array[] = new int[1];
-int disDir[] = new int[2];
+int disDir[] = new int[3];
 
 
 boolean canSend;
@@ -88,7 +88,7 @@ void setup(){
   
   //Open serial communcation on first open port
   
-  String portName = "COM8";
+  String portName = "COM4";
   //String portName = Serial.list()[(Serial.list().length-1)]; 
   
   if(Serial.list().length > 0){
@@ -110,11 +110,7 @@ void setup(){
 void draw(){
    // //<>//
   println("---------------------------------------------"); //<>//
-  array[0] = keysToNumber();
-  println("Array[0]: "+array[0]);
-  println("Frame: "+frames++);
-  canSend = true; 
-  verzend(0x20, array);
+  
   //<>//
   //<>//
    //<>//
@@ -137,11 +133,27 @@ void draw(){
   
   if(canSendDisDir){
     canSendDisDir = false;
-    disDir[0] = afstand;
-    disDir[1] = directionToDegrees(staticArrowX, staticArrowY);
-    verzend(0x42, disDir);
+    println("Attempting to send distance, direction and speed");
+    disDir[0] = directionToDegrees(staticArrowX, staticArrowY);
+    disDir[1] = 100;
+    if(afstand > 255){
+      afstand = 255;
+    }
+    canSend = true;
+    disDir[2] = afstand;
+    if(!verzend(0x40, disDir)){
+      println("Something went wrong");
+    }
+  }else{
+    array[0] = keysToNumber();
+    println("Array length: "+array.length);
+    println("Array[0]: "+array[0]);
+    
+    canSend = true; 
+    println("Attempting to send control data");
+    verzend(0x20, array);
   }
-   //<>//
+  println("Frame: "+frames++); //<>//
   drawBackground(); //<>//
   drawKeys();
   drawSpeedMeter(343);
@@ -173,7 +185,7 @@ boolean waitForMessage(){
   while(!ACK_received){
     //println(" ");
    //delay(1);
-   if((ACK_startTime+5000)<millis()){
+   if((ACK_startTime+2000)<millis()){
      println("ACK Timed out");
      canSend = false;
      return false;
@@ -232,7 +244,7 @@ void serialEvent(Serial test){
      ACK_received = true;
      canSend = false;
      println("ACK received on serial");
-  }else if(receivedData == NACK){
+  }else if(receivedData == 0X15){
     println("NACK received");
   
   }else{

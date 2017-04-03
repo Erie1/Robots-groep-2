@@ -8,12 +8,14 @@
 
  #include "sensors.h"
  #include "i2c_communication.h"
+ #include "i2c_mst.h"
 
  #include <avr/interrupt.h>
 
  void changeDirection();
 
- uint8_t adjust;
+ 
+ int timesRun = 0;
 
 // initializes all the sensors
 void initSensors(){
@@ -26,27 +28,49 @@ void initSensors(){
 // function used for driving in a certain direction and keeping that direction
 void changeDirection(){
 	// check if the robot isn't finished or crashed
-	uint8_t blocked = getBlocked();
+	//writeString("Attempting to change the direction!!!!");
+	//uint8_t blocked = getBlocked();
+	/*
 	if(blocked == 0x0F) {
 		followDirection = 0;
-		adjust = 1;
-		verzendenRP6(UNBLOCK);
 		return;
-	}
+}		adjust = 1;
+verzendenRP6(UNBLOCK);
 
+	*/
+	timesRun++;
 	// set the rp6 to drive forward at the desired speed when pointing the right direction
 	uint8_t compass = getCompass();
-	if((compass == drive.direction) && adjust) {
+	
+	//uint8_t compass = 64;
+	
+	if((abs(compass - drive.direction) < 10) && adjust) {
 		brake(); 
+		//writeString("I am in the right direction!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!n");
 		char temp[] = { SET_DISTANCE, drive.speed, drive.distance };
 		verzenden_array(DEVICE_ADRES, temp, 3);
 		adjust = 0;
 	}
-
+	/*
+	writeString("Adjust: ");
+	writeInteger(adjust, 10);
+	writeString("\nturning: ");
+	writeInteger(timesRun, 10);
+	writeString("\n");
+	*/
+	
 	// adjust the robot a little bit so it stays on course
 	int turn = drive.direction - compass;
-	if(turn > 127 && turn <= -127) verzendenRP6(TURN_RIGHT);
-	else verzendenRP6(TURN_LEFT); 
+	if(turn > 127 && turn <= -127){ 
+		writeString("attempting to turn right");
+		verzendenRP6(TURN_RIGHT);
+		writeString("Done\n");
+	}else{ 
+		writeString("Attempting to turn left");
+		verzendenRP6(TURN_LEFT);
+		writeString("Done\n");
+		
+	}
  }
 
  void driveParcours(){
@@ -99,9 +123,12 @@ void changeDirection(){
  /** ***********************************************************************************/
  /* Pin Chance interrupt2 service routine called upon when sensor pin state chances   */
  /************************************************************* ************************/
+ 
+ /*
  ISR(INT3_vect)
  {
 	 sensorDistance = TCNT1;
 	 if(sensorDistance < 8.0) emergencyBrake();
 	 TCNT1 = 0;
  }
+ */

@@ -25,7 +25,7 @@
 	sei(); //De slave van i2c werkt met interrupt
 	fired = 0;
 	PORTD |= 1 << PIND4;
-
+	
 	while(1){
 		if(leftDesiredSpeed > 255) leftDesiredSpeed = 255;
 		if(leftDesiredSpeed < -255) leftDesiredSpeed = -255;
