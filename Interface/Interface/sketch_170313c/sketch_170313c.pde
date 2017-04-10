@@ -97,8 +97,8 @@ void setup(){
   //Open serial communcation on first open port
   
   //Begin communicatie op de laaste poort
-  //String portName = "COM4";
-  String portName = Serial.list()[0]; 
+  String portName = "COM6";
+  //String portName = Serial.list()[0]; 
   
   if(Serial.list().length > 0){
     myPort = new Serial(this, portName, 9600);
@@ -112,19 +112,19 @@ void setup(){
   //Wait 4 seconds to make sure it's all ready.
   delay(4000);
 }
- //<>//
+ //<>// //<>//
 
 
- //<>//
+ //<>// //<>//
 void draw(){
-    //<>//
-  println("---------------------------------------------"); //<>//
+    //<>// //<>//
+  println("---------------------------------------------"); //<>// //<>//
   
-  //Krijg de afstand. //<>// //<>// //<>// //<>// //<>// //<>// //<>//
+  //Krijg de afstand. //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>//
   afstand = int(distanceBox.get(Textfield.class, " ").getText());
   distanceBox.get(Textfield.class, " ").isFocus();
  
-  //Als de richting, afstand en snelheid verstuurd kan worden, doe dat. //<>// //<>// //<>// //<>//
+  //Als de richting, afstand en snelheid verstuurd kan worden, doe dat. //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>//
   if(canSendDisDir){
     canSendDisDir = false;
     println("Attempting to send distance, direction and speed");
@@ -153,14 +153,14 @@ void draw(){
     boolean send;
     do{
       send = verzend(0x20, array);
-    }while(!send);
+    }while(!send); //<>//
   }
   
-  println("Frame: "+frames++); //<>//
+  println("Frame: "+frames++); //<>// //<>//
   
   //Teken de huidige canvas.
-  drawBackground(); //<>//
-  drawKeys();
+  drawBackground(); //<>// //<>//
+  drawKeys(); //<>//
   drawSpeedMeter(343);
   checkMovedAndClicked(); //<>//
   drawValues(); //<>//
@@ -222,7 +222,10 @@ boolean verzend(int header, int data[]){
      else
         return false;
   }
-  return waitForMessage();
+  if(!waitForMessage()){
+    return false;
+  }
+  return true;
 }
 
 //Wordt uitgevoerd wanneer er data wordt ontvagen via de seriele poort.
@@ -242,7 +245,7 @@ void serialEvent(Serial test){
     print((char)receivedData);
   }
 }
-
+ //<>//
 //Wordt aangeroepen wanneer de muis is bewogen //<>//
 void checkMovedAndClicked(){
   if(clickedOnDirection){
