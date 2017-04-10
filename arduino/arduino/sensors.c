@@ -11,6 +11,7 @@
  #include "i2c_mst.h"
 
  #include <avr/interrupt.h>
+ #include <stdlib.h>
 
  void changeDirection();
 
