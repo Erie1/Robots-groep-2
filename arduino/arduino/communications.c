@@ -44,35 +44,12 @@
 			
 	}
 	// decide what to do with data 0xE0 Bitmask 3 MSB's
-	/*
-	writeString("Received command: ");
-	writeInteger((mode & 0xE0), 10);
-	writeString("\n");
-	*/
 	switch (mode & 0xE0){
-		
 		case COM_CONTROL:
-			writeChar(ACK);
 			usartToMotors(data[0]);
-			//writeString("Usart to motors\n");
-			//writeChar(ACK);
 			break;
 		case COM_AFSTANDRICHTING :
-			/*
-			writeString("Direction: ");
-			writeInteger(data[0], 10);
-			writeString("  Speed: ");
-			writeInteger(data[1], 10);
-			writeString("  Distance: ");
-			writeInteger(data[2], 10);
-			writeString("\n");
-			*/
-			//writeChar('.');
-			
 			distanceAndDirection(data);
-			writeChar(ACK);
-			
-			//writeChar(ACK);
 			break;
 		case COM_PARCOURS :
 			getParcours(data);
@@ -81,15 +58,15 @@
 			continueParcours(data);
 			break;
 		case COM_REQUEST_SENSORS :
-			// sendSensors();
+			sendSensors();
 			break;
 		default:
 			writeChar(NACK);
+			return;
 			break;
 	 }
 	
-	
-	 //UCSR0B |= 1 << RXCIE0;
+	writeChar(ACK);
  }
  
  

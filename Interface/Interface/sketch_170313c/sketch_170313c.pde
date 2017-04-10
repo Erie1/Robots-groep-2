@@ -151,7 +151,10 @@ void draw(){
     
     canSend = true; 
     println("Attempting to send control data");
-    verzend(0x20, array);
+    boolean send;
+    do{
+      send = verzend(0x20, array);
+    }while(!send);
   }
   println("Frame: "+frames++); //<>//
   drawBackground(); //<>//
@@ -183,13 +186,11 @@ boolean isButton(){
 boolean waitForMessage(){
   ACK_startTime = millis();
   while(!ACK_received){
-    //println(" ");
-   //delay(1);
-   if((ACK_startTime+2000)<millis()){
-     println("ACK Timed out");
-     canSend = false;
-     return false;
-   }
+     if((ACK_startTime+2000)<millis()){
+       println("ACK Timed out");
+       canSend = false;
+       return false;
+     }
   }
   ACK_received = false;
   //println("Received ACK");
@@ -198,59 +199,36 @@ boolean waitForMessage(){
 }
 
 boolean verzend(int header, int data[]){
-  
-  //println("---------------------------------");
+  // check if data amount fits in size bitmask
+  if(data.length > 63) return false; 
   header += data.length;
-  //print(header+ " ");
-  for(int i=0; i<data.length; i++){
-    //print(data[i]+ " ");
-  }
-  //println(" "); 
-    //println("attempting to send  header");
-   if(!canSend) {
-     return false;
-   }else{
-     myPort.write(header);
-   }
-   
-   //println("header send, attempting to send data");
-   // println("attempting to send data:");
-   for(int msg = 0; msg < data.length; msg++){
-     if(!canSend) {
-       return false;
-     }else{
-       myPort.write(data[msg]);
-     }
-     
-     //println("Data send");
-   }
-   //println("Waiting for ACK:");
-   if(!waitForMessage()){
-     
-     return false;
-   }
   
-     
-   //println("Data send");
-   return true;
+  if(canSend)
+    myPort.write(header);
+  else
+    return false;
+   
+  for(int msg = 0; msg < data.length; msg++){
+     if(canSend)
+        myPort.write(data[msg]);
+     else
+        return false;
+  }
+  return waitForMessage();
 }
 
 
 void serialEvent(Serial test){
-  
-  
   receivedData = test.read();
   if(receivedData == 6){
      ACK_received = true;
      canSend = false;
      println("ACK received on serial");
-  }else if(receivedData == 0X15){
+  }else if(receivedData == 0x15){
     println("NACK received");
-  
   }else{
     print((char)receivedData);
   }
-  //println("I GOT A MESSGGE "+ receivedData+"  ->  "+); 
   
 }
 
