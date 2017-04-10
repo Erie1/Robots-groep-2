@@ -20,7 +20,7 @@
 // initializes all the sensors
 void initSensors(){
 	head->next = tail;
-	adjust = 1;
+	//adjust = 1;
 	PORTD |= (1 << PIND3); // turn on PIND2
 	init_timer1();
 }
@@ -45,32 +45,28 @@ verzendenRP6(UNBLOCK);
 	//uint8_t compass = 64;
 	
 	if((abs(compass - drive.direction) < 10) && adjust) {
-		brake(); 
+		//brake(); 
 		//writeString("I am in the right direction!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!n");
-		char temp[] = { SET_DISTANCE, drive.speed, drive.distance };
-		verzenden_array(DEVICE_ADRES, temp, 3);
+		//char temp[] = { SET_DISTANCE, drive.speed, drive.distance };
+		//verzenden_array(DEVICE_ADRES, temp, 3);
 		adjust = 0;
+	}else if(adjust == 1){
+		int turn = drive.direction - compass;
+		if(turn > 127 && turn <= -127){
+			writeString("attempting to turn right");
+			verzendenRP6(TURN_RIGHT);
+			writeString("Done\n");
+			}else{
+			writeString("Attempting to turn left");
+			verzendenRP6(TURN_LEFT);
+			writeString("Done\n");
+			
+		}
 	}
-	/*
-	writeString("Adjust: ");
-	writeInteger(adjust, 10);
-	writeString("\nturning: ");
-	writeInteger(timesRun, 10);
-	writeString("\n");
-	*/
+	
 	
 	// adjust the robot a little bit so it stays on course
-	int turn = drive.direction - compass;
-	if(turn > 127 && turn <= -127){ 
-		writeString("attempting to turn right");
-		verzendenRP6(TURN_RIGHT);
-		writeString("Done\n");
-	}else{ 
-		writeString("Attempting to turn left");
-		verzendenRP6(TURN_LEFT);
-		writeString("Done\n");
-		
-	}
+	
  }
 
  void driveParcours(){
