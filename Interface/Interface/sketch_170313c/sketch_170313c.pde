@@ -1,13 +1,13 @@
 //COPYRIGHT GROEP 2
 
+
+//import libaries
 import processing.serial.*;
 import controlP5.*;
 
-
+//Definieer variables.
 int ACK  = 0x06;
 int NACK = 0x15;
-
-
 
 int frames = 0;
 boolean ACK_received = false;
@@ -51,32 +51,40 @@ int startTimer = 0;
 
 boolean drawArrow = false;
 
+
+//Maak variable aan voor textinvoer
 ControlP5 distanceBox;
 
-int array[] = new int[1];
-int disDir[] = new int[3];
+//Maak array's aan voor het verzenden van data
+int array[] = new int[1];    //Controldata
+int disDir[] = new int[3];  //Distance and direction data
 
 
 boolean canSend;
 int receivedData;
 
+
 int ACK_startTime = 0;
 boolean canSendDisDir = false;
 
 int someCounter = 0;
+
+//Begin programma.
 void setup(){
   //Setup the canvas
   size(400,875);
   
-  
+  //Definieer snelheid voor control datqa
   frameRate(10);
-  //Draw first assets on the canvas
+  
+  
+  //Tegen op de canvas.
   drawBackground();
   drawEmptyKeys();
   drawSpeedMeter(6);
   drawDirectionBox();
   
-  //Font
+  //maak font
   PFont font1 = createFont("arial", 30);
   
   //Initialize inputBox 
@@ -88,8 +96,9 @@ void setup(){
   
   //Open serial communcation on first open port
   
-  String portName = "COM4";
-  //String portName = Serial.list()[(Serial.list().length-1)]; 
+  //Begin communicatie op de laaste poort
+  //String portName = "COM4";
+  String portName = Serial.list()[0]; 
   
   if(Serial.list().length > 0){
     myPort = new Serial(this, portName, 9600);
@@ -108,32 +117,18 @@ void setup(){
 
  //<>//
 void draw(){
-   // //<>//
+    //<>//
   println("---------------------------------------------"); //<>//
   
-  //<>//
-  //<>//
-   //<>//
-  /*
-  if((startTimer+2000) < millis()){ //<>// //<>//
-    println("retrying connection");
-      headerSend = false;
-      startTimer = millis(); //<>//
-  }
-  */
-  
-     //<>// //<>//
-   //<>//
+  //Krijg de afstand. //<>// //<>// //<>// //<>// //<>// //<>// //<>//
   afstand = int(distanceBox.get(Textfield.class, " ").getText());
   distanceBox.get(Textfield.class, " ").isFocus();
-   //<>//
-  //Krijg de afstand. //<>// //<>//
-  //afstand = distance; //<>// //<>//
-  //clear(); //<>//
-  
+ 
+  //Als de richting, afstand en snelheid verstuurd kan worden, doe dat. //<>// //<>// //<>// //<>//
   if(canSendDisDir){
     canSendDisDir = false;
     println("Attempting to send distance, direction and speed");
+    //Set afstand, richting en snelheid in de arraay
     disDir[0] = directionToDegrees(staticArrowX, staticArrowY);
     disDir[1] = 100;
     if(afstand > 255){
@@ -141,19 +136,26 @@ void draw(){
     }
     canSend = true;
     disDir[2] = afstand;
+    //Verstuur (command + groote + data);
     if(!verzend(0x40, disDir)){
       println("Something went wrong");
     }
+  //Als af, dis, richt niet kan verstuur worden, vestuur besturingsdata.  
   }else{
+    //Krijg key input.
     array[0] = keysToNumber();
     println("Array length: "+array.length);
     println("Array[0]: "+array[0]);
     
+    //Verstuur control data.
     canSend = true; 
     println("Attempting to send control data");
     verzend(0x20, array);
   }
+  
   println("Frame: "+frames++); //<>//
+  
+  //Teken de huidige canvas.
   drawBackground(); //<>//
   drawKeys();
   drawSpeedMeter(343);
@@ -164,6 +166,7 @@ void draw(){
   
 }
 
+//Functie voor tekenen van verzend knop
 void drawSendButton(){
   fill(0,255,0);
   rect(50, 510, 300, 40);
@@ -172,6 +175,7 @@ void drawSendButton(){
 
 }
 
+//Kijkt bij een muisklik of er op de knop is geklikt.
 boolean isButton(){
   if(mouseX > 50 && mouseX < 350 && mouseY > 510 && mouseY < 550){
     return true;
@@ -180,12 +184,14 @@ boolean isButton(){
   }
 }
 
+//Wacht voor een ACK van de arduino, met een timemout van 
 boolean waitForMessage(){
+  //Set startimer
   ACK_startTime = millis();
+  //zolang er nog geen ack is
   while(!ACK_received){
-    //println(" ");
-   //delay(1);
-   if((ACK_startTime+2000)<millis()){
+   //Kijkt of er een timeout is.
+    if((ACK_startTime+5000)<millis()){
      println("ACK Timed out");
      canSend = false;
      return false;
@@ -198,67 +204,54 @@ boolean waitForMessage(){
 }
 
 boolean verzend(int header, int data[]){
-  
-  //println("---------------------------------");
   header += data.length;
-  //print(header+ " ");
-  for(int i=0; i<data.length; i++){
-    //print(data[i]+ " ");
-  }
-  //println(" "); 
-    //println("attempting to send  header");
+  
+  //Verstuur header
    if(!canSend) {
      return false;
    }else{
      myPort.write(header);
    }
    
-   //println("header send, attempting to send data");
-   // println("attempting to send data:");
+    //Verstuur data
    for(int msg = 0; msg < data.length; msg++){
      if(!canSend) {
        return false;
      }else{
        myPort.write(data[msg]);
      }
-     
-     //println("Data send");
    }
-   //println("Waiting for ACK:");
-   if(!waitForMessage()){
-     
-     return false;
-   }
-  
-     
-   //println("Data send");
-   return true;
+   //Wacht voor acknowlegdement.
+   return waitForMessage();
 }
 
-
+//Wordt uitgevoerd wanneer er data wordt ontvagen via de seriele poort.
 void serialEvent(Serial test){
-  
-  
+  //Set data in variable
   receivedData = test.read();
+  //Kijk wat er ontvangen is
   if(receivedData == 6){
+     //Als er een een ack is ontvangen, zorg dat er geen nieuwe dingen worden verstuurd worden zodat de arduino niet in de war raakt.
      ACK_received = true;
      canSend = false;
      println("ACK received on serial");
+  
   }else if(receivedData == 0X15){
     println("NACK received");
-  
+    
   }else{
+    //Als waarde geen ack of nack is, print het.
     print((char)receivedData);
   }
-  //println("I GOT A MESSGGE "+ receivedData+"  ->  "+); 
-  
 }
 
- //<>// //<>// //<>// //<>// //<>//
+//Wordt aangeroepen wanneer de muis is bewogen //<>//
 void checkMovedAndClicked(){
   if(clickedOnDirection){
+    //Teken pijl
     drawArrow(directionOffsetX+200, directionOffsetY + 200, staticArrowX, staticArrowY, 255,0,0);
   }
+  //Als er bewogen is in de cirkel, tken de juiste pijlen en breken de snelheid.
   if(movedInsideDirection){
     if(drawArrow){
       drawArrow(directionOffsetX+200, directionOffsetY + 200, endArrowX, endArrowY, 0,0,0);
@@ -270,26 +263,30 @@ void checkMovedAndClicked(){
   }
 }
 
+//Print de waardes onder de circel
 void drawValues(){
   text("Direction: "+directionToDegrees(staticArrowX, staticArrowY)+"°   ("+directionToDegrees(endArrowX, endArrowY)+"°) ", directionOffsetX + 50, directionOffsetY + 400);  
   text("Snelheid:  "+newSpeed + "%  ("+drawSpeed+"%)", directionOffsetX + 50, 430); 
   text("Afstand: " + afstand + " cm", 50, 460);
   //text(millis(), 400, 400);
 }
+
+//Maak een circle aan voor de richting.
 void drawDirectionBox(){
   strokeWeight(0);
+  //Verplaats de coordinatengrid naar de juiste positie
   translate(directionOffsetX, directionOffsetY);
   
   fill(255,255,255);
   
   ellipse(200, 200, 300, 300);
   arc(200,200,300, 300, 0, TWO_PI,CHORD);
-
+  //Verplaats coordinatengrid terug.
   translate(-directionOffsetX, -directionOffsetY);
 }
 
 
-
+//Teken de cirkel.
 void drawSpeedMeter(int speed){
   strokeWeight(0);
   fill(255,255,255);
@@ -297,7 +294,7 @@ void drawSpeedMeter(int speed){
   
 }
 
-
+//Maak de achterrgrond blauw.
 void drawBackground(){
   fill(13,36,73);
   strokeWeight(0);
@@ -306,6 +303,7 @@ void drawBackground(){
   
 }
 
+//Teken grijze knoppen
 void drawEmptyKeys(){
   strokeWeight(0);
   fill(100,100,100);
@@ -314,7 +312,9 @@ void drawEmptyKeys(){
   rect(inpOffsetX+150, inpOffsetY+150, 100, 100);
   rect(inpOffsetX+275, inpOffsetY+150, 100, 100);
 }
-  
+ 
+ 
+//Wordt uitegevooer wanneer een knop worst ingedrukt, zet de waarde in een array die de knop representeerd op true,
 void keyPressed(){
   if(distanceBox.get(Textfield.class, " ").isFocus()){}else{
     if(key == 'w'){
@@ -332,6 +332,7 @@ void keyPressed(){
   }
 }
 
+//Wordt uitgevoerd wanneer een knop wordt losgelaten, zet de waarde die het represteteerd in de array op false.
 void keyReleased()
 {
   if(key == 'w'){
@@ -348,29 +349,40 @@ void keyReleased()
   }
 } 
 
+//Functie voor het berekenden van afstand. 
 int distance(int x,int y){
   //println(sqrt((x*x)+(y*y)));
   return (int)sqrt((x*x)+(y*y));
 }
 
+
+//Wanneer de muis wordt ingedrukt wordt dit uitgevoerd
 void mouseClicked(){
   //Check if mouse has been moved in direction options
+  //Als de afstand in de circle past, 
   if(distance(directionOffsetX+200-mouseX, directionOffsetY+200-mouseY ) < 155){
+     //Set de snelehdid
      newSpeed = (int)ceil(0.66666666666666666666666*distance(directionOffsetX+200-mouseX, directionOffsetY+200-mouseY));
      if(newSpeed > 100){
        newSpeed = 100;
      }
+     //Zorgt dat de rode pijl verplaastst wordt
      staticArrowX= endArrowX;
      staticArrowY = endArrowY;
+     //Set variable als er in de circel wordt geklikt.
      clickedOnDirection = true;
   }
+  //Als de knop is ingedrukt, kan de richting wroden versturd.
   if(isButton()){
     canSendDisDir = true;
   }
 }
 
+
+//Wordt uitgevoerd als de muis bewogen wordg.
 void mouseMoved(){
   //Check if mouse has been moved in direction options
+  //Als de beweging in de, cicel is, verplaats de pijl
   if(distance(directionOffsetX+200-mouseX, directionOffsetY+200-mouseY ) < 155){
     endArrowX = mouseX;
     endArrowY = mouseY;
@@ -380,9 +392,9 @@ void mouseMoved(){
   }else{
      drawArrow = false;
   }
-  //println(distance(directionOffsetX+200-mouseX, directionOffsetY+200-mouseY ));
 }
 
+//Functie voor het tekenen van pijl.
 void drawArrow(int xStart, int yStart,int xEnd,int yEnd,int R,int G,int B){
   strokeWeight(3);
   
@@ -394,13 +406,6 @@ void drawArrow(int xStart, int yStart,int xEnd,int yEnd,int R,int G,int B){
   
   line(xEnd, yEnd, xEnd + cos(-leftRotationVec)*25, yEnd + sin(-leftRotationVec)*25);
   line(xEnd, yEnd, xEnd + cos(-rightRotationVec)*25, yEnd + sin(-rightRotationVec)*25);
-  
-  //println(rotationVec);
-  
-  
-  
-  
-  
 }
 
 int directionToDegrees(int xCoord,int yCoord){
